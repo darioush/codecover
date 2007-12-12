@@ -18,7 +18,8 @@
 set -e
 set -x
 
-SF_USER_NAME="codecover"
+#SSH_OPTIONS="-l codecover -i $HOME/.ssh/id_codecover_sourceforge"
+SSH_OPTIONS=""
 
 
 
@@ -125,6 +126,11 @@ find \( -type f -a ! \( -name "*.isnew" -o -name ".*.isnew" \) \) -print0 | xarg
 find \( -type f -a \( -name "*.isnew" -o -name ".*.isnew" \) \) -print0 | xargs -0 rm -f --
 # Delete old directories
 delalldirs
+# Clean up permissions
+chmod u+rwX -R . 2> /dev/null || :
+chmod g+rwX -R . 2> /dev/null || :
+chmod o+rX -R . 2> /dev/null || :
+chmod o-w -R . 2> /dev/null || :
 cd ..
 echo "Ok, I (setup.sh) am done."
 EOF
@@ -202,7 +208,7 @@ tar cjf website.tar.bz2 website setup.sh move-files.sh rename-files.sh cleanup-o
 rm -rf website
 
 # Ok. Next will put it to sourceforge and continue there.
-ssh -ax -- "$SF_USER_NAME@shell.sourceforge.net" '
+ssh -ax $SSH_OPTIONS -- shell.sourceforge.net '
 set -ex
 
 cd /home/groups/c/co/codecover
