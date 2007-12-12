@@ -29,6 +29,7 @@ m4_define(`m4_web_create_page_header', `
         m4_web_link_external(`http://sourceforge.net/forum/?group_id=206367', `Forum', `CodeCover Forum')
       ', `id="support"')
       m4_web_link(`development/index.html', `Development', `CodeCover Development')
+      m4_web_link_external(`http://sourceforge.net/projects/codecover/', `SF Project', `SourceForge Project Site')
       m4_web_link(`about/index.html', `Contact', `Contact')
     </ul>
     <div class="clear"></div>
