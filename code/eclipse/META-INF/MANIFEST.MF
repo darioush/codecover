@@ -1,0 +1,33 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: CodeCover Plug-in
+Bundle-SymbolicName: org.codecover.eclipse;singleton:=true
+Bundle-Version: 1.0.0.0
+Bundle-Activator: org.codecover.eclipse.CodeCoverPlugin
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jdt.ui,
+ org.eclipse.jdt.core,
+ org.eclipse.ui.ide,
+ org.eclipse.core.resources,
+ org.eclipse.jface.text,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.debug.core,
+ org.eclipse.jdt.launching,
+ org.eclipse.jdt.junit,
+ org.eclipse.debug.ui,
+ org.eclipse.core.expressions,
+ org.codecover.model,
+ org.codecover.instrumentation,
+ org.codecover.instrumentation.java,
+ org.codecover.instrumentation.java.junit,
+ org.codecover.instrumentation.java.measurement,
+ org.codecover.metrics,
+ org.codecover.report,
+ org.codecover.report.html,
+ org.codecover.report.csv,
+ org.eclipse.ui.console,
+ org.eclipse.search
+Eclipse-LazyStart: true
+

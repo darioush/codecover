@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.codecover.model
+Bundle-SymbolicName: org.codecover.model;singleton:=true
+Bundle-Version: 1.0.0.0
+Export-Package: org.codecover,
+ org.codecover.model,
+ org.codecover.model.exceptions,
+ org.codecover.model.extensions,
+ org.codecover.model.mast,
+ org.codecover.model.utils,
+ org.codecover.model.utils.criteria,
+ org.codecover.model.utils.file,
+ org.codecover.model.utils.file.listener
+Eclipse-BuddyPolicy: dependent
+Bundle-ClassPath: bin, lib/svnkit.jar
