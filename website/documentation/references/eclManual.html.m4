@@ -177,7 +177,7 @@ m4_web_create_page_header(`Eclipse Plugin Reference')
       <dd> Lists all methods. </dd>
     </dl>
     <p> Above the tree visualization a simple filter is shown which filters methods by their
-      degree of coverage. You can activate or deactivate the filter using the (rightmost)
+      degree of coverage. You can activate or deactivate the filter using the (leftmost)
       check box.</p>
     <h3><a name="BooleanAnalyzer" id="BooleanAnalyzer"></a>Boolean Analyzer</h3>
     <p><a href="../../images/ecl-img/Boolean_Analyzer_Screenshot.png"> <img src="../../images/ecl-img/Boolean_Analyzer_Screenshot_small.png" alt="Matrix_Screenshot" height="209" width="600"/></a></p>
