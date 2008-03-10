@@ -11,7 +11,8 @@ m4_web_create_page_header(`Contact')
     <a href="http://www.iste.uni-stuttgart.de/se/einstieg_se_e.html">Software
     Engineering Research Group</a>.</p>
     <p>You can contact us through our
-    <a href="http://sourceforge.net/mail/?group_id=206367">mailing list</a>.</p> 
+    <a href="http://sourceforge.net/mail/?group_id=206367">mailing list</a>.</p>
+    <p>Or visit us in #codecover on irc.oftc.net.</p>
     <h3>Developers</h3>
     <p>
     Stefan Franke<br />
