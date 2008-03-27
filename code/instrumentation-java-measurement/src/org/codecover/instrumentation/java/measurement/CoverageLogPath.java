@@ -98,8 +98,8 @@ public class CoverageLogPath {
      */
     private static String getDefaultPath() {
         return DEFAULT_TARGET_FILE_NAME + "-" + 
-        COVERAGE_LOG_DATE_SUFFIX.format(new Date()) + 
-        "." + DEFAULT_TARGET_FILE_EXTENSION;
+               COVERAGE_LOG_DATE_SUFFIX.format(new Date()) + "." +
+               DEFAULT_TARGET_FILE_EXTENSION;
     }
 
     /**
@@ -113,18 +113,18 @@ public class CoverageLogPath {
      * @see CoverageResultLogFile#getInstance()
      */
     public static File getCoverageLogFile(String preferredPath) {
-        if (usedPath != null) {
-            return usedPath;
-        }
-
         // just one Thread can create the path of the coverage log file 
         synchronized (LOCK) {
+            if (usedPath != null) {
+                return usedPath;
+            }
+
             String clfPath = null;
 
             // try the PROPERTY_PATH_VARIABLE
             try {
                 clfPath = System.getProperty(PROPERTY_PATH_VARIABLE);
-            } catch (RuntimeException e) {
+            } catch (Throwable t) {
                 // access was not allowed
             }
 
@@ -132,7 +132,7 @@ public class CoverageLogPath {
             if (clfPath == null) {
                 try {
                     clfPath = System.getenv(ENVIRONMENT_PATH_VARIABLE);
-                } catch (RuntimeException e) {
+                } catch (Throwable t) {
                     // access was not allowed
                 }
             }
@@ -163,7 +163,7 @@ public class CoverageLogPath {
                         overwriteProp.equals("no")) {
                     clfFile = getAlternativeFile(clfFile).getAbsoluteFile();
                 }
-            } catch (RuntimeException e) {
+            } catch (Throwable t) {
                 // access was not allowed
             }
 
