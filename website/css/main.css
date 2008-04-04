@@ -176,6 +176,7 @@ padding-left:4em;
 }
 
 
+
 .mainInformationEntry h3 {
         font-size: 12pt;
         color: #0066cc;
@@ -190,9 +191,33 @@ padding-left:4em;
         width:40%;
         float:left;
 }
+
+#content {
+	font-size: 12pt;
+	float:left;
+	border: 1px solid #dddddd;
+}
+
+#content p {
+	font-weight: bold;
+	background-color: #eeeeee;
+	border: 10px solid #eeeeee;
+ }
+
+
+#content ul {
+	list-style-image: url(../images/bulletArrow.gif);
+ }
+
+#content ul li {
+	border-bottom: #ffffff solid 10px;
+ }
+
+
 #features {
         list-style: none;
 }
+
 #features li {
         float: left;
         width: 164px;
