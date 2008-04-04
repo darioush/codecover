@@ -13,7 +13,7 @@ div.content {
         background-color: #FFFFFF;
         padding: 20px;
         margin: auto;
-        width: 760px;
+        width: 800px;
         border: 1px solid #00497B;
 }
 pre {
@@ -193,6 +193,7 @@ padding-left:4em;
 }
 
 #content {
+	margin-top: 0px;
 	font-size: 12pt;
 	float:left;
 	border: 1px solid #dddddd;
