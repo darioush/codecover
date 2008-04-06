@@ -13,11 +13,11 @@ m4_web_create_page_header(`CodeCover - an open-source glass box testing tool')
 <div id="content">
 <table>
 <tr>
-<td width="50%">
+<td>
 <p>The benefit of glass box testing</p>
 </td>
 <td>
-<p>Codecover capabilities
+<p>Codecover capabilities</p>
 </td>
 </tr>
 
@@ -25,28 +25,28 @@ m4_web_create_page_header(`CodeCover - an open-source glass box testing tool')
 <td valign="top">
 
 <ul>
-<li><b>Testing adequacy metric</b><br>
+<li><b>Testing adequacy metric</b><br />
 Coverage is an objective adequacy metric which can be used for
 example as a test completion criterion.
 </li>
 
-<li><b>Test suite extension</b><br>
+<li><b>Test suite extension</b><br />
 The glass box test denotes the program elements which were not
 executed.
 </li>
 
-<li><b>Test suite reduction</b><br>
+<li><b>Test suite reduction</b><br />
 Removing (redundant) test cases from a test suite to reduce
 regression testing effort without (significantly) decreasing testing
 effectiveness
 </li>
 
-<li><b>Basis for selective regression testing</b><br>
+<li><b>Basis for selective regression testing</b><br />
 Instead of "rerun-all" in regression testing, only those test cases
 are selected that were "involved" in the code modification.
 </li>
 
-<li><b>Support for program comprehension</b><br>
+<li><b>Support for program comprehension</b><br />
 The glass box test denotes which program code is executed by
 which test case (traceablity).
 </li>
@@ -55,35 +55,35 @@ which test case (traceablity).
 </td>
 <td valign="top">
 <ul>
-<li><b>General</b><br>
+<li><b>General</b><br />
 CodeCover is a free glass box testing tool developed in 2007 at the University of Stuttgart (<a href="http://www.iste.uni-stuttgart.de/se/einstieg_se.html">ISTE</a>).
 </li>
 
-<li><b>Coverage metrics</b><br>
+<li><b>Coverage metrics</b><br />
 CodeCover measures statement, branch, loop, and MC/DC coverage
 </li>
 
-<li><b>Reports</b><br>
+<li><b>Reports</b><br />
 CodeCover uses the template engine Velocity. 
 </li>
 
-<li><b>Platform</b><br>
+<li><b>Platform</b><br />
 Command line (Linux, Windows, Mac OS) and Eclipse and Ant integration
 </li>
 
-<li><b>Programming Languages</b><br>
+<li><b>Programming Languages</b><br />
 Open language interface, available languages: Java and COBOL
 </li>
 
-<li><b>Licence</b><br>
+<li><b>Licence</b><br />
 Eclipse Public Licence (EPL)
 </li>
 
-<li><b>Quick Overview</b><br>
+<li><b>Quick Overview</b><br />
 See presentation slides <a href="http://www.iste.uni-stuttgart.de/se/publications/download/SE2008_Rainer_Schmidberger_Folien.pdf">[pdf]</a>.
 </li>
 
-	
+</ul>
 
 </td>
 </tr>
