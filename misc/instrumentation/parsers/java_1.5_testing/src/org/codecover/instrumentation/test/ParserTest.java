@@ -21,18 +21,25 @@ import java.util.zip.ZipFile;
 import org.codecover.CodeCoverInfo;
 import org.codecover.UtilsForTestingJava;
 import org.codecover.instrumentation.HierarchyLevelContainer;
-import org.codecover.instrumentation.Instrumenter;
 import org.codecover.instrumentation.java.measurement.MeasurementTimer;
 import org.codecover.instrumentation.java15.HierarchyLevelTypeProvider;
 import org.codecover.instrumentation.java15.InstrumenterDescriptor;
 import org.codecover.instrumentation.java15.InstrumenterTestHook;
 import org.codecover.instrumentation.java15.UnicodeEscapeTest;
 import org.codecover.instrumentation.java15.parser.JavaParser;
+import org.codecover.instrumentation.java15.parser.ParseException;
 import org.codecover.model.MASTBuilder;
 import org.codecover.model.mast.HierarchyLevelType;
 import org.codecover.model.utils.file.FileTool;
 
 /**
+ * Diese Klasse parst alle Quellen in {@link #SOURCE_ARRAY}. Dies ist ein Test, ob
+ * die Quellen evtl. Java-konforme Konstrukte enthalten, die der Parser aber nicht versteht.
+ * 
+ * Im {@link #SOURCE_ARRAY} können sowohl jar, zip als auch Ordner angegeben werden.
+ * 
+ * Diese werden alle geparst und evtl. {@link ParseException} weisen auf Fehler im Parser hin.
+ * 
  * @author Christoph Müller
  * @version 1.0 ($Id$)
  */
