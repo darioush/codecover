@@ -341,6 +341,7 @@ public interface ]]></replacevalue>
       	    <include name="ForStatement.java"/>
       	    <include name="TryStatement.java"/>
       	    <include name="ExplicitConstructorInvocation.java"/>
+            <include name="FieldDeclaration.java"/>
             <replacetoken><![CDATA[implements Node {]]></replacetoken>
             <replacevalue><![CDATA[implements Node {
    public String statementID = null;
@@ -377,6 +378,7 @@ public interface ]]></replacevalue>
 			<fileset dir="org/codecover/instrumentation/java15/parser">
 				<include name="*.java"/>
 				<exclude name="NodeToken.java"/>
+                <exclude name="JavaCharStream.java"/>
 			</fileset>
 		</replaceregexp>
 		<replaceregexp match="^"
