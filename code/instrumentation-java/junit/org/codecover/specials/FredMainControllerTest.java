@@ -14,8 +14,8 @@ package org.codecover.specials;
 import static org.codecover.UtilsForTestingJava.SOURCE;
 import static org.codecover.UtilsForTestingJava.TARGET;
 import static org.codecover.UtilsForTestingJava.handleException;
-import static org.codecover.UtilsForTestingJava.simpleTestSessionContainerTests;
 import static org.codecover.UtilsForTestingJava.locationAssertion;
+import static org.codecover.UtilsForTestingJava.simpleTestSessionContainerTests;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,9 +31,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.codecover.UtilsForTestingJava;
-import org.codecover.instrumentation.DefaultInstrumenterFactory;
 import org.codecover.instrumentation.Instrumenter;
-import org.codecover.instrumentation.InstrumenterFactory;
 import org.codecover.instrumentation.exceptions.InstrumentationException;
 import org.codecover.instrumentation.java15.InstrumenterDescriptor;
 import org.codecover.instrumentation.java15.parser.JavaParser;
@@ -46,10 +44,6 @@ import org.codecover.instrumentation.java15.visitor.Visitor;
 import org.codecover.model.MASTBuilder;
 import org.codecover.model.TestSessionContainer;
 import org.codecover.model.mast.HierarchyLevel;
-import org.codecover.model.utils.criteria.BranchCoverage;
-import org.codecover.model.utils.criteria.ConditionCoverage;
-import org.codecover.model.utils.criteria.LoopCoverage;
-import org.codecover.model.utils.criteria.StatementCoverage;
 import org.codecover.model.utils.file.SourceTargetContainer;
 
 /**

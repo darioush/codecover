@@ -11,11 +11,10 @@
 
 package org.codecover.instrumentation.java15.syntaxtree;
 
-import org.codecover.instrumentation.java15.parser.Token;
-import org.codecover.instrumentation.java15.syntaxtree.NodeToken;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
+import org.codecover.instrumentation.java15.parser.Token;
 
 /**
  * @author Christoph Müller

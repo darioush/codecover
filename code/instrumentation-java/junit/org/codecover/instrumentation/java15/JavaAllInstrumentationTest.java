@@ -24,7 +24,6 @@ import static org.codecover.UtilsForTestingJava.simpleTestSessionContainerTests;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -36,7 +35,6 @@ import org.codecover.UtilsForTestingJava;
 import org.codecover.instrumentation.DefaultInstrumenterFactory;
 import org.codecover.instrumentation.Instrumenter;
 import org.codecover.instrumentation.InstrumenterFactory;
-import org.codecover.instrumentation.exceptions.FactoryMisconfigurationException;
 import org.codecover.instrumentation.exceptions.InstrumentationException;
 import org.codecover.model.MASTBuilder;
 import org.codecover.model.TestSessionContainer;

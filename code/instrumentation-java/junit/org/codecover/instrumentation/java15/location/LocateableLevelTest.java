@@ -13,14 +13,13 @@ package org.codecover.instrumentation.java15.location;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
 import org.codecover.UtilsForTestingJava;
 import org.codecover.model.MASTBuilder;
 import org.codecover.model.mast.Location;
-import org.codecover.model.mast.LocationList;
 import org.codecover.model.mast.SourceFile;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
 /**
  * @author Christoph Müller

@@ -14,10 +14,10 @@ package org.codecover.instrumentation.java15.counter;
 import java.io.StringWriter;
 import java.util.UUID;
 
-import org.codecover.instrumentation.java.measurement.CoverageResultLogFile;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
+import org.codecover.instrumentation.java.measurement.CoverageResultLogFile;
 
 /**
  * @author Christoph Müller

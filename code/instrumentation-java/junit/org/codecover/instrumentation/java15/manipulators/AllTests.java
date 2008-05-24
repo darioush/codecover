@@ -9,7 +9,7 @@
  * http://www.eclipse.org/legal/epl-v10.html                                  *
  ******************************************************************************/
 
-package org.codecover.instrumentation.java15.location;
+package org.codecover.instrumentation.java15.manipulators;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -17,7 +17,7 @@ import junit.swingui.TestRunner;
 
 /**
  * @author Christoph Müller
- * @version 1.0 ($Id$)
+ * @version 1.0 ($Id: AllTests.java 1 2007-12-12 17:37:26Z t-scheller $)
  */
 public class AllTests extends TestSuite {
 
@@ -47,7 +47,7 @@ public class AllTests extends TestSuite {
         TestSuite suite = new TestSuite(AllTests.class.getCanonicalName());
 
         // add testcases in this package
-        suite.addTestSuite(LocateableLevelTest.class);
+        suite.addTestSuite(DefaultCommentManipulatorTest.class);
 
         // add testsuites in subpackages
         //suite.addTest(org.codecover.instrumentation.java15.measurement.AllTests.suite());

@@ -12,7 +12,6 @@
 package org.codecover.instrumentation;
 
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;

@@ -15,8 +15,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.swingui.TestRunner;
 
-import org.codecover.UtilsForTestingJava;
-
 /**
  * @author Christoph Müller
  * @version 1.0 ($Id$)

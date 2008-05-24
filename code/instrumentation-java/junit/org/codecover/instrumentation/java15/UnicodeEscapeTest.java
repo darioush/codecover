@@ -11,6 +11,8 @@
 
 package org.codecover.instrumentation.java15;
 
+import static org.codecover.UtilsForTestingJava.TEST_SOURCE;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -18,13 +20,11 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
-import org.codecover.UtilsForTestingJava;
-import org.codecover.model.utils.file.FileTool;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import static org.codecover.UtilsForTestingJava.TEST_SOURCE;
+import org.codecover.UtilsForTestingJava;
+import org.codecover.model.utils.file.FileTool;
 
 /**
  * @author Christoph Müller

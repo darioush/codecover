@@ -16,7 +16,6 @@ import static org.codecover.UtilsForTestingJava.checkAreMeasurementHelpersCopied
 import static org.codecover.UtilsForTestingJava.copyMeasurementHelpersToBin;
 import static org.codecover.UtilsForTestingJava.handleException;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;

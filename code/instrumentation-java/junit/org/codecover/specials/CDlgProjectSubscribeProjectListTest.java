@@ -17,7 +17,6 @@ import static org.codecover.UtilsForTestingJava.handleException;
 import static org.codecover.UtilsForTestingJava.simpleTestSessionContainerTests;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -26,17 +25,11 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.codecover.UtilsForTestingJava;
-import org.codecover.instrumentation.DefaultInstrumenterFactory;
 import org.codecover.instrumentation.Instrumenter;
-import org.codecover.instrumentation.InstrumenterFactory;
 import org.codecover.instrumentation.exceptions.InstrumentationException;
 import org.codecover.instrumentation.java15.InstrumenterDescriptor;
 import org.codecover.model.MASTBuilder;
 import org.codecover.model.TestSessionContainer;
-import org.codecover.model.utils.criteria.BranchCoverage;
-import org.codecover.model.utils.criteria.ConditionCoverage;
-import org.codecover.model.utils.criteria.LoopCoverage;
-import org.codecover.model.utils.criteria.StatementCoverage;
 import org.codecover.model.utils.file.SourceTargetContainer;
 
 /**

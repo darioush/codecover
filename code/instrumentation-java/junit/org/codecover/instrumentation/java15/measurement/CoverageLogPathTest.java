@@ -11,8 +11,8 @@
 
 package org.codecover.instrumentation.java15.measurement;
 
-import static org.codecover.UtilsForTestingJava.TARGET;
 import static org.codecover.UtilsForTestingJava.BASEDIR;
+import static org.codecover.UtilsForTestingJava.TARGET;
 
 import java.io.File;
 import java.io.IOException;

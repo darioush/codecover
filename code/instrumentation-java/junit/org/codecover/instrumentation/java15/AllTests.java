@@ -15,9 +15,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.swingui.TestRunner;
 
-import org.codecover.instrumentation.java15.manipulators.DefaultCommentManipulatorTest;
 import org.codecover.instrumentation.java15.parser.JavaCharStreamTest;
-import org.codecover.instrumentation.java15.syntaxtree.NodeTokenTest;
 
 /**
  * @author Christoph Müller
@@ -55,17 +53,17 @@ public class AllTests extends TestSuite {
         suite.addTestSuite(TokenPositionTest.class);
         suite.addTestSuite(JavaBooleanOperatorsTest.class);
 
-        suite.addTestSuite(DefaultCommentManipulatorTest.class);
-
         suite.addTestSuite(JavaCharStreamTest.class);
 
-        suite.addTestSuite(NodeTokenTest.class);
-        
         suite.addTestSuite(UnicodeEscapeTest.class);
 
         // add testsuites in subpackages
+        suite.addTest(org.codecover.instrumentation.java15.counter.AllTests.suite());
         suite.addTest(org.codecover.instrumentation.java15.measurement.AllTests.suite());
         suite.addTest(org.codecover.instrumentation.java15.location.AllTests.suite());
+        suite.addTest(org.codecover.instrumentation.java15.manipulators.AllTests.suite());
+        suite.addTest(org.codecover.instrumentation.java15.parser.AllTests.suite());
+        suite.addTest(org.codecover.instrumentation.java15.syntaxtree.AllTests.suite());
 
         // make these test at last
         suite.addTestSuite(JavaNonInstrumentationTest.class);
