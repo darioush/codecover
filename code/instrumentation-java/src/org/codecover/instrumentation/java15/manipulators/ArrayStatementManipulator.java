@@ -29,8 +29,10 @@ import org.codecover.instrumentation.java15.syntaxtree.FieldDeclaration;
 import org.codecover.instrumentation.java15.syntaxtree.ForStatement;
 import org.codecover.instrumentation.java15.syntaxtree.IfStatement;
 import org.codecover.instrumentation.java15.syntaxtree.LocalVariableDeclaration;
+import org.codecover.instrumentation.java15.syntaxtree.ReturnStatement;
 import org.codecover.instrumentation.java15.syntaxtree.StatementExpression;
 import org.codecover.instrumentation.java15.syntaxtree.SwitchStatement;
+import org.codecover.instrumentation.java15.syntaxtree.ThrowStatement;
 import org.codecover.instrumentation.java15.syntaxtree.TryStatement;
 import org.codecover.instrumentation.java15.syntaxtree.WhileStatement;
 import org.codecover.instrumentation.measurement.CoverageCounterLog;
@@ -151,6 +153,18 @@ public class ArrayStatementManipulator extends AbstractDefaultManipulator
     }
 
     public void manipulate(ContinueStatement continueStatement,
+            String statementID) throws IOException {
+        super.getWriter().write(LINE_SEPARATOR);
+        writeCounterIncrementingForStatement(statementID);
+    }
+
+    public void manipulate(ReturnStatement returnStatement,
+            String statementID) throws IOException {
+        super.getWriter().write(LINE_SEPARATOR);
+        writeCounterIncrementingForStatement(statementID);
+    }
+
+    public void manipulate(ThrowStatement throwStatement,
             String statementID) throws IOException {
         super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);

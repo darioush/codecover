@@ -81,6 +81,7 @@ import org.codecover.instrumentation.java15.syntaxtree.Statement;
 import org.codecover.instrumentation.java15.syntaxtree.StatementExpression;
 import org.codecover.instrumentation.java15.syntaxtree.SwitchLabel;
 import org.codecover.instrumentation.java15.syntaxtree.SwitchStatement;
+import org.codecover.instrumentation.java15.syntaxtree.ThrowStatement;
 import org.codecover.instrumentation.java15.syntaxtree.TryStatement;
 import org.codecover.instrumentation.java15.syntaxtree.Type;
 import org.codecover.instrumentation.java15.syntaxtree.TypeDeclaration;
@@ -929,10 +930,11 @@ public class InstrumentationVisitor extends TreeDumperWithException {
      * f3 -> ";"
      * 
      * </PRE>
+     * 
+     * @return true &rarr; es wurde instrumentiert; false &rarr; es wurde nicht instrumentiert
      */
-    private void manipulateFieldDeclaration(Modifiers modifiers,
-            FieldDeclaration fieldDeclaration,
-            LocationList locationList) throws IOException {
+    private boolean manipulateFieldDeclaration(Modifiers modifiers,
+            FieldDeclaration fieldDeclaration) throws IOException {
         // we have to get to know, whether there are expressions and
         // assignments used here.
         VariableDeclarator variableDeclarator = fieldDeclaration.f1;
@@ -964,27 +966,22 @@ public class InstrumentationVisitor extends TreeDumperWithException {
             // level or if it is not static
 
             if (!inClass() && !inEnum()) {
-                return;
+                return false;
             }
 
             // if it is a type, that is not top level and the field is static
             if (this.hierarchyLevelTypeAttic.size() > 1 && isStaticPresent) {
-                return;
+                return false;
             }
 
             // now we are sure, that we can instrument it
-            String statementID = this.counterIDManager.nextStatementID();
+            fieldDeclaration.statementID = this.counterIDManager.nextStatementID();
             this.statementManipulator.manipulate(fieldDeclaration,
-                    isStaticPresent, statementID);
-
-            // create a MAST Statement out of this  
-            org.codecover.model.mast.Statement newStatement = this.builder
-                    .createBasicStatement(
-                            locationList,
-                            createCoverableItem(statementID),
-                            Collections.<RootTerm> emptySet());
-            this.statementAttic.bottom().add(newStatement);
+                    isStaticPresent, fieldDeclaration.statementID);
+            return true;
         }
+
+        return false;
     }
 
     /**
@@ -1290,27 +1287,39 @@ public class InstrumentationVisitor extends TreeDumperWithException {
             Modifiers modifiers = (Modifiers) unknownDeclarationSequence.nodes.get(0);
             NodeChoice unknownDeclarationChoice = (NodeChoice) unknownDeclarationSequence.nodes.get(1);
 
-            modifiers.accept(this);
-            modifiers.startOffset = StartOffset.getStartOffset(modifiers);
-            pushModifiersToAttic(modifiers);
-
             // we are in Modifiers() (.. | ..)
             if (unknownDeclarationChoice.which == 4) {
                 // we have a FieldDeclaration
                 FieldDeclaration fieldDeclaration = (FieldDeclaration) unknownDeclarationChoice.choice;
+                boolean isInstrumented = manipulateFieldDeclaration(modifiers, fieldDeclaration);
+
+                modifiers.accept(this);
+                modifiers.startOffset = StartOffset.getStartOffset(modifiers);
+                pushModifiersToAttic(modifiers);
+
                 int startOffset = StartOffset.getStartOffset(unknownDeclarationChoice);
                 startOffset = recalculateStartOffsetUsingModifiers(startOffset);
 
                 startLocateableLevel(startOffset);
                 unknownDeclarationChoice.accept(this);
                 LocationList locationList = endLocateableLevel();
+                popModifiersFromAttic();
 
-                manipulateFieldDeclaration(modifiers, fieldDeclaration, locationList);
+                // create a MAST Statement out of this
+                if (isInstrumented) {
+                    org.codecover.model.mast.Statement newStatement = this.builder
+                            .createBasicStatement(locationList,
+                                    createCoverableItem(fieldDeclaration.statementID),
+                                    Collections.<RootTerm> emptySet());
+                    this.statementAttic.bottom().add(newStatement);
+                }
             } else {
+                modifiers.accept(this);
+                modifiers.startOffset = StartOffset.getStartOffset(modifiers);
+                pushModifiersToAttic(modifiers);
                 unknownDeclarationChoice.accept(this);
+                popModifiersFromAttic();
             }
-
-            popModifiersFromAttic();
         } else {
             // n.f0.which != 1
             super.visit(n);
@@ -1410,25 +1419,45 @@ public class InstrumentationVisitor extends TreeDumperWithException {
             Modifiers modifiers = (Modifiers) unknownDeclarationSequence.nodes.get(0);
             NodeChoice unknownDeclarationChoice = (NodeChoice) unknownDeclarationSequence.nodes.get(1);
 
-            modifiers.accept(this);
-            modifiers.startOffset = StartOffset.getStartOffset(modifiers);
-            pushModifiersToAttic(modifiers);
-
-            // ( Type() ... )
-            unknownDeclarationChoice.accept(this);
-
             // we are in Modifiers() (.. | ..)
             if (unknownDeclarationChoice.which == 4) {
                 // we have a FieldDeclaration
                 FieldDeclaration fieldDeclaration = (FieldDeclaration) unknownDeclarationChoice.choice;
+                boolean isInstrumented = manipulateFieldDeclaration(modifiers, fieldDeclaration);
+
+
+                modifiers.accept(this);
+                modifiers.startOffset = StartOffset.getStartOffset(modifiers);
+                pushModifiersToAttic(modifiers);
+
                 int startOffset = StartOffset.getStartOffset(unknownDeclarationChoice);
                 startOffset = recalculateStartOffsetUsingModifiers(startOffset);
                 this.locateableManager.pushNewLevel(startOffset, false);
+
+                // ( Type() ... )
+                unknownDeclarationChoice.accept(this);
+                
+                popModifiersFromAttic();
                 LocationList locationList = this.locateableManager.popLevel();
 
-                manipulateFieldDeclaration(modifiers, fieldDeclaration, locationList);
-            } 
-            popModifiersFromAttic();
+                // create a MAST Statement out of this
+                if (isInstrumented) {
+                    org.codecover.model.mast.Statement newStatement = this.builder
+                            .createBasicStatement(locationList,
+                                    createCoverableItem(fieldDeclaration.statementID),
+                                    Collections.<RootTerm> emptySet());
+                    this.statementAttic.bottom().add(newStatement);
+                }
+            } else {
+                modifiers.accept(this);
+                modifiers.startOffset = StartOffset.getStartOffset(modifiers);
+                pushModifiersToAttic(modifiers);
+                
+                // ( Type() ... )
+                unknownDeclarationChoice.accept(this);
+
+                popModifiersFromAttic();
+            }
         } else {
             super.visit(n);
         }
@@ -1590,34 +1619,34 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         StatementSwitch: switch (n.f0.which) {
             case 0 : { // LabeledStatement
                 LabeledStatement labeledStatement = (LabeledStatement) n.f0.choice;
-    
+
                 // we try to dump the label instead of writing it directly
                 TreeSourceFileImageDumper dumper = new TreeSourceFileImageDumper();
                 dumper.visit(labeledStatement.f0);
                 dumper.visit(labeledStatement.f1);
                 labeledStatement.f2.label = n.label + dumper.getContentUntrimmed();
                 labeledStatement.f2.accept(this);
-    
+
                 break StatementSwitch;
             }
             case 3: { // EmptyStatement
                 n.statementID = this.counterIDManager.nextStatementID();
+                EmptyStatement emptyStatement = (EmptyStatement) n.f0.choice;
+                this.statementManipulator.manipulate(emptyStatement, n.statementID);
                 // write the dumped label first
                 writer.write(n.label);
                 acceptAndAtticBasicStatement(n);
-                EmptyStatement emptyStatement = (EmptyStatement) n.f0.choice;
-                this.statementManipulator.manipulate(emptyStatement, n.statementID);
                 break StatementSwitch;
             }
             case 4: { // StatementExpression
                 n.statementID = this.counterIDManager.nextStatementID();
-                // write the dumped label first
-                writer.write(n.label);
-                acceptAndAtticBasicStatement(n);
                 NodeSequence nodeList = (NodeSequence) n.f0.choice;
                 StatementExpression statementExpression = (StatementExpression) nodeList.nodes.get(0);
                 this.statementManipulator.manipulate(statementExpression,
                         n.statementID);
+                // write the dumped label first
+                writer.write(n.label);
+                acceptAndAtticBasicStatement(n);
                 break StatementSwitch;
             }
             case 5: { // SwitchStatement
@@ -1683,6 +1712,24 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 acceptAndAtticBasicStatement(n);
                 break StatementSwitch;
             }
+            case 12: { // ReturnStatement
+                n.statementID = this.counterIDManager.nextStatementID();
+                ReturnStatement returnStatement = (ReturnStatement) n.f0.choice;
+                this.statementManipulator.manipulate(returnStatement, n.statementID);
+                // write the dumped label first
+                writer.write(n.label);
+                acceptAndAtticBasicStatement(n);
+                break StatementSwitch;
+            }
+            case 13: { // ThrowStatement
+                n.statementID = this.counterIDManager.nextStatementID();
+                ThrowStatement throwStatement = (ThrowStatement) n.f0.choice;
+                this.statementManipulator.manipulate(throwStatement, n.statementID);
+                // write the dumped label first
+                writer.write(n.label);
+                acceptAndAtticBasicStatement(n);
+                break StatementSwitch;
+            }
             case 15: { // TryStatement
                 n.statementID = this.counterIDManager.nextStatementID();
                 TryStatement tryStatement = (TryStatement) n.f0.choice;
@@ -1693,8 +1740,7 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 break StatementSwitch;
             }
             default: {
-                // AssertStatement() | Block() | ThrowStatement() |
-                // ReturnStatement | SynchronizedStatement()
+                // AssertStatement() | Block() | SynchronizedStatement()
                 // write the dumped label first
                 writer.write(n.label);
                 // the InstrumentationVisitor has visited n -> use super
@@ -1740,6 +1786,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
             if (foundExpression) {
                 String statementID = this.counterIDManager.nextStatementID();
 
+                this.statementManipulator.manipulate(locVarDeclaration, statementID);
+
                 // create a MAST Statement out of this  
                 int startOffset = StartOffset.getStartOffset(n);
                 startLocateableLevel(startOffset);
@@ -1750,8 +1798,6 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                         .createBasicStatement(locationList,
                                 createCoverableItem(statementID), Collections.<RootTerm> emptySet());
                 this.statementAttic.bottom().add(newStatement);
-                
-                this.statementManipulator.manipulate(locVarDeclaration, statementID);
             } else {
                 super.visit(n);
             }

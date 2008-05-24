@@ -431,7 +431,13 @@ final class SecondClassOfFile extends Object implements Serializable, Runnable {
             Asserts.fail("!\"" + orig + "\".equals(\"" + escaped + "\")");
         }
 
+        String returnValue = getE();
+
         return;
+    }
+
+    public static String getE() {
+        return Integer.toString(CodeExample.class.getName().length(), 31);
     }
 
     public void run() {
@@ -525,6 +531,9 @@ final class SecondClassOfFile extends Object implements Serializable, Runnable {
             }            
         }
 
+        if (1 == "".length()) {
+            Label19 : throw new RuntimeException("Böse");
+        }
         Label20 : return;
     }
 

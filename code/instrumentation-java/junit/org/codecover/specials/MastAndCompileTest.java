@@ -221,7 +221,7 @@ public class MastAndCompileTest extends TestCase {
         }
         Assert.assertTrue(new File(SESSION_CONTAINER).exists());
 
-        checkCoverabelItemsTerm78(testSessionContainer);
+        checkCoverabelItemsTerm79(testSessionContainer);
     }
 
     private void checkCodeExample(HierarchyLevel classCodeExample) {
@@ -475,7 +475,13 @@ public class MastAndCompileTest extends TestCase {
         Assert.assertEquals("B8", B8.getCoverableItem().getId());
         Assert.assertFalse(B8.isImplicit());
         locationAssertion(null, B8.getDecision());
-        Assert.assertTrue(B8.getSequence().getStatements().isEmpty());
+        Assert.assertEquals(1, B8.getSequence().getStatements().size());
+
+        Statement S33 = B8.getSequence().getStatements().get(0);
+        Assert.assertTrue(S33 instanceof BasicStatement);
+        locationAssertion("throw new Exception(\"function not usable!\");", S33.getLocation());
+        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", S32.getCoverableItem().getPrefix());
+        Assert.assertEquals("S33", S33.getCoverableItem().getId());
 
         Branch B9 = S31_C.getBranches().get(1);
         Assert.assertEquals(Branch.class.toString() + " -- ", B9.toString());
@@ -497,9 +503,9 @@ public class MastAndCompileTest extends TestCase {
         locationAssertion("public void approx(EApproxMode mode)", methodApprox.getHeader());
 
         // switch test
-        Statement S38 = methodApprox.getSequences().get(0).getStatements().get(1);
-        Assert.assertTrue(S38 instanceof ConditionalStatement);
-        ConditionalStatement S37_C = (ConditionalStatement) S38;
+        Statement S40 = methodApprox.getSequences().get(0).getStatements().get(1);
+        Assert.assertTrue(S40 instanceof ConditionalStatement);
+        ConditionalStatement S40_C = (ConditionalStatement) S40;
         locationAssertion("switch (mode.ordinal()) {\n" +
                 "        case 0:\n" +
                 "            System.out.printf(\"> fixed interval count:%n\");\n" +
@@ -510,13 +516,13 @@ public class MastAndCompileTest extends TestCase {
                 "        default:\n" +
                 "            System.out.printf(\"> exact result%n\");\n" +
                 "            break;\n" +
-                "        }", S37_C.getLocation());
-        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", S38.getCoverableItem().getPrefix());
-        Assert.assertEquals("S38", S37_C.getCoverableItem().getId());
-        Assert.assertTrue(S37_C.getTerms().isEmpty());
-        Assert.assertEquals(3, S37_C.getBranches().size());
+                "        }", S40_C.getLocation());
+        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", S40.getCoverableItem().getPrefix());
+        Assert.assertEquals("S40", S40_C.getCoverableItem().getId());
+        Assert.assertTrue(S40_C.getTerms().isEmpty());
+        Assert.assertEquals(3, S40_C.getBranches().size());
 
-        Branch B14 = S37_C.getBranches().get(0);
+        Branch B14 = S40_C.getBranches().get(0);
         locationAssertion("System.out.printf(\"> fixed interval count:%n\");\n" +
                 "            break;", B14.getLocation());
         Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", B14.getCoverableItem().getPrefix());
@@ -525,7 +531,7 @@ public class MastAndCompileTest extends TestCase {
         locationAssertion("case 0", B14.getDecision());
         Assert.assertFalse(B14.getSequence().getStatements().isEmpty());
 
-        Branch B15 = S37_C.getBranches().get(1);
+        Branch B15 = S40_C.getBranches().get(1);
         locationAssertion("System.out.printf(\"> with given precision%n\");\n" +
                 "            break;", B15.getLocation());
         Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", B15.getCoverableItem().getPrefix());
@@ -534,7 +540,7 @@ public class MastAndCompileTest extends TestCase {
         locationAssertion("case 1", B15.getDecision());
         Assert.assertFalse(B15.getSequence().getStatements().isEmpty());
 
-        Branch B16 = S37_C.getBranches().get(2);
+        Branch B16 = S40_C.getBranches().get(2);
         locationAssertion("System.out.printf(\"> exact result%n\");\n" +
                 "            break;", B16.getLocation());
         Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", B16.getCoverableItem().getPrefix());
@@ -552,13 +558,13 @@ public class MastAndCompileTest extends TestCase {
         Assert.assertEquals("class", classSecondClassOfFile.getType().getEnglishName());
         Assert.assertEquals(1, classSecondClassOfFile.getSequences().size());
         Assert.assertEquals(6, classSecondClassOfFile.getSequences().get(0).getStatements().size());
-        Assert.assertEquals(8, classSecondClassOfFile.getChildren().size());
+        Assert.assertEquals(9, classSecondClassOfFile.getChildren().size());
         locationAssertion("final class SecondClassOfFile extends Object implements Serializable, Runnable", classSecondClassOfFile.getHeader());
 
         checkSecondClassOfFile_getNumber(classSecondClassOfFile.getChildren().get(0));
-        checkSecondClassOfFile_run(classSecondClassOfFile.getChildren().get(3));
+        checkSecondClassOfFile_run(classSecondClassOfFile.getChildren().get(4));
 
-        HierarchyLevel secondClass5I = classSecondClassOfFile.getChildren().get(6);
+        HierarchyLevel secondClass5I = classSecondClassOfFile.getChildren().get(7);
         Assert.assertEquals("InnerInterface", secondClass5I.getName());
         Assert.assertEquals("interface", secondClass5I.getType().getInternalName());
         Assert.assertEquals("interface", secondClass5I.getType().getEnglishName());
@@ -599,7 +605,7 @@ public class MastAndCompileTest extends TestCase {
         Assert.assertTrue(secondClass13IA.getChildren().isEmpty());
         locationAssertion("@Target({METHOD, CONSTRUCTOR})\n        abstract @interface NewAnnotation3", secondClass13IA.getHeader());
 
-        HierarchyLevel secondClass7A = classSecondClassOfFile.getChildren().get(7);
+        HierarchyLevel secondClass7A = classSecondClassOfFile.getChildren().get(8);
         Assert.assertEquals("NewAnnotation1", secondClass7A.getName());
         Assert.assertEquals("@interface", secondClass7A.getType().getInternalName());
         Assert.assertEquals("annotation", secondClass7A.getType().getEnglishName());
@@ -625,19 +631,19 @@ public class MastAndCompileTest extends TestCase {
         locationAssertion("public static long getNumber(boolean switchNumber)", methodGetNumber.getHeader());
 
         // switch test
-        Statement S87 = methodGetNumber.getSequences().get(0).getStatements().get(6);
-        Assert.assertTrue(S87 instanceof ConditionalStatement);
-        ConditionalStatement S87_C = (ConditionalStatement) S87;
+        Statement S92 = methodGetNumber.getSequences().get(0).getStatements().get(6);
+        Assert.assertTrue(S92 instanceof ConditionalStatement);
+        ConditionalStatement S92_C = (ConditionalStatement) S92;
         locationAssertion("switch (2) {\n"+
                 "        case 1: break;\n"+
                 "        case 2:\n"+
-                "        }", S87_C.getLocation());
-        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", S87_C.getCoverableItem().getPrefix());
-        Assert.assertEquals("S87", S87_C.getCoverableItem().getId());
-        Assert.assertTrue(S87_C.getTerms().isEmpty());
-        Assert.assertEquals(3, S87_C.getBranches().size());
+                "        }", S92_C.getLocation());
+        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", S92_C.getCoverableItem().getPrefix());
+        Assert.assertEquals("S92", S92_C.getCoverableItem().getId());
+        Assert.assertTrue(S92_C.getTerms().isEmpty());
+        Assert.assertEquals(3, S92_C.getBranches().size());
 
-        Branch B21 = S87_C.getBranches().get(0);
+        Branch B21 = S92_C.getBranches().get(0);
         locationAssertion("break;", B21.getLocation());
         Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", B21.getCoverableItem().getPrefix());
         Assert.assertEquals("B21", B21.getCoverableItem().getId());
@@ -645,7 +651,7 @@ public class MastAndCompileTest extends TestCase {
         locationAssertion("case 1", B21.getDecision());
         Assert.assertFalse(B21.getSequence().getStatements().isEmpty());
 
-        Branch B22 = S87_C.getBranches().get(1);
+        Branch B22 = S92_C.getBranches().get(1);
         Assert.assertEquals(Branch.class.toString() + " -- ", B22.toString());
         Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", B22.getCoverableItem().getPrefix());
         Assert.assertEquals("B22", B22.getCoverableItem().getId());
@@ -653,7 +659,7 @@ public class MastAndCompileTest extends TestCase {
         locationAssertion("case 2", B22.getDecision());
         Assert.assertTrue(B22.getSequence().getStatements().isEmpty());
 
-        Branch B23 = S87_C.getBranches().get(2);
+        Branch B23 = S92_C.getBranches().get(2);
         Assert.assertEquals(Branch.class.toString() + " -- ", B23.toString());
         Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", B23.getCoverableItem().getPrefix());
         Assert.assertEquals("B23", B23.getCoverableItem().getId());
@@ -690,12 +696,12 @@ public class MastAndCompileTest extends TestCase {
         Assert.assertEquals(0, methodRunnerClass.getChildren().size());
         locationAssertion("public RunnerClass(int i)", methodRunnerClass.getHeader());
 
-        Statement S317 = methodRunnerClass.getSequences().get(0).getStatements().get(0);
-        Assert.assertTrue(S317 instanceof BasicStatement);
-        Assert.assertEquals(0, S317.getTerms().size());
-        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", S317.getCoverableItem().getPrefix());
-        Assert.assertEquals("S317", S317.getCoverableItem().getId());
-        locationAssertion("this();", S317.getLocation());
+        Statement S329 = methodRunnerClass.getSequences().get(0).getStatements().get(0);
+        Assert.assertTrue(S329 instanceof BasicStatement);
+        Assert.assertEquals(0, S329.getTerms().size());
+        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", S329.getCoverableItem().getPrefix());
+        Assert.assertEquals("S329", S329.getCoverableItem().getId());
+        locationAssertion("this();", S329.getLocation());
 
         HierarchyLevel runnerClass2 = methodRun.getChildren().get(1);
         Assert.assertEquals("RunnerClass2", runnerClass2.getName());
@@ -714,12 +720,12 @@ public class MastAndCompileTest extends TestCase {
         Assert.assertEquals(0, methodRunnerClass2.getChildren().size());
         locationAssertion("public RunnerClass2()", methodRunnerClass2.getHeader());
 
-        Statement S319 = methodRunnerClass2.getSequences().get(0).getStatements().get(0);
-        Assert.assertTrue(S319 instanceof BasicStatement);
-        Assert.assertEquals(0, S319.getTerms().size());
-        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", S319.getCoverableItem().getPrefix());
-        Assert.assertEquals("S319", S319.getCoverableItem().getId());
-        locationAssertion("super(2);", S319.getLocation());
+        Statement S332 = methodRunnerClass2.getSequences().get(0).getStatements().get(0);
+        Assert.assertTrue(S332 instanceof BasicStatement);
+        Assert.assertEquals(0, S332.getTerms().size());
+        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", S332.getCoverableItem().getPrefix());
+        Assert.assertEquals("S332", S332.getCoverableItem().getId());
+        locationAssertion("super(2);", S332.getLocation());
     }
 
     private void checkAdvancedFolderBackupOrder(HierarchyLevel classAdvanced) {
@@ -739,34 +745,34 @@ public class MastAndCompileTest extends TestCase {
         Assert.assertEquals(0, methodAccept.getChildren().size());
         locationAssertion("public boolean accept(String strName)", methodAccept.getHeader());
 
-        Statement S385 = methodAccept.getSequences().get(0).getStatements().get(5);
-        ConditionalStatement S393_C = (ConditionalStatement) S385;
-        Assert.assertEquals(2, S393_C.getBranches().size());
-        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", S393_C.getCoverableItem().getPrefix());
-        Assert.assertEquals("S393", S393_C.getCoverableItem().getId());
-        Assert.assertEquals(1, S393_C.getTerms().size());
+        Statement S425 = methodAccept.getSequences().get(0).getStatements().get(5);
+        ConditionalStatement S425_C = (ConditionalStatement) S425;
+        Assert.assertEquals(2, S425_C.getBranches().size());
+        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", S425_C.getCoverableItem().getPrefix());
+        Assert.assertEquals("S425", S425_C.getCoverableItem().getId());
+        Assert.assertEquals(1, S425_C.getTerms().size());
 
-        Branch B157 = S393_C.getBranches().get(0);
-        Assert.assertEquals(0, B157.getSequence().getStatements().size());
-        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", B157.getCoverableItem().getPrefix());
-        Assert.assertEquals("B157", B157.getCoverableItem().getId());
-        locationAssertion(null, B157.getDecision());
-        Assert.assertFalse(B157.isImplicit()); 
+        Branch B159 = S425_C.getBranches().get(0);
+        Assert.assertEquals(1, B159.getSequence().getStatements().size());
+        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", B159.getCoverableItem().getPrefix());
+        Assert.assertEquals("B159", B159.getCoverableItem().getId());
+        locationAssertion(null, B159.getDecision());
+        Assert.assertFalse(B159.isImplicit()); 
 
-        Branch B158 = S393_C.getBranches().get(1);
-        Assert.assertEquals(0, B158.getSequence().getStatements().size());
-        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", B158.getCoverableItem().getPrefix());
-        Assert.assertEquals("B158", B158.getCoverableItem().getId());
-        locationAssertion("else", B158.getDecision());
-        Assert.assertFalse(B158.isImplicit()); 
+        Branch B160 = S425_C.getBranches().get(1);
+        Assert.assertEquals(1, B160.getSequence().getStatements().size());
+        Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", B160.getCoverableItem().getPrefix());
+        Assert.assertEquals("B160", B160.getCoverableItem().getId());
+        locationAssertion("else", B160.getDecision());
+        Assert.assertFalse(B160.isImplicit()); 
 
-        this.term78 = S393_C.getTerms().iterator().next(); 
-        checkTerm78();
+        this.term78 = S425_C.getTerms().iterator().next(); 
+        checkTerm79();
     }
 
-    private void checkTerm78() {
+    private void checkTerm79() {
         Assert.assertEquals("org.codecover.instrumentation.java15.test.test3.CodeExample.java", this.term78.getCoverableItem().getPrefix());
-        Assert.assertEquals("C78", this.term78.getCoverableItem().getId());
+        Assert.assertEquals("C79", this.term78.getCoverableItem().getId());
 
         // ((whiteFind == null && whiteMatch == null) ||
         //  (whiteFind != null && whiteFind.matcher(strName).find()) ||
@@ -973,15 +979,15 @@ public class MastAndCompileTest extends TestCase {
         Assert.assertTrue(operatorTerms.isEmpty());
     }
 
-    private void checkCoverabelItemsTerm78(TestSessionContainer testSessionContainer) {
+    private void checkCoverabelItemsTerm79(TestSessionContainer testSessionContainer) {
         TestSession testSession = testSessionContainer.getTestSessionWithName(TEST_SESSION_NAME);
         org.codecover.model.TestCase testCase = testSession.getTestCaseWithName("AdvancedFolderBackupOrder condition test");
         Map<CoverableItem, Long> coverageData = testCase.getCoverageData();
-        CoverableItem cItemTerm78 = this.builder.createCoverableItem("org.codecover.instrumentation.java15.test.test3.CodeExample.java", "C78");
-        Assert.assertNull(coverageData.get(cItemTerm78));
+        CoverableItem cItemTerm79 = this.builder.createCoverableItem("org.codecover.instrumentation.java15.test.test3.CodeExample.java", "C79");
+        Assert.assertNull(coverageData.get(cItemTerm79));
 
         Map<CoverableItem, BooleanAssignmentMap> assignments = testCase.getAssignmentsMap();
-        BooleanAssignmentMap assignmentMap = assignments.get(cItemTerm78);
+        BooleanAssignmentMap assignmentMap = assignments.get(cItemTerm79);
 
         Assert.assertEquals(1, assignmentMap.get(getBooleanAssignmentFromString("11110000000010001110")));
 

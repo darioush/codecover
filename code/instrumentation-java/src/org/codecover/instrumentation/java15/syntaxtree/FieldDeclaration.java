@@ -26,6 +26,8 @@ package org.codecover.instrumentation.java15.syntaxtree;
  */
 @SuppressWarnings("all")
 public class FieldDeclaration implements Node {
+   public String statementID = null;
+   public String label = "";
    private Node parent;
    public Type f0;
    public VariableDeclarator f1;

@@ -51,18 +51,18 @@ public class NodeToken implements Node {
 
     public int kind;
 
-    private String sourceFileAndparsedImage;
+    private String sourceFileParsedImage;
 
     NodeToken(String image) {
         throw new UnsupportedOperationException("use NodeToken.create()");
     }
     
-    NodeToken(String sourceFileAndparsedImage,
+    NodeToken(String sourceFileParsedImage,
               int kind,
               int startLine,
               int startOffset,
               int endOffset) {
-        this.sourceFileAndparsedImage = sourceFileAndparsedImage;
+        this.sourceFileParsedImage = sourceFileParsedImage;
         this.kind = kind;
         this.startLine = startLine;
         this.startOffset = startOffset;
@@ -71,11 +71,11 @@ public class NodeToken implements Node {
     }
 
     public String getSourceFileImage() {
-        return this.sourceFileAndparsedImage;
+        return this.sourceFileParsedImage;
     }
 
     public String getParsedImage() {
-        return this.sourceFileAndparsedImage;
+        return this.sourceFileParsedImage;
     }
 
     public NodeToken getSpecialAt(int i) {
