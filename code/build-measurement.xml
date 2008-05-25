@@ -5,9 +5,8 @@
 
         <property name="testsource" value="instrumentation-java/testsource/" />
         <property name="testtarget" value="instrumentation-java/testtarget/" />
-        <property name="measurement-dir" value="instrumentation/testsource/" />
-        <property name="container-mast" value="${measurement-dir}codeExampleTestSessionContainer_MAST_only.xml" />
-        <property name="container-counters" value="${measurement-dir}codeExampleTestSessionContainer.xml" />
+        <property name="container-mast" value="${testtarget}codeExampleTestSessionContainer_MAST_only.xml" />
+        <property name="container-counters" value="${testtarget}codeExampleTestSessionContainer.xml" />
         <property name="cc-classpath" value="${relase-lib}codecover-core.jar:${relase-lib}codecover-instrumentation-cobol.jar:${relase-lib}codecover-instrumentation-java.jar:${relase-lib}codecover-batch.jar" />
         <property name="report-template" value="release/report-templates/HTML_Report_hierarchic.xml" />
         <property name="report-template2" value="release/report-templates/CSV_Report.xml" />
@@ -40,27 +39,20 @@
     </target>
 
     <target name="clean">
-                <delete file="${container-counters}"/>
-                <delete file="${container-mast}"/>
-        <delete>
-            <fileset dir="${measurement-dir}"
-                     includes="coverage_log*.clf"
-                     excludes="coverage_log_for_CoverageLogParserTest.clf"/>
-        </delete>
         <delete includeemptydirs="true">
             <fileset dir="."
                      includes="${testtarget}**/*"
-                         excludes=".svn" />
+                     excludes=".svn" />
         </delete>
         <delete includeemptydirs="true">
             <fileset dir="."
                      includes="${report-target}**/*"
-                         excludes=".svn" />
+                     excludes=".svn" />
         </delete>
         <delete includeemptydirs="true">
             <fileset dir="."
                      includes="${report-target2}**/*"
-                         excludes=".svn" />
+                     excludes=".svn" />
         </delete>
     </target>
 
@@ -82,7 +74,8 @@
                 <arg line="-i org\\codecover\\instrumentation\\java15\\test\\**\\*.java" />
                 <arg line="-e **\\bugs\\*.java" />
                 <arg line="-e **\\test8\\*.java" />
-                <arg line="-D &quot;CoverageLogPath=${measurement-dir}coverage_log1.clf&quot;" />
+                <arg line="-e **\\test10\\*.java" />
+                <arg line="-D &quot;CoverageLogPath=${testtarget}coverage_log1.clf&quot;" />
                 <arg line="-v" />
         </java>
 
@@ -139,7 +132,7 @@
 
         <antcall target="analyse">
           <param name="testsession" value="test1 - TestClass"/>
-      <param name="coverage-log-to-use" value="${measurement-dir}coverage_log1.clf"/>
+      <param name="coverage-log-to-use" value="${testtarget}coverage_log1.clf"/>
         </antcall>
   </target>
 
@@ -149,13 +142,13 @@
                   fork="yes"
                   dir="${testtarget}"
           classpath="${testtarget}">
-          <jvmarg value="-Dorg.codecover.coverage-log-file=../../${measurement-dir}coverage_log3.clf" />
+          <jvmarg value="-Dorg.codecover.coverage-log-file=../../${testtarget}coverage_log3.clf" />
           <jvmarg value="-Dorg.codecover.coverage-log-overwrite=yes" />
     </java>
 
         <antcall target="analyse">
           <param name="testsession" value="test3 - CodeExample"/>
-      <param name="coverage-log-to-use" value="${measurement-dir}coverage_log3.clf"/>
+      <param name="coverage-log-to-use" value="${testtarget}coverage_log3.clf"/>
         </antcall>
   </target>
 
@@ -166,7 +159,7 @@
                   dir="${testtarget}"
           classpath="${testtarget}">
                 <arg line="arg1 arg2 arg3" />
-                <jvmarg value="-Dorg.codecover.coverage-log-file=../../${measurement-dir}coverage_log4.clf" />
+                <jvmarg value="-Dorg.codecover.coverage-log-file=../../${testtarget}coverage_log4.clf" />
         <jvmarg value="-Dorg.codecover.coverage-log-overwrite=yes" />
           <jvmarg value="-Dcom.sun.management.jmxremote" />
           <jvmarg value="-Dcom.sun.management.jmxremote.port=1234" />
@@ -176,7 +169,7 @@
 
         <antcall target="analyse">
           <param name="testsession" value="test4 - TestClass"/>
-          <param name="coverage-log-to-use" value="${measurement-dir}coverage_log4.clf"/>
+          <param name="coverage-log-to-use" value="${testtarget}coverage_log4.clf"/>
         </antcall>
   </target>
 

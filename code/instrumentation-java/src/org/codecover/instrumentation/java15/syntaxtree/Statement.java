@@ -39,7 +39,7 @@ package org.codecover.instrumentation.java15.syntaxtree;
 @SuppressWarnings("all")
 public class Statement implements Node {
    public String statementID = null;
-   public String label = "";
+   public NodeSequence labelToken = NodeSequence.EMPTY_INSTANCE;
    private Node parent;
    public NodeChoice f0;
 

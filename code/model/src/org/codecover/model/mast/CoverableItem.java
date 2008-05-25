@@ -23,7 +23,7 @@ public class CoverableItem implements Comparable<CoverableItem> {
     private final String prefix;
 
     private final String id;
-    
+
     CoverableItem(String prefix, String id) {
 
         if (id == null) {

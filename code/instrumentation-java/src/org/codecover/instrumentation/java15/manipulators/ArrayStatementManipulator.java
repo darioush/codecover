@@ -35,8 +35,12 @@ import org.codecover.instrumentation.java15.syntaxtree.SwitchStatement;
 import org.codecover.instrumentation.java15.syntaxtree.ThrowStatement;
 import org.codecover.instrumentation.java15.syntaxtree.TryStatement;
 import org.codecover.instrumentation.java15.syntaxtree.WhileStatement;
+import org.codecover.instrumentation.java15.visitor.TreeDumperWithException;
 import org.codecover.instrumentation.measurement.CoverageCounterLog;
 /**
+ * 
+ * @see StatementManipulator
+ * 
  * @author Christoph Müller, Stefan Franke
  * @version 1.0 ($Id$)
  * 
@@ -97,16 +101,16 @@ public class ArrayStatementManipulator extends AbstractDefaultManipulator
      * 
      * @param statementID
      *            The ID of the statement.
-     * 
-     * @throws IOException
      *             For IO exceptions at the use of {@link Writer#write(String)}.
      */
-    private void writeCounterIncrementingForStatement(String statementID)
-            throws IOException {
+    private void writeCounterIncrementingForStatement(String statementID) {
+        TreeDumperWithException treeDumper = super.getTreeDumper();
+
         int ID = getNumberFromStatementID(statementID);
-        super.getWriter().write(String.format(COUNTER_INCREMENTING,
+        treeDumper.addInstrumentationBetween(String.format(COUNTER_INCREMENTING,
                 super.getCounterIDManager().getInnerClassName(),
                 new Integer(ID)));
+        treeDumper.addInstrumentationBetween(LINE_SEPARATOR);
         this.maxStatementID = Math.max(this.maxStatementID, ID);
     }
 
@@ -136,93 +140,83 @@ public class ArrayStatementManipulator extends AbstractDefaultManipulator
 
     public void manipulate(StatementExpression n, String statementID)
             throws IOException {
-        super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);
     }
 
     public void manipulate(EmptyStatement emptyStatement, String statementID)
             throws IOException {
-        super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);
     }
 
     public void manipulate(BreakStatement breakStatement, String statementID)
             throws IOException {
-        super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);
     }
 
     public void manipulate(ContinueStatement continueStatement,
             String statementID) throws IOException {
-        super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);
     }
 
     public void manipulate(ReturnStatement returnStatement,
             String statementID) throws IOException {
-        super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);
     }
 
     public void manipulate(ThrowStatement throwStatement,
             String statementID) throws IOException {
-        super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);
     }
 
     public void manipulate(LocalVariableDeclaration declaration,
             String statementID) throws IOException {
-        super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);
     }
 
     public void manipulate(FieldDeclaration fieldDeclaration,
             boolean isStaticPresent, String statementID) throws IOException {
-        Writer writer = super.getWriter();
+        TreeDumperWithException treeDumper = super.getTreeDumper();
 
-        writer.write(LINE_SEPARATOR + "  ");
+        int ID = getNumberFromStatementID(statementID);
+
         if (isStaticPresent) {
-            writer.write("static ");
+            treeDumper.addInstrumentationBetween("static ");
         }
+        treeDumper.addInstrumentationBetween("{ ");
+        treeDumper.addInstrumentationBetween(String.format(COUNTER_INCREMENTING,
+                super.getCounterIDManager().getInnerClassName(),
+                new Integer(ID)));
+        treeDumper.addInstrumentationBetween(" }" + LINE_SEPARATOR);
 
-        writer.write("{" + LINE_SEPARATOR + "    ");
-        writeCounterIncrementingForStatement(statementID);
-        writer.write(LINE_SEPARATOR + "  }");
+        this.maxStatementID = Math.max(this.maxStatementID, ID);
     }
 
     public void manipulate(SwitchStatement switchStatement, String statementID) throws IOException {
-        super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);
     }
 
     public void manipulate(WhileStatement switchStatement, String statementID) throws IOException {
-        super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);
     }
 
     public void manipulate(IfStatement whileStatement, String statementID) throws IOException {
-        super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);
     }
 
     public void manipulate(DoStatement whileStatement, String statementID) throws IOException {
-        super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);
     }
 
     public void manipulate(ForStatement doStatement, String statementID) throws IOException {
-        super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);
     }
 
     public void manipulate(TryStatement breakStatement, String statementID) throws IOException {
-        super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);
     }
 
     public void manipulate(ExplicitConstructorInvocation explicitConstructorInvocation,
             String statementID) throws IOException {
-        super.getWriter().write(LINE_SEPARATOR);
         writeCounterIncrementingForStatement(statementID);
     }
 

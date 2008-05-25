@@ -11,18 +11,20 @@
 
 package org.codecover.instrumentation.java15.manipulators;
 
-import java.io.Writer;
-
 import org.codecover.instrumentation.java15.counter.CounterIDManager;
 import org.codecover.instrumentation.java15.counter.CounterManager;
 import org.codecover.instrumentation.java15.visitor.InstrumentationVisitor;
+import org.codecover.instrumentation.java15.visitor.TreeDumperWithException;
 
 /**
  * This is an interface for manipulators.<br>
  * <br>
- * It allows to set a {@link Writer} and a {@link CounterIDManager}. Moreover
- * it extends the interface {@link CounterManager} cause all manipulators are
- * handed over to {@link CounterIDManager#addCounterManager(CounterManager)}.
+ * It allows to set a {@link TreeDumperWithException} and a
+ * {@link CounterIDManager}. Moreover it extends the interface
+ * {@link CounterManager} cause all manipulators are handed over to
+ * {@link CounterIDManager#addCounterManager(CounterManager)}.<br>
+ * Before you can use an instance of {@link CommentManipulator}, you have call
+ * {@link #setTreeDumper(TreeDumperWithException)}.
  * 
  * @see CounterManager
  * @see StatementManipulator
@@ -37,11 +39,13 @@ import org.codecover.instrumentation.java15.visitor.InstrumentationVisitor;
  */
 public interface Manipulator extends CounterManager {
     /**
-     * Sets the writer for incrementing statements and modifications.
+     * Some instrumentations have to be done before the next non-special token. Therefore we need
+     * {@link TreeDumperWithException#addInstrumentationBetween(String)}. In all the other cases
+     * {@link TreeDumperWithException#getTargetWriter()} is the right choice.
      * 
-     * @param writer
+     * @param treeDumper The {@link TreeDumperWithException} to use for instrumentation.
      */
-    public void setWriter(Writer writer);
+    public void setTreeDumper(TreeDumperWithException treeDumper);
 
     /**
      * Whether or whether not statements should occur in Block Statements.<br>

@@ -30,9 +30,9 @@ import org.codecover.instrumentation.java15.syntaxtree.NodeToken;
  */
 public interface CommentManipulator extends Manipulator {
     /**
-     * Manipulates a special {@link NodeToken}.
+     * Tries to find special comments in the special {@link NodeToken}.
      * 
-     * @param token The {@link NodeToken}.
+     * @param token The special {@link NodeToken}.
      * 
      * @return true &rarr; this method has manipulated the {@link NodeToken} 
      * and written it to the writer; false &rarr; the {@link NodeToken} has not been

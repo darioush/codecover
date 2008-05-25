@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 
 import org.codecover.instrumentation.java.measurement.Protocol;
 import org.codecover.instrumentation.java15.syntaxtree.NodeToken;
-
 /**
  * This {@link Manipulator} is used to transform comments into calls of
  * {@link Protocol}:
@@ -36,7 +35,7 @@ import org.codecover.instrumentation.java15.syntaxtree.NodeToken;
  * @version 1.0 ($Id$)
  */
 public class DefaultCommentManipulator extends AbstractDefaultManipulator
-implements CommentManipulator {
+    implements CommentManipulator {
 
     private static final String NAME_REG_EXP = "(([^\"\\\\\n\r\t\b\f])|(\\\\[\\\\\'\"]))*";
 
@@ -54,7 +53,7 @@ implements CommentManipulator {
         + NAME_REG_EXP + "\"(, \"" + COMMENT_REG_EXP + "\")?)?\\);)\\s*";
 
     /**
-     * The regexp, for the {@link Protocol#endTestCase(String)}
+     * The regexp, for the {@link Protocol#endTestCase(String, String)}
      */
     public static final Pattern END_PATTERN = Pattern.compile(END_REGEXP);
 
@@ -106,7 +105,6 @@ implements CommentManipulator {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -119,14 +117,14 @@ implements CommentManipulator {
     }
 
     public void writeDeclarations() throws IOException {
-        // nothing to declare
+        // nothing to do
     }
 
     public void writeReset() throws IOException {
-        // nothing to reset
+        // nothing to do
     }
 
     public void writeSerialzeAndReset() throws IOException {
-        // nothing to serializeAnd
+        // nothing to do
     }
 }

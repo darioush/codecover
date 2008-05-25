@@ -43,6 +43,8 @@ public class TreeDumperWithException extends DepthFirstVisitorWithException {
     
     private LinkedList<OffsetListener> offsetListener;
 
+    private StringBuilder instrumentationBetween = new StringBuilder();
+
     private int lastEndOffset = 0;
 
     /**
@@ -59,7 +61,7 @@ public class TreeDumperWithException extends DepthFirstVisitorWithException {
     /**
      * @return The targetWriter.
      */
-    protected Writer getTargetWriter() {
+    public Writer getTargetWriter() {
         return this.targetWriter;
     }
 
@@ -82,6 +84,16 @@ public class TreeDumperWithException extends DepthFirstVisitorWithException {
     }
 
     /**
+     * Before the next <b>non</b>-special Token is written, this String is pushed to the
+     * {@link #targetWriter}. More than one Strings can be added - they will be concatenated.
+     * 
+     * @param instrumentation The instrumentation String, that should be added.
+     */
+    public void addInstrumentationBetween(String instrumentation) {
+        this.instrumentationBetween.append(instrumentation);
+    }
+
+    /**
      * Dumps the current NodeToken to the output stream being used.
      * 
      * @throws IOException
@@ -94,6 +106,15 @@ public class TreeDumperWithException extends DepthFirstVisitorWithException {
             for (NodeToken nt : n.specialTokens) {
                 visitSpecial(nt);
             }
+        }
+
+        if (this.instrumentationBetween.length() > 0) {
+            // if we have saved some instrumentation Strings, put it out before
+            // the non-special Token
+            for (int i = 0; i < this.instrumentationBetween.length(); i++) {
+                this.targetWriter.write(this.instrumentationBetween.charAt(i));
+            }
+            this.instrumentationBetween.setLength(0);
         }
 
         this.targetWriter.write(n.getSourceFileImage());

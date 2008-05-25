@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 import org.codecover.instrumentation.java15.parser.JavaParserConstants;
 import org.codecover.instrumentation.java15.parser.Token;
 import org.codecover.instrumentation.java15.syntaxtree.NodeToken;
+import org.codecover.instrumentation.java15.visitor.TreeDumperWithException;
 
 /**
  * @see DefaultCommentManipulator
@@ -38,7 +39,7 @@ public class DefaultCommentManipulatorTest extends TestCase {
     protected void setUp() throws Exception {
         this.commentManipulator = new DefaultCommentManipulator();
         this.stringWriter = new StringWriter();
-        this.commentManipulator.setWriter(this.stringWriter);
+        this.commentManipulator.setTreeDumper(new TreeDumperWithException(this.stringWriter));
     }
 
     @Override

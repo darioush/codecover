@@ -16,6 +16,7 @@ import junit.framework.TestSuite;
 import junit.swingui.TestRunner;
 
 import org.codecover.UtilsForTestingJava;
+import org.codecover.instrumentation.exceptions.InstrumentationRuntimeException;
 
 /**
  * @author Christoph Müller
@@ -56,6 +57,7 @@ public class AllTests extends TestSuite {
         suite.addTestSuite(CDlgProjectSubscribeProjectListTest.class);
         suite.addTestSuite(FredMainControllerTest.class);
         suite.addTestSuite(LoopTest.class);
+        suite.addTestSuite(InstrumentCompileAndRunTest.class);
         suite.addTestSuite(MastAndCompileTest.class);
 
         // add test suites in sub packages

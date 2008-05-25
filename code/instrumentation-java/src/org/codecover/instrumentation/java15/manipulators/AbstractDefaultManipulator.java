@@ -14,6 +14,7 @@ package org.codecover.instrumentation.java15.manipulators;
 import java.io.Writer;
 
 import org.codecover.instrumentation.java15.counter.CounterIDManager;
+import org.codecover.instrumentation.java15.visitor.TreeDumperWithException;
 
 /**
  * An abstract {@link Manipulator} which can be inherited by Default
@@ -29,14 +30,25 @@ import org.codecover.instrumentation.java15.counter.CounterIDManager;
  * @see ArrayLoopManipulator
  */
 public abstract class AbstractDefaultManipulator implements Manipulator {
+    
+    private TreeDumperWithException treeDumper;
+
     private Writer writer = null;
 
     private CounterIDManager counterIDManager = null;
 
-    public void setWriter(Writer writer) {
-        this.writer = writer;
+    public void setTreeDumper(TreeDumperWithException treeDumper) {
+        this.treeDumper = treeDumper;
+        this.writer = this.treeDumper.getTargetWriter();
     }
 
+    /**
+     * @return The treeDumper.
+     */
+    public TreeDumperWithException getTreeDumper() {
+        return this.treeDumper;
+    }
+    
     /**
      * @return The writer.
      */

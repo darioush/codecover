@@ -12,10 +12,10 @@
 package org.codecover.instrumentation.java15.manipulators;
 
 import java.io.IOException;
-import java.io.Writer;
 
 import org.codecover.instrumentation.java15.counter.CounterIDManager;
 import org.codecover.instrumentation.java15.counter.CounterManager;
+import org.codecover.instrumentation.java15.visitor.TreeDumperWithException;
 
 /**
  * An abstract {@link Manipulator} which can be inherited by Dummy Manipulators.<br>
@@ -34,7 +34,7 @@ import org.codecover.instrumentation.java15.counter.CounterManager;
 public abstract class AbstractDummyManipulator implements Manipulator,
         CounterManager {
 
-    public void setWriter(Writer writer) {
+    public void setTreeDumper(TreeDumperWithException treeDumper) {
         // we needn't save it
     }
 

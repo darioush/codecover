@@ -835,7 +835,7 @@ public class InstrumentationVisitor extends TreeDumperWithException {
     public void setStatementManipulator(
             StatementManipulator statementManipulator) {
         this.statementManipulator = statementManipulator;
-        this.statementManipulator.setWriter(super.getTargetWriter());
+        this.statementManipulator.setTreeDumper(this);
 
         recalcExpandToBlock();
     }
@@ -853,7 +853,7 @@ public class InstrumentationVisitor extends TreeDumperWithException {
     public void setBranchManipulator(
             BranchManipulator branchManipulator) {
         this.branchManipulator = branchManipulator;
-        this.branchManipulator.setWriter(super.getTargetWriter());
+        this.branchManipulator.setTreeDumper(this);
 
         recalcExpandToBlock();
     }
@@ -871,7 +871,7 @@ public class InstrumentationVisitor extends TreeDumperWithException {
     public void setConditionManipulator(
             ConditionManipulator conditionManipulator) {
         this.conditionManipulator = conditionManipulator;
-        this.conditionManipulator.setWriter(super.getTargetWriter());
+        this.conditionManipulator.setTreeDumper(this);
 
         recalcExpandToBlock();
     }
@@ -888,11 +888,11 @@ public class InstrumentationVisitor extends TreeDumperWithException {
      */
     public void setLoopManipulator(LoopManipulator loopManipulator) {
         this.loopManipulator = loopManipulator;
-        this.loopManipulator.setWriter(super.getTargetWriter());
+        this.loopManipulator.setTreeDumper(this);
 
         recalcExpandToBlock();
     }
-    
+
     /**
      * The {@link CommentManipulator}, which parses "// startTestCase("Name");
      * in comments and  
@@ -904,7 +904,7 @@ public class InstrumentationVisitor extends TreeDumperWithException {
      */
     public void setCommentManipulator(CommentManipulator commentManipulator) {
         this.commentManipulator = commentManipulator;
-        this.commentManipulator.setWriter(super.getTargetWriter());
+        this.commentManipulator.setTreeDumper(this);
 
         recalcExpandToBlock();
     }
@@ -1401,6 +1401,9 @@ public class InstrumentationVisitor extends TreeDumperWithException {
 
     /**
      * Get the modifiers and {@link #pushModifiersToAttic(Modifiers)}.<br>
+     * We do not instrument this FieldDeclaration, because we cannot add code within the
+     * AnnotationTypeBody.
+     * 
      * <PRE>
      * 
      * f0 -> Modifiers() ( Type() &lt;IDENTIFIER&gt; "(" ")" [ DefaultValue() ] ";" |
@@ -1419,45 +1422,14 @@ public class InstrumentationVisitor extends TreeDumperWithException {
             Modifiers modifiers = (Modifiers) unknownDeclarationSequence.nodes.get(0);
             NodeChoice unknownDeclarationChoice = (NodeChoice) unknownDeclarationSequence.nodes.get(1);
 
-            // we are in Modifiers() (.. | ..)
-            if (unknownDeclarationChoice.which == 4) {
-                // we have a FieldDeclaration
-                FieldDeclaration fieldDeclaration = (FieldDeclaration) unknownDeclarationChoice.choice;
-                boolean isInstrumented = manipulateFieldDeclaration(modifiers, fieldDeclaration);
+            modifiers.accept(this);
+            modifiers.startOffset = StartOffset.getStartOffset(modifiers);
+            pushModifiersToAttic(modifiers);
 
+            // ( Type() ... | ... )
+            unknownDeclarationChoice.accept(this);
 
-                modifiers.accept(this);
-                modifiers.startOffset = StartOffset.getStartOffset(modifiers);
-                pushModifiersToAttic(modifiers);
-
-                int startOffset = StartOffset.getStartOffset(unknownDeclarationChoice);
-                startOffset = recalculateStartOffsetUsingModifiers(startOffset);
-                this.locateableManager.pushNewLevel(startOffset, false);
-
-                // ( Type() ... )
-                unknownDeclarationChoice.accept(this);
-                
-                popModifiersFromAttic();
-                LocationList locationList = this.locateableManager.popLevel();
-
-                // create a MAST Statement out of this
-                if (isInstrumented) {
-                    org.codecover.model.mast.Statement newStatement = this.builder
-                            .createBasicStatement(locationList,
-                                    createCoverableItem(fieldDeclaration.statementID),
-                                    Collections.<RootTerm> emptySet());
-                    this.statementAttic.bottom().add(newStatement);
-                }
-            } else {
-                modifiers.accept(this);
-                modifiers.startOffset = StartOffset.getStartOffset(modifiers);
-                pushModifiersToAttic(modifiers);
-                
-                // ( Type() ... )
-                unknownDeclarationChoice.accept(this);
-
-                popModifiersFromAttic();
-            }
+            popModifiersFromAttic();
         } else {
             super.visit(n);
         }
@@ -1611,8 +1583,6 @@ public class InstrumentationVisitor extends TreeDumperWithException {
      */
     @Override
     public void visit(Statement n) throws IOException {
-        Writer writer = super.getTargetWriter();
-
         // we have to have a look, which statements are instrumented,
         // which get a statementID and which are just dumped
 
@@ -1620,11 +1590,12 @@ public class InstrumentationVisitor extends TreeDumperWithException {
             case 0 : { // LabeledStatement
                 LabeledStatement labeledStatement = (LabeledStatement) n.f0.choice;
 
-                // we try to dump the label instead of writing it directly
-                TreeSourceFileImageDumper dumper = new TreeSourceFileImageDumper();
-                dumper.visit(labeledStatement.f0);
-                dumper.visit(labeledStatement.f1);
-                labeledStatement.f2.label = n.label + dumper.getContentUntrimmed();
+                // we copy the collected labels in the labelToken-Vector of the labeled statement
+                labeledStatement.f2.labelToken = new NodeSequence(n.labelToken.size() + 2);
+                labeledStatement.f2.labelToken.nodes.addAll(n.labelToken.nodes);
+                labeledStatement.f2.labelToken.nodes.add(labeledStatement.f0);
+                labeledStatement.f2.labelToken.nodes.add(labeledStatement.f1);
+
                 labeledStatement.f2.accept(this);
 
                 break StatementSwitch;
@@ -1633,8 +1604,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 n.statementID = this.counterIDManager.nextStatementID();
                 EmptyStatement emptyStatement = (EmptyStatement) n.f0.choice;
                 this.statementManipulator.manipulate(emptyStatement, n.statementID);
-                // write the dumped label first
-                writer.write(n.label);
+                // write the collected labelToken first
+                n.labelToken.accept(this);
                 acceptAndAtticBasicStatement(n);
                 break StatementSwitch;
             }
@@ -1644,8 +1615,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 StatementExpression statementExpression = (StatementExpression) nodeList.nodes.get(0);
                 this.statementManipulator.manipulate(statementExpression,
                         n.statementID);
-                // write the dumped label first
-                writer.write(n.label);
+                // write the collected labelToken first
+                n.labelToken.accept(this);
                 acceptAndAtticBasicStatement(n);
                 break StatementSwitch;
             }
@@ -1654,7 +1625,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 SwitchStatement switchStatement = (SwitchStatement) n.f0.choice;
                 switchStatement.statementID = n.statementID;
                 this.statementManipulator.manipulate(switchStatement, n.statementID);
-                switchStatement.label = n.label;
+                // the switchStatement needs the labels, because instrumentations have to be done in front of it
+                switchStatement.labelToken = n.labelToken;
                 switchStatement.accept(this);
                 break StatementSwitch;
             }
@@ -1663,7 +1635,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 IfStatement ifStatement = (IfStatement) n.f0.choice;
                 ifStatement.statementID = n.statementID;
                 this.statementManipulator.manipulate(ifStatement, n.statementID);
-                ifStatement.label = n.label;
+                // the ifStatement needs the labels, because instrumentations have to be done in front of it
+                ifStatement.labelToken = n.labelToken;
                 ifStatement.accept(this);
                 break StatementSwitch;
             }
@@ -1672,7 +1645,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 WhileStatement whileStatement = (WhileStatement) n.f0.choice;
                 whileStatement.statementID = n.statementID;
                 this.statementManipulator.manipulate(whileStatement, n.statementID);
-                whileStatement.label = n.label;
+                // the whileStatement needs the labels, because instrumentations have to be done in front of it
+                whileStatement.labelToken = n.labelToken;
                 whileStatement.accept(this);
                 break StatementSwitch;
             }
@@ -1681,7 +1655,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 DoStatement doStatement = (DoStatement) n.f0.choice;
                 doStatement.statementID = n.statementID;
                 this.statementManipulator.manipulate(doStatement, n.statementID);
-                doStatement.label = n.label;
+                // the doStatement needs the labels, because instrumentations have to be done in front of it
+                doStatement.labelToken = n.labelToken;
                 doStatement.accept(this);
                 break StatementSwitch;
             }
@@ -1690,7 +1665,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 ForStatement forStatement = (ForStatement) n.f0.choice;
                 forStatement.statementID = n.statementID;
                 this.statementManipulator.manipulate(forStatement, n.statementID);
-                forStatement.label = n.label;
+                // the forStatement needs the labels, because instrumentations have to be done in front of it
+                forStatement.labelToken = n.labelToken;
                 forStatement.accept(this);
                 break StatementSwitch;
             }
@@ -1698,8 +1674,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 n.statementID = this.counterIDManager.nextStatementID();
                 BreakStatement breakStatement = (BreakStatement) n.f0.choice;
                 this.statementManipulator.manipulate(breakStatement, n.statementID);
-                // write the dumped label first
-                writer.write(n.label);
+                // write the collected labelToken first
+                n.labelToken.accept(this);
                 acceptAndAtticBasicStatement(n);
                 break StatementSwitch;
             }
@@ -1707,8 +1683,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 n.statementID = this.counterIDManager.nextStatementID();
                 ContinueStatement continueStatement = (ContinueStatement) n.f0.choice;
                 this.statementManipulator.manipulate(continueStatement, n.statementID);
-                // write the dumped label first
-                writer.write(n.label);
+                // write the collected labelToken first
+                n.labelToken.accept(this);
                 acceptAndAtticBasicStatement(n);
                 break StatementSwitch;
             }
@@ -1716,8 +1692,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 n.statementID = this.counterIDManager.nextStatementID();
                 ReturnStatement returnStatement = (ReturnStatement) n.f0.choice;
                 this.statementManipulator.manipulate(returnStatement, n.statementID);
-                // write the dumped label first
-                writer.write(n.label);
+                // write the collected labelToken first
+                n.labelToken.accept(this);
                 acceptAndAtticBasicStatement(n);
                 break StatementSwitch;
             }
@@ -1725,8 +1701,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 n.statementID = this.counterIDManager.nextStatementID();
                 ThrowStatement throwStatement = (ThrowStatement) n.f0.choice;
                 this.statementManipulator.manipulate(throwStatement, n.statementID);
-                // write the dumped label first
-                writer.write(n.label);
+                // write the collected labelToken first
+                n.labelToken.accept(this);
                 acceptAndAtticBasicStatement(n);
                 break StatementSwitch;
             }
@@ -1735,14 +1711,15 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 TryStatement tryStatement = (TryStatement) n.f0.choice;
                 tryStatement.statementID = n.statementID;
                 this.statementManipulator.manipulate(tryStatement, n.statementID);
-                tryStatement.label = n.label;
+                // the tryStatement needs the labels, because instrumentations have to be done in front of it
+                tryStatement.labelToken = n.labelToken;
                 tryStatement.accept(this);
                 break StatementSwitch;
             }
             default: {
                 // AssertStatement() | Block() | SynchronizedStatement()
-                // write the dumped label first
-                writer.write(n.label);
+                // write the collected labelToken first
+                n.labelToken.accept(this);
                 // the InstrumentationVisitor has visited n -> use super
                 super.visit(n);
                 break StatementSwitch;
@@ -1858,8 +1835,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         handleConditionManipulatorMessage(manipulationResult.warningMessage,
                 n.f0.startLine);
 
-        // write the dumped label first
-        super.getTargetWriter().write(n.label);
+        // write the collected labelToken after manipulation
+        n.labelToken.accept(this);
         n.f0.accept(this);
         n.f1.accept(this);
 
@@ -2015,8 +1992,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
 
         startLocateableLevel();
 
-        // write the dumped label first
-        super.getTargetWriter().write(n.label);
+        // write the collected labelToken at this position
+        n.labelToken.accept(this);
         n.f0.accept(this);
         n.f1.accept(this);
         n.f2.accept(this);
@@ -2123,8 +2100,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         this.branchManipulator.manipulateHelperDeclaration(n, tryBranchID,
                 tryHelperBranchID);
 
-        // write the dumped label first
-        super.getTargetWriter().write(n.label);
+        // write the collected labelToken after manipulation
+        n.labelToken.accept(this);
         // try
         n.f0.accept(this);
 
@@ -2247,8 +2224,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         if (n.f2.which == 0) {
             // here is no expression -> visit directly
             
-            // write the dumped label first
-            super.getTargetWriter().write(n.label);
+            // write the collected labelToken after manipulation
+            n.labelToken.accept(this);
 
             // for ( .. )
             n.f0.accept(this);
@@ -2280,8 +2257,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                         n.f0.startLine);
                 rootTerm = manipulationResult.rootTermForMast;
 
-                // write the dumped label first
-                super.getTargetWriter().write(n.label);
+                // write the collected labelToken after manipulation
+                n.labelToken.accept(this);
                 // for "("
                 n.f0.accept(this);
                 n.f1.accept(this);
@@ -2302,8 +2279,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 // ")"
                 n.f3.accept(this);
             } else {
-                // write the dumped label first
-                super.getTargetWriter().write(n.label);
+                // write the collected labelToken at this position
+                n.labelToken.accept(this);
                 // for ( .. )
                 n.f0.accept(this);
                 n.f1.accept(this);
@@ -2385,8 +2362,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         handleConditionManipulatorMessage(manipulationResult.warningMessage,
                 n.f0.startLine);
 
-        // write the dumped label first
-        super.getTargetWriter().write(n.label);
+        // write the collected labelToken after manipulation
+        n.labelToken.accept(this);
         // while
         n.f0.accept(this);
         // (
@@ -2475,8 +2452,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         handleConditionManipulatorMessage(manipulationResult.warningMessage,
                 n.f2.startLine);
 
-        // write the dumped label first
-        super.getTargetWriter().write(n.label);
+        // write the collected labelToken after manipulation
+        n.labelToken.accept(this);
         // do
         n.f0.accept(this);
 

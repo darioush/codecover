@@ -28,7 +28,7 @@ package org.codecover.instrumentation.java15.syntaxtree;
 @SuppressWarnings("all")
 public class ExplicitConstructorInvocation implements Node {
    public String statementID = null;
-   public String label = "";
+   public NodeSequence labelToken = NodeSequence.EMPTY_INSTANCE;
    private Node parent;
    public NodeListOptional f0;
    public NodeOptional f1;

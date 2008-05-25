@@ -469,7 +469,7 @@ public class JavaAllInstrumentationTest extends TestCase {
                 new File(SOURCE), new File(TARGET));
         scanner.scan(new File(SOURCE), fileFoundListener);
 
-        Assert.assertEquals(15, fileFoundListener.getIncludedSourceTargetContainers().size());
+        Assert.assertEquals(16, fileFoundListener.getIncludedSourceTargetContainers().size());
 
         try {
             testSessionContainer = instrumenter.instrument(new File(SOURCE),
@@ -497,6 +497,7 @@ public class JavaAllInstrumentationTest extends TestCase {
         Assert.assertTrue(isCompileableJava(new File(TEST_TARGET + "test6/ComplexEnum.java")));
         Assert.assertTrue(isCompileableJava(new File(TEST_TARGET + "test7/ComplexAnnotation.java")));
         Assert.assertTrue(isCompileableJava(new File(TEST_TARGET + "test9/ClassDeclarationInField.java")));
+        Assert.assertTrue(isCompileableJava(new File(TEST_TARGET + "test10/CoverableItemTest.java")));
         checkAreMeasurementHelpersCopied();
 
         try {

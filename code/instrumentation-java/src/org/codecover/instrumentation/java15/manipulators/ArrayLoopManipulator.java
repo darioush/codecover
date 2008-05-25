@@ -26,6 +26,7 @@ import org.codecover.instrumentation.java15.counter.CounterManager;
 import org.codecover.instrumentation.java15.syntaxtree.DoStatement;
 import org.codecover.instrumentation.java15.syntaxtree.ForStatement;
 import org.codecover.instrumentation.java15.syntaxtree.WhileStatement;
+import org.codecover.instrumentation.java15.visitor.TreeDumperWithException;
 import org.codecover.instrumentation.measurement.CoverageCounterLog;
 
 /**
@@ -92,7 +93,7 @@ public class ArrayLoopManipulator extends AbstractDefaultManipulator
     //
     // /////////////////////////////////////////////////////////////////////////
 
-    private static final String LOOP_HELPER_ID_FORMAT = "CodeCoverTryBranchHelper_%1$s";
+    private static final String LOOP_HELPER_ID_FORMAT = "CodeCoverLoopChoiceHelper_%1$s";
 
     private static final String COUNTER_INCREMENTING_FOR_LOOP_HELPER = LOOP_HELPER_ID_FORMAT
             + "++;";
@@ -131,6 +132,11 @@ public class ArrayLoopManipulator extends AbstractDefaultManipulator
      * Writes a statement for setting the help counter of a primary loopID to
      * zero and incrementing the counter representing the LoopSubIDZero.
      * 
+     * <pre>
+     * helper = 0;
+     * counterZero++;
+     * </pre>
+     * 
      * @param primaryLoopID
      *            The corresponding primary loopID.
      * 
@@ -139,16 +145,17 @@ public class ArrayLoopManipulator extends AbstractDefaultManipulator
      */
     private void writeBeforeLoop(String primaryLoopID)
             throws IOException {
+        TreeDumperWithException treeDumper = super.getTreeDumper();
         Writer writer = super.getWriter();
         int ID = getNumberFromPrimaryLoopID(primaryLoopID);
         this.maxLoopID = Math.max(this.maxLoopID, ID);
 
         writer.write(String.format(COUNTER_DECLARATION_FOR_LOOP_HELPER, primaryLoopID));
         writer.write(LINE_SEPARATOR);
-        writer.write(String.format(COUNTER_INCREMENTING,
+        treeDumper.addInstrumentationBetween(String.format(COUNTER_INCREMENTING,
                 super.getCounterIDManager().getInnerClassName(),
                 new Integer(ID * 3 - 2)));
-        writer.write(LINE_SEPARATOR);
+        treeDumper.addInstrumentationBetween(LINE_SEPARATOR);
     }
 
     /**
