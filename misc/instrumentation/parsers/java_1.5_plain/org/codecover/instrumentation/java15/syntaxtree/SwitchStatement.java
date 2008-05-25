@@ -30,7 +30,7 @@ package org.codecover.instrumentation.java15.syntaxtree;
 @SuppressWarnings("all")
 public class SwitchStatement implements Node {
    public String statementID = null;
-   public String label = "";
+   public NodeSequence labelToken = NodeSequence.EMPTY_INSTANCE;
    private Node parent;
    public NodeToken f0;
    public NodeToken f1;

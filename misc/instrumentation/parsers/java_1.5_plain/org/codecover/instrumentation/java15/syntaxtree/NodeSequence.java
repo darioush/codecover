@@ -23,6 +23,8 @@ import java.util.*;
  */
 @SuppressWarnings("all")
 public class NodeSequence implements NodeListInterface {
+   public static final NodeSequence EMPTY_INSTANCE = new NodeSequence(0);
+
    public NodeSequence(int n) {
       nodes = new Vector<Node>(n);
    }

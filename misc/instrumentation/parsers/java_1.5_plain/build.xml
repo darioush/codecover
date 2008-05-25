@@ -19,7 +19,7 @@
         <antcall target="jtb"/>
         <antcall target="javacc"/>
         <antcall target="replacing"/>
-        
+
         <echo message="use 'ant copy' to copy files to trunk/code/instrumentation-java/"/>
     </target>
 
@@ -296,7 +296,7 @@ public interface ]]></replacevalue>
         <replace dir="org/codecover/instrumentation/java15/syntaxtree/" encoding="UTF-8">
       	    <include name="*.java"/>
       	    <exclude name="Node.java"/>
-      	    <include name="NodeListInterface.java"/>
+      	    <exclude name="NodeListInterface.java"/>
       	    <exclude name="NodeChoice.java"/>
             <replacetoken><![CDATA[public <R,A> R accept(org.codecover.instrumentation.java15.visitor.GJVisitor<R,A> v, A argu) {]]></replacetoken>
             <replacevalue><![CDATA[public void accept(org.codecover.instrumentation.java15.visitor.VisitorWithException v) throws java.io.IOException {
@@ -307,7 +307,7 @@ public interface ]]></replacevalue>
         <replace dir="org/codecover/instrumentation/java15/syntaxtree/" encoding="UTF-8">
       	    <include name="*.java"/>
       	    <exclude name="Node.java"/>
-      	    <include name="NodeListInterface.java"/>
+      	    <exclude name="NodeListInterface.java"/>
       	    <exclude name="NodeChoice.java"/>
             <replacetoken><![CDATA[public Node getParent()       { return parent; }]]></replacetoken>
             <replacevalue><![CDATA[public Node getParent()       { return parent; }
@@ -333,6 +333,13 @@ public interface ]]></replacevalue>
    public <R,A> R accept(org.codecover.instrumentation.java15.visitor.GJVisitor<R,A> v, A argu) {]]></replacevalue>
         </replace>
         <replace dir="org/codecover/instrumentation/java15/syntaxtree/" encoding="UTF-8">
+      	    <include name="NodeSequence.java"/>
+            <replacetoken><![CDATA[public class NodeSequence implements NodeListInterface {]]></replacetoken>
+            <replacevalue><![CDATA[public class NodeSequence implements NodeListInterface {
+   public static final NodeSequence EMPTY_INSTANCE = new NodeSequence(0);
+]]></replacevalue>
+        </replace>
+        <replace dir="org/codecover/instrumentation/java15/syntaxtree/" encoding="UTF-8">
       	    <include name="Statement.java"/>
       	    <include name="SwitchStatement.java"/>
       	    <include name="IfStatement.java"/>
@@ -345,7 +352,7 @@ public interface ]]></replacevalue>
             <replacetoken><![CDATA[implements Node {]]></replacetoken>
             <replacevalue><![CDATA[implements Node {
    public String statementID = null;
-   public String label = "";]]></replacevalue>
+   public NodeSequence labelToken = NodeSequence.EMPTY_INSTANCE;]]></replacevalue>
     	</replace>
         <replace dir="org/codecover/instrumentation/java15/syntaxtree/" encoding="UTF-8">
       	    <include name="Modifiers.java"/>
