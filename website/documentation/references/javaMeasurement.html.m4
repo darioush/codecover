@@ -18,7 +18,7 @@ m4_web_create_page_header(`Measurement under Java')
       <li><a href="#CoverageResult">Coverage result</a></li>
       <li><a href="#SpecialCharacteristics">Special characteristics</a></li>
     </ul>
-    <p> The following sections descibes some special features of the instrumentation and
+    <p> The following sections describe some special features of the instrumentation and
       coverage measurement process, which are provided by the Java instrumenter shipped
       together with <em>CodeCover</em>.</p>
     <h3><a name="TestCaseSelection" id="TestCaseSelection"></a>Test case selection</h3>
