@@ -82,7 +82,7 @@ m4_web_create_page_header(`Add a new programming language')
       -->
     <h2><a name="preface">Preface</a></h2>
     <p>CodeCover is shipped with support for <i>Java 1.4</i>, <i>Java 1.5</i> and <i>VS COBOL 1985</i>. These pages describe how to use CodeCover with another programming language.</p>
-    <p>Before we start to explain what you need and how you can integrate your programming language, it is import to understand our process of coverage measurement. Therefore, you can take a look at the design document &ndash; the chapter <i>2.1 Process chain</i> gives an overview of the process: instrumentation, compilation and execution, analysing, creating the report (see the <a href="design.pdf">design document</a>).</p>
+    <p>Before we start to explain what you need and how you can integrate your programming language, it is import to understand our process of coverage measurement. Therefore, you can take a look at the design document &ndash; the chapter <i>2.1 Process chain</i> gives an overview of the process: instrumentation, compilation and execution, analysing, creating the report (see the <a href="Design.pdf">design document</a>).</p>
     <p>CodeCover is written in Java 1.5 and designed to support various programming languages. This is achieved by having strict interfaces. On the one side of these interfaces is the individual programming language. It has a special grammar and its semantic. On the other side of the interfaces are:</p><ul>
     <li>an abstract representation of the source code,</li>
     <li>a generic metric model</li>
@@ -923,7 +923,7 @@ ENDPROGRAM
         <li>evaluated to <code>TRUE</code></li>
         <li>not evaluated</li>
     </ul>
-    <p>For being very specific for every programming language, the condition coverage approach differs too. We now describe the approach for <i>Xampil</i>, that can be used, if the evaluation of boolean terms has no side effects and short circuit semantic is not used. For another approach you can have a look in the <a href="design.pdf">design document</a> in <i>Appendix A: &quot;Formal Proof Of Conditional Coverage Instrumentation&quot;</i>.</p>
+    <p>For being very specific for every programming language, the condition coverage approach differs too. We now describe the approach for <i>Xampil</i>, that can be used, if the evaluation of boolean terms has no side effects and short circuit semantic is not used. For another approach you can have a look in the <a href="Design.pdf">design document</a> in <i>Appendix A: &quot;Formal Proof Of Conditional Coverage Instrumentation&quot;</i>.</p>
     <p>The statement, branch, loop and conditional instrumentation of <a href="programming-language-files/example.xpl"><code>exampel.xpl</code></a> is shown in <a href="programming-language-files/example.instr-co.xpl"><code>exampel.instr-co.xpl</code></a>:</p>
     <pre><code>// example.instr-co.xpl
 DECLARATION
@@ -1918,7 +1918,7 @@ public void writeDeclarations(int loopCount) {
 
     <h3><a name="instrumentation_log">Coverage log file</a></h3>
     <p>The instrumentation we have done yet is nearly finshed. Although a <i>Xampil</i> file will collect coverage data during the run, the data is not written to a file. This feature has to be implemented now.</p>
-    <p>How does such a coverage log file look like? You can have a look in the <a href="design.pdf">design document</a> &ndash; <i>Appendix B: &quot;Coverage log
+    <p>How does such a coverage log file look like? You can have a look in the <a href="Design.pdf">design document</a> &ndash; <i>Appendix B: &quot;Coverage log
     file specification&quot;</i>.</p>
     <p>How do we produce such a file? We have to add additional <code>FILE</code> statement for the output. Therefore, we add three methods in the <code>InstrumentationVisitor</code>:</p>
     <pre><code>private static final String CLF_NAME = "coverage-log.clf";
@@ -1994,7 +1994,7 @@ FILE APPEND "coverage-log.clf" "END_TEST_CASE \"Single Test Case\"" + "\n"</code
       -->
     <h2><a name="mast">More abstract syntaxtree (MAST)</a></h2>
     <h3><a name="mast_model">The syntaxtree model</a></h3>
-    <p>As we have told you in the preface chapter, we need an abstract model of all the source files. This is required to get to know, which statements and branches are related to each other. Moreover, we can subdivide the model and calculate metrics only for parts of it. For this reason, we use a <i>More abstract syntaxtree</i>. This concept is explained in detail in the <a href="design.pdf">design document</a>. The chapter &quot;3.1 Data model&quot; gives an overview of the classes used for the MAST. There is even an example of a small mast that illustrates, how the elements are hierarchically ordered. In this document, we only want to show you the basic ideas.</p>
+    <p>As we have told you in the preface chapter, we need an abstract model of all the source files. This is required to get to know, which statements and branches are related to each other. Moreover, we can subdivide the model and calculate metrics only for parts of it. For this reason, we use a <i>More abstract syntaxtree</i>. This concept is explained in detail in the <a href="Design.pdf">design document</a>. The chapter &quot;3.1 Data model&quot; gives an overview of the classes used for the MAST. There is even an example of a small mast that illustrates, how the elements are hierarchically ordered. In this document, we only want to show you the basic ideas.</p>
     <p>At the top of the MAST there are the so called <code>HierarchyLevel</code>s. They represent a source file, a package, a class or a program unit. On the one hand, they can recursively contain child <code>HierarchyLevel</code>s. On the other hand, they can contain <code>StatementSequences</code> with <code>Statements</code>.</p>
     <p>These <code>Statements</code> are subdivided into:</p>
     <ul>
