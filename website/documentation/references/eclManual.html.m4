@@ -207,7 +207,7 @@ Now we will go through all of Java's elements that can be covered by one of Code
 
 <h4>Statement coverage</h4>
 <p>
-Statement coverage covers only so called basic statements, like <code>i++;</code>. They have exactly one coverable item, which is covered if the statment was executed successfully at least once. Throwing an exception is not considered a successful execution.
+Statement coverage covers only so called basic statements, like <code>i++;</code>. They have exactly one coverable item, which is covered if the statement was executed successfully at least once. Throwing an exception is not considered a successful execution.
 </p>
 <p>Basic statements don't contain other statements and can always have statements following them. The former excludes branching statements and loops, which contain blocks of statements. This avoids highlighting the same element by two different metrics. The latter excludes <code>return</code> and <code>throw</code>, which can't be instrumented for technical reasons. Look at the statements around them to see if they were executed.</p>
 
@@ -236,7 +236,7 @@ Each is covered it the loop has been run once with a suitable number of iteratio
 </p>
 
 <h4>Changing colors</h4>
-<p> The  highlighting is realized with Eclipse's annotations. For every coverage status (covered fully, covered partly and not covered) there is one annotation type per metric. Branch, Loop, Statment and Conditional represent the metrics included within the CodeCover release and Other is used for metrics added by plugins. You can change the layout of all of these 15 different annotations globally for your workspace in your Eclipse preferences dialog. The dialog can be found by opening Window &gt; Preferences and entering "ann" into the search field: </p>
+<p> The  highlighting is realized with Eclipse's annotations. For every coverage status (covered fully, covered partly and not covered) there is one annotation type per metric. Branch, Loop, Statement and Conditional represent the metrics included within the CodeCover release and Other is used for metrics added by plugins. You can change the layout of all of these 15 different annotations globally for your workspace in your Eclipse preferences dialog. The dialog can be found by opening Window &gt; Preferences and entering "ann" into the search field: </p>
   <p><img alt="Screenshot of Annotation Preferences" src="../../images/ecl-img/annotation_page.png" />
   </p>
     
@@ -268,9 +268,9 @@ Each is covered it the loop has been run once with a suitable number of iteratio
     <h4><a name="CoverageResultExportWizard" id="CoverageResultExportWizard"></a>Coverage Result Export Wizard</h4>
     <p>This export wizard can be used to export the coverage results as either a test session container, or a report.</p>
     <p><img alt="" src="../../images/ecl-img/report_export.png" width="544" height="532" /></p>
-    <p>The test session container holding the coverage results can be selected in the combo box. The list of test sessions can be choosen in the list of available test sessions. The type combo box is used to select the kind of export and the destination can be specified with the &quot;Browse&quot; button. If the export type is &quot;CodeCover Test Session Container&quot;, this page can be closed with the &quot;Finish&quot; button. If it is &quot;Report&quot;, the &quot;Finish&quot; button is disabled and the &quot;Next&quot; button can be used to navigate to the next page.</p>
+    <p>The test session container holding the coverage results can be selected in the combo box. The list of test sessions can be chosen in the list of available test sessions. The type combo box is used to select the kind of export and the destination can be specified with the &quot;Browse&quot; button. If the export type is &quot;CodeCover Test Session Container&quot;, this page can be closed with the &quot;Finish&quot; button. If it is &quot;Report&quot;, the &quot;Finish&quot; button is disabled and the &quot;Next&quot; button can be used to navigate to the next page.</p>
     <p><img alt="" src="../../images/ecl-img/report_template_wizard.png" width="613" height="550" /></p>
-    <p>The template that is used in the creation of the report can be specified here. The shipped templates can be found in the <code>eclipse/plugins/org.codecover.report.*/report-templates/</code> directorys. The &quot;Finish&quot; button initiates the creation of the report.</p>
+    <p>The template that is used in the creation of the report can be specified here. The shipped templates can be found in the <code>eclipse/plugins/org.codecover.report.*/report-templates/</code> directories. The &quot;Finish&quot; button initiates the creation of the report.</p>
     <h3><a name="JUnit" id="JUnit"></a>CodeCover Measurement for JUnit</h3>
     <p>As you know, you can use <em>Test Cases</em> to subdivide the whole coverage measurement of a coverage run. But how to do that in Eclipse? A mechanism is to use the <a href="#LiveNotification">Live Notification</a>, described in the next paragraph. But for the most projects, you have already created a JUnit test suite &ndash; why not use this? You can use this test suite to test your software and in the meanwhile, CodeCover uses the test case information to subdivide the coverage measurement.</p>
     <p>As a precondition, you have to activate CodeCover for the project you want to use CodeCover with. This is explained in the section <a href="#Build">Build</a>.</p>
@@ -285,7 +285,7 @@ Each is covered it the loop has been run once with a suitable number of iteratio
       instrumented SUT. Its main purpose is to manually define test case boundaries
       from within eclipse and send them to the SUT.</p>
     <p> In the following examples replace 1234 with the port to use for Live Notification.
-      If your SUT already uses JMX, make sure that neither ssl nor password authentification
+      If your SUT already uses JMX, make sure that neither SSL nor password authentication
       is required and use the port you defined. </p>
     <h4> Enabling Live Notification in the SUT: </h4>
     <p> If your Application does not support JMX you have to enable it.</p>

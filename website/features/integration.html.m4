@@ -5,7 +5,7 @@ m4_include(`website.inc.m4')
 m4_web_create_page_header(`Features: Integration')
 
     <h2>Features: Integration</h2>
-    <p>However you work, we are sure there is a way to integrate CodeCover in your developement process.</p>
+    <p>However you work, we are sure there is a way to integrate CodeCover in your development process.</p>
     <h3>Batch</h3>
     <p>Codecover can be used via a simple, well documented batch interface. This enables you to use it nearly everywhere and integrate it into your build scripts. Each step, from instrumentation over testcase administration to the report can be made via that batch interface.</p>
     <h3>Ant</h3>

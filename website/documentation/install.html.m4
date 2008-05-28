@@ -22,7 +22,7 @@ m4_web_create_page_header(`Installation Guide')
 <li>Start Eclipse.</li>
 <li>From the main menu, select &quot;Help&quot;, &quot;Software updates&quot;, &quot;Find and install...&quot;.</li>
 <li>In the upcoming dialog, select &quot;Search for new features to install&quot; and click &quot; "Next".</li>
-<li>The list containing known update sites wil be displayed. Create a new update site by clicking on &quot;New Remote Site...&quot; and enter the following information:
+<li>The list containing known update sites will be displayed. Create a new update site by clicking on &quot;New Remote Site...&quot; and enter the following information:
 <pre>
    Name: <strong>CodeCover Update Site</strong>
    URL:  <strong><a href="http://update.codecover.org/">http://update.codecover.org/</a></strong>

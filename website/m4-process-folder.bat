@@ -10,7 +10,7 @@ SET Source=%1
 SET Target=%2
 SET SUBDIR=%4
 
-MKDIR "%Target%"
+IF NOT EXIST %Target%\NUL MKDIR "%Target%"
 
 REM ECHO %Source%
 REM ECHO %Target%

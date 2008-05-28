@@ -85,7 +85,7 @@ m4_web_create_page_header(`CLI Reference')
     $hltc.Number
 #end</code></pre>
       <h4>sorter</h4>
-      <p>The sorter enables you to sort any <code>List</code> in an order you define in the template, during runtime. This works in two steps. First, you assosiate each item you want to sort with a sorting key.</p>
+      <p>The sorter enables you to sort any <code>List</code> in an order you define in the template, during runtime. This works in two steps. First, you associate each item you want to sort with a sorting key.</p>
       <pre><code>void setKey(Object object, double key)
 void setKey(Object object, int key)
 void setKey(Object object, String key)</code></pre>
@@ -134,7 +134,7 @@ void setKey(Object object, String key)</code></pre>
       <pre><code>List&lt;ExtractOfCodeFile&gt; getCoveredCode (HierarchyLevel level,
                                         List&lt;TestCase&gt; testCases,
                                         List&lt;CoverageMetric&gt; metrics)</code></pre>
-      <p>you get colored code, seperated in files and lines. ExtractOfCodeFile has the methods</p>
+      <p>you get colored code, separated in files and lines. ExtractOfCodeFile has the methods</p>
       <pre><code>String getFileName()
 List&lt;TextLine&gt; getTextLines()</code></pre>
       <p>and each TextLine has the methods</p>
@@ -149,7 +149,7 @@ List&lt;TextLine&gt; getTextLines()</code></pre>
         </tr>
         <tr>
           <td><code>String getText()</code> </td>
-          <td>returns the text in this line, enriched with html-tags for colorage</td>
+          <td>returns the text in this line, enriched with html-tags for coloring</td>
         </tr>
         <tr>
           <td><code>long getExecutions()</code></td>

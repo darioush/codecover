@@ -735,7 +735,7 @@ public InstrumentationVisitor(PrintWriter writer,
     <!--
         INSTRUMENTATION CHAPTER
       -->
-    <h2><a name="inst9rumentation">Instrumentation</a></h2>
+    <h2><a name="instrumentation">Instrumentation</a></h2>
     <h3><a name="instrumentation_design">Design the coverage measurement</a></h3>
     <h4><a name="instrumentation_covdata">Coverage data</a></h4>
     <p>Before you start to implement the instrumentation, you have to get to know, how you are going to instrument. In other words: you have to design how you want to collect coverage data. Coverage data can be measured for statements, branches, loops and boolean expressions. Coverage data is just a number, that represents, how often a statement is executed or a branch is entered. An element is called covered, if it is executed at least once.</p>

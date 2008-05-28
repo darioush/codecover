@@ -62,7 +62,7 @@ m4_web_create_page_header(`HOWTO Use CodeCover with the command-line interface')
       <li> The option <code>name</code> refers to the name of the merged test session.</li>
       <li> The option <code>comment</code> refers to an optional comment that can be added to the merged test session.</li>
     </ul>
-    <p>Execution of this command creates a new test session with the name &quot;TestSession1+2&quot;, that holds all the coverage data of the previously seperate test sessions.</p>
+    <p>Execution of this command creates a new test session with the name &quot;TestSession1+2&quot;, that holds all the coverage data of the previously separate test sessions.</p>
     <h3><a name="GenerateReport" id="GenerateReport"></a>Generate Report</h3>
     <p>Finally CodeCover can generate a report of one of the test sessions in the test session container with the following command:</p>
     <pre><code>codecover report --container <em>SimpleJavaApp</em>/test-session-container.xml 

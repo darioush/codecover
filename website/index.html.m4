@@ -48,7 +48,7 @@ are selected that were "involved" in the code modification.
 
 <li><b>Support for program comprehension</b><br />
 The glass box test denotes which program code is executed by
-which test case (traceablity).
+which test case (traceability).
 </li>
 </ul>
 

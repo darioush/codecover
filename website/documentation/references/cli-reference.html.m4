@@ -6,7 +6,7 @@ m4_web_create_page_header(`CLI Reference')
 
     <h2>Command Line Interface</h2>
     <p><code>usage: codecover %command% [%options%]</code></p>
-    <p>CodeCover itsself, without using a command, supports the two options:</p>
+    <p>CodeCover itself, without using a command, supports the two options:</p>
     <table border="1">
         <tr>
           <th>Option</th>
@@ -41,7 +41,7 @@ m4_web_create_page_header(`CLI Reference')
       </tr>
       <tr>
         <td><a href="#CopySessions"><code>cs, copy-sessions</code></a></td>
-        <td>copys test-sessions from one session container to another</td>
+        <td>copies test-sessions from one session container to another</td>
       </tr>
       <tr>
         <td><a href="#Help"><code>h, help</code></a></td>
@@ -126,7 +126,7 @@ m4_web_create_page_header(`CLI Reference')
         </tr>
         <tr>
           <td><code>--show-stack-trace</code></td>
-          <td>shows strack trace on errors</td>
+          <td>shows stack trace on errors</td>
         </tr>
       </table>
       <!-- Intrument-Info Command -->
@@ -848,9 +848,8 @@ OPTIONAL options:
  -u, --copy-uninstrumented    copy all files under the root directory that are
                               not instrumented
  -o, --criterion              one or more of (all, st, br, co, lo)
- -D, --directive              a directive for the instrumenter to enable specia
-
-                              features; has the form "key=value"
+ -D, --directive              a directive for the instrumenter to enable
+                              special features; has the form "key=value"
  -e, --exclude                a exclude pattern, can occur more than one time
  -x, --excludes-file          a file containing a list of exclude patterns -
                               separated by a line break
