@@ -309,40 +309,37 @@ The instrumentation component is modeled in greater detail in the detailed
 design document.
 
 \subsubsection{Instrumentation approach}
-There are four coverage criteria: statement, branch, condition and loop coverage. The instrumentation for each criterion is independent. For that reason, the instrumentation approach is described separately using a pseudo programming language. All coverage data is captured using counters. These counters can be variables, fields or arrays. In the following examples, we use variables in the form \code{counter1} to represent the counters. All counters are stored persistently in the coverage log file, when a test case ends. The specification of the coverafe log file can be found in appendix~\ref{Coverage log file specification} on page~\pageref{Coverage log file specification}.
+There are four coverage criteria: statement, branch, condition and loop coverage. The instrumentation for each criterion is independent. For that reason, the instrumentation approach is described separately using a pseudo programming language. All coverage data is captured using counters. These counters can be variables, fields or arrays. In the following examples, we use variables in the form \code{counter1} to represent the counters. All counters are stored persistently in the coverage log file, when a test case ends. The specification of the coverage log file can be found in appendix~\ref{Coverage log file specification} on page~\pageref{Coverage log file specification}.
+
 \paragraph{Statement coverage}
-In the pseudo programming language three types of statements are defined. There are three types of statements:
-\begin{itemize}
-\item normal statements like \code{a = b * c}
-\item statements containing a harmless jump like \code{break} or \code{continue}
-\item harmful jumping statements that may cause abnormal system behavior like like \code{return} or \code{throw}
-\end{itemize}
-The following example shows how these different statements are instrumented.
+In Java, the statement coverage has the semantic, that a statement is covered, if the programm flow \textbf{starts} to execute the statement. For this reason, a simple instrumentation before each statement is sufficient. The following example shows how statements are instrumented:
 \newline\\
 \begin{minipage}[t]{0.5\textwidth}
 \begin{verbatim}
-<normal statement>
+
+<statement1>
 
 
-<harmless jumping statement>
+<statement2>
 
 
-<harmful jumping statement>
+<statement3>
 \end{verbatim}
 \end{minipage}
 \begin{minipage}[t]{0.5\textwidth}
 \begin{verbatim}
-<normal statement>
 counter1 := counter1 + 1
+<statement1>
 
 counter2 := counter2 + 1
-<harmless jumping statement>
+<statement2>
 
-<harmful jumping statement>
+counter3 := counter3 + 1
+<statement3>
 \end{verbatim}
 \end{minipage}
 \newline\\
-Harmful jumping statements are very difficult to instrument. In consequence, they are not instrumented and ignored for statement coverage measurement. In addition to that, looping and conditional statements are instrumented specially, see loop respectively branch coverage.
+In addition to the instrumentation of simple statements, looping and conditional statements are instrumented specially, see loop respectively branch coverage.
 
 \paragraph{Branch coverage}
 Branches are created by if, switch or similar statements. For each branch a counter is introduced. If a branch is omitted, like an else-branch, it is added with an appropriate counter. 
