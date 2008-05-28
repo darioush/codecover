@@ -17,7 +17,7 @@ REM ECHO %Target%
 
 FOR %%F IN (%Source%*.html.m4) DO CALL m4-process-file.bat %%~fF %Target%%%~nF %3%%~nF %SUBDIR%
 
-IF NOT "%4" == "" SET SUBDIR=%SUBDIR%/
+IF NOT "%SUBDIR%" == "" SET SUBDIR=%SUBDIR%/
 FOR /D %%F IN (%Source%*) DO CALL m4-process-folder.bat %Source%%%~nF\ %Target%%%~nF\ %3%%~nF/ %SUBDIR%..
 
 ENDLOCAL

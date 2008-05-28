@@ -1,6 +1,8 @@
 @ECHO OFF
 SETLOCAL
 SET WebsiteHome=%~d0%~sp0
+
+REM Sind wir im richtigen Verzeichnis?
 IF NOT EXIST "%WebsiteHome%website.inc.m4" GOTO VERZEICHNIS
 SET TargetHome=%WebsiteHome%..\website-complete\
 
