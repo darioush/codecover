@@ -1,4 +1,6 @@
 #!/bin/sh
+#
+#DESCRIPTION: builds the website for local testing and to prepare deployment
 
 set -e
 set -x
