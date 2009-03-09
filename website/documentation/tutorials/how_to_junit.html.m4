@@ -5,12 +5,12 @@ m4_include(`website.inc.m4')
 m4_web_create_page_header(`HOWTO Coverage measurement with JUnit support')
 
     <h2>HOWTO Coverage measurement with JUnit support</h2>
-    <p><em>CodeCover</em> has a support for JUnit. Using the <code>TestCases</code> of JUnit, you can partition your coverage measurement. The test cases of <em>CodeCover</em> have than the same names than the one of JUnit.</p>
-    <p>This section contains step-by-step instructions on how to measure coverage with JUnit support using the command-line interface of <em>CodeCover</em> and JUnit. A technical overview can be found in <a href="m4_web_rootdir/documentation/references/javaMeasurement.html#JUnit" title="Measurement under Java">Measurement under Java</a>. A part of this tutorial mentions <em>instrumentation</em>, <em>analysis</em> and <em>report generation</em>, which is explained more detailed in <a href="how_to_batch.html" title="Use CodeCover with the command-line interface">Use CodeCover with the command-line interface</a>.</p>
+    <p><em>CodeCover</em> has a support for JUnit. Using the <code>TestCases</code> of JUnit, you can partition your coverage measurement. The test cases of <em>CodeCover</em> have then the same names as the ones of JUnit.</p>
+    <p>This section contains step-by-step instructions on how to measure coverage with JUnit support using the command-line interface of <em>CodeCover</em> and JUnit. A technical overview can be found in <a href="m4_web_rootdir/documentation/references/javaMeasurement.html#JUnit" title="Measurement under Java">Measurement under Java</a>. A part of this tutorial mentions <em>instrumentation</em>, <em>analysis</em> and <em>report generation</em>. A more detailed explanation can be found in <a href="how_to_batch.html" title="Use CodeCover with the command-line interface">Use CodeCover with the command-line interface</a>.</p>
     <p><em>CodeCover</em> is integrated into Eclipse too, so you can also use JUnit in Eclipse to create test cases. (see <a href="m4_web_rootdir/documentation/references/eclManual.html#JUnit" title="CodeCover Measurement for JUnit in Eclipse">CodeCover Measurement for JUnit in Eclipse</a>.</p>
 
     <h3>Preconditions</h3>
-    <p>To illustrate the coverage measurement with JUnit support, we discuss a small example. Let's say, you have an ordinary project with the following structure:</p>
+    <p>To illustrate the coverage measurement with JUnit support, we discuss a small example. Let's say you have an ordinary project with the following structure:</p>
     <ul>
         <li><code>src/</code>
         <ul>
@@ -39,13 +39,13 @@ m4_web_create_page_header(`HOWTO Coverage measurement with JUnit support')
     <p>This will instrument all the source files from the folder <code>src</code> into the folder <code>src.instr</code>. The test session container will be saved in <code>person.tsc</code>.</p>
 
     <h3>Coverage measurement</h3>
-    <p>Now, you have to adapt your compile scripts, to compile the instrumented source files from <code>src.instr</code> rather than the original source files from <code>src</code> into <code>bin</code>. Pay attention, that you also the compile helper classes in the newly added package <code>org.codecover.instrumentation</code>.</p>
-    <p>Running the test is easy now &ndash; just call one of the <em>CodeCover</em> <code>TestRunners</code> &ndash; e.g. the swing one. It registers some listeners and then calls the JUnit <code>Swing TestRunner</code> itself:</p>
+    <p>Now you have to adapt your compile scripts to compile the instrumented source files from <code>src.instr</code> rather than the original source files from <code>src</code> into <code>bin</code>. Do not forget to compile the helper classes in the newly added package <code>org.codecover.instrumentation</code>.</p>
+    <p>Running the test is easy now &ndash; just call one of the <em>CodeCover</em> <code>TestRunners</code> &ndash; e.g. the Swing-version. It registers some listeners and then calls the JUnit <code>Swing TestRunner</code> itself:</p>
     <pre><code>java -cp bin;lib\junit3.8.1.jar;lib\JUnit-TestRunner.jar
      -methodsAsTestCases
      org.codecover.junit3.swing.TestRunner PersonTest</code></pre>
     <p>The flag <code>-methodsAsTestCases</code> tells the <code>TestRunner</code> to use a <em>CodeCover</em> test cases for each JUnit test method. Otherwise a <em>CodeCover</em> test case is used for every JUnit test case class.</p>
-    <p>After you have executed the tests, there will be a file in you project folder like <code>coverage-log-2007-11-27-19-23-53-077.clf</code>. This file contains the coverage data.</p>
+    <p>After you executed the tests, there will be a file in your project folder such as <code>coverage-log-2007-11-27-19-23-53-077.clf</code>. This file contains the coverage data.</p>
 
      <h3>Analysis</h3>
      <p>To analyze the coverage data, you have to load it into your test session container <code>person_tsc.xml</code>:</p>
@@ -53,7 +53,7 @@ m4_web_create_page_header(`HOWTO Coverage measurement with JUnit support')
                   --coverage-log coverage-log-2007-11-27-19-23-53-077.clf
                   --name JUnitTestSession
                   --comment &quot;Two errors occurred.&quot;</code></pre>
-     <p>A brief <code>info</code> will tell you, which test cases have been captured:</p>
+     <p>A brief <code>info</code> will tell you which test cases have been captured:</p>
      <pre><code>codecover info --container person_tsc.xml
                --test-cases
                --verbose</code></pre>

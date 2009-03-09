@@ -12,15 +12,15 @@ m4_web_create_page_header(`Features')
       </li>
        <li>
         <h3> <a href="reports.html">Reports</a> </h3>
-        <p> telling everybody how well you've tested</p>
+        <p> Report how well you've tested</p>
       </li>
       <li>
         <h3> <a href="testcases.html">Testcases</a> </h3>
-        <p>Measure coverage for each individual testcase.</p>
+        <p>Measure coverage for each individual test case.</p>
       </li>
       <li>
         <h3> <a href="integration.html">Integration</a> </h3>
-        <p>The ways to use CodeCover</p>
+        <p>How to use CodeCover</p>
       </li>
        <li>
         <h3> <a href="expandability.html">Expandability</a> </h3>

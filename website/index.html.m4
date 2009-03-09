@@ -2,7 +2,7 @@
 <!-- $Id$ -->
 m4_include(`website.inc.m4')
 
-m4_web_create_page_header(`CodeCover - an open-source glass box testing tool')
+m4_web_create_page_header(`CodeCover - an open-source glass-box testing tool')
 
     <div id="downloadAreaDiv">
       <img src ="images/cc-Logo_400px.png" alt="CodeCover" />
@@ -14,7 +14,25 @@ m4_web_create_page_header(`CodeCover - an open-source glass box testing tool')
 <table>
 <tr>
 <td>
-<p>The benefit of glass box testing</p>
+<p>News</p>
+</td>
+<tr>
+<td valign="top">
+<ul>
+<li><b>02.03.2009: (German) CodeCover auf den Test-Tagen 2009 in Stuttgart</b><br />
+Auf den Test-Tagen 2009 der Java User Group Stuttgart vom 07.05.-08.05.2009 wird CodeCover pr&auml;sentiert <a href="http://www.iste.uni-stuttgart.de/se/events/testtage2009/">mehr ...</a>
+<li><b>09.03.2009: New CodeCover 1.0.0.1 released</b><br />
+The instrumentation is changed: return-statements are now instrumented too.
+</td>
+</tr>
+</table>
+</div>
+
+<div id="content">
+<table>
+<tr>
+<td>
+<p>The benefits of glass-box testing</p>
 </td>
 <td>
 <p>Codecover capabilities</p>
@@ -31,7 +49,7 @@ example as a test completion criterion.
 </li>
 
 <li><b>Test suite extension</b><br />
-The glass box test denotes the program elements which were not
+The glass-box test denotes the program elements which were not
 executed.
 </li>
 
@@ -47,7 +65,7 @@ are selected that were "involved" in the code modification.
 </li>
 
 <li><b>Support for program comprehension</b><br />
-The glass box test denotes which program code is executed by
+The glass-box test denotes which program code is executed by
 which test case (traceability).
 </li>
 </ul>
@@ -56,7 +74,7 @@ which test case (traceability).
 <td valign="top">
 <ul>
 <li><b>General</b><br />
-CodeCover is a free glass box testing tool developed in 2007 at the University of Stuttgart (<a href="http://www.iste.uni-stuttgart.de/se/einstieg_se.html">ISTE</a>).
+CodeCover is a free glass-box testing tool developed in 2007 at the University of Stuttgart (<a href="http://www.iste.uni-stuttgart.de/se/einstieg_se.html">ISTE</a>).
 </li>
 
 <li><b>Coverage metrics</b><br />
