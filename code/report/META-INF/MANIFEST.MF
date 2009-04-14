@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.codecover.report
 Bundle-SymbolicName: org.codecover.report
-Bundle-Version: 1.0.0.0
+Bundle-Version: 1.0.0.1
 Bundle-ClassPath: bin
 Export-Package: org.codecover.report,
  org.codecover.report.dummy,
@@ -11,6 +11,7 @@ Export-Package: org.codecover.report,
  org.codecover.report.highlighting.annotation
 Require-Bundle: org.codecover.metrics,
  org.codecover.model
+Bundle-Vendor: CodeCover.org
 
 
 

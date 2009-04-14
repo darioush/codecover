@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.codecover.report.html
 Bundle-SymbolicName: org.codecover.report.html
-Bundle-Version: 1.0.0.0
+Bundle-Version: 1.0.0.1
 Bundle-ClassPath: bin,
  lib/commons-collections-2.1.1.jar,
  lib/log4j-1.2.13.jar,
@@ -11,6 +11,7 @@ Export-Package: org.codecover.report.html
 Require-Bundle: org.codecover.metrics,
  org.codecover.model,
  org.codecover.report
+Bundle-Vendor: CodeCover.org
 
 
 
