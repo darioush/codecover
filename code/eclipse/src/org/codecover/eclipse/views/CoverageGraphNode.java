@@ -1,3 +1,11 @@
+/******************************************************************************
+ * Copyright (c) 2009 Negar Koochakzadeh, Vahid Garousi			              *
+ * All rights reserved. This program and the accompanying materials           *
+ * are made available under the terms of the Eclipse Public License v1.0      *
+ * which accompanies this distribution, and is available at                   *
+ * http://www.eclipse.org/legal/epl-v10.html                                  *
+ ******************************************************************************/
+
 package org.codecover.eclipse.views;
 
 import java.util.Vector;
@@ -6,6 +14,14 @@ import org.codecover.model.TestCase;
 import org.codecover.model.mast.HierarchyLevel;
 import org.codecover.model.mast.Location;
 import org.codecover.model.mast.Statement;
+
+/**
+ * This {@link CoverageGraphNode} is the type of each node in Coverage Graph 
+ * 
+ * Project supervisor: Vahid Garousi (http://www.ucalgary.ca/~vgarousi/)
+ * @author Negar Koochakzadeh
+ * @version 1.0 
+ */
 
 public class CoverageGraphNode {
 	String type;
