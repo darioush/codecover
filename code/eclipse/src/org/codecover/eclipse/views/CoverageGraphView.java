@@ -1,3 +1,11 @@
+/******************************************************************************
+ * Copyright (c) 2009 Negar Koochakzadeh, Vahid Garousi			      *
+ * All rights reserved. This program and the accompanying materials           *
+ * are made available under the terms of the Eclipse Public License v1.0      *
+ * which accompanies this distribution, and is available at                   *
+ * http://www.eclipse.org/legal/epl-v10.html                                  *
+ ******************************************************************************/
+
 package org.codecover.eclipse.views;
 
 import java.awt.Color;
@@ -114,10 +122,15 @@ import edu.uci.ics.jung.visualization.swt.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.swt.VisualizationComposite;
 import edu.uci.ics.jung.visualization.transform.LensSupport;
 import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
+
 /**
- * This class represents an eclipse view. It is used to show Coverage Graph
+ * This {@link CoverageGraphView} is a view in eclipse. It provides the user with
+ * the opportunity to draw the coverage graph which shows how varoius items of 
+ * the SUT are covered by each test case.
  * 
+ * Project supervisor: Vahid Garousi (http://www.ucalgary.ca/~vgarousi/)
  * @author Negar Koochakzadeh
+ * @version 1.0 
  */
 public class CoverageGraphView extends ViewPart {
 	LocationList locList;
