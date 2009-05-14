@@ -106,7 +106,15 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
         /**
          * Image for the csv export action.
          */
-        CSV_EXPORT("icons/csv_export.gif"); //$NON-NLS-1$
+        CSV_EXPORT("icons/csv_export.gif"), //$NON-NLS-1$
+      //Added by Negar:
+        OPTIONS("icons/options.ico"), //$NON-NLS-1$
+        MOUSE_STYLE("icons/mousestyle.ico"), //$NON-NLS-1$
+        SUT_LEVEL("icons/sutlevel.ico"), //$NON-NLS-1$
+        TEST_LEVEL("icons/testlevel.ico"), //$NON-NLS-1$
+        COVERAGE_CRITERIA("icons/coveragecriteria.ico"), //$NON-NLS-1$
+        DRAW_GRAPH("icons/draw_graph.gif"), //$NON-NLS-1$
+        CSV_EXPORT2("icons/csv_export2.gif"); //$NON-NLS-1$
         private final String path;
 
         private Image(String path) {

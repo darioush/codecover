@@ -45,6 +45,12 @@
             icon="icons/test_case.gif"
             id="org.codecover.eclipse.views.PickTestCaseView"
             name="Pick Test Cases"/>
+      <view
+            category="org.codecover.eclipse.views.CodeCoverCategory"
+            class="org.codecover.eclipse.views.CoverageGraphView"
+            icon="icons/coverage_bar.gif"
+            id="org.codecover.eclipse.views.CoverageGraphView"
+            name="Coverage Graph"/>
    </extension>
    <extension
          id="org.codecover.eclipse.popup"
