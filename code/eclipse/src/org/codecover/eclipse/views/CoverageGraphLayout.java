@@ -8,14 +8,7 @@
 
 package org.codecover.eclipse.views;
 
-/**
- * This {@link CoverageGraphLayout} is a subclass of AbstractLayout from
- * jung visualization tool, this layout is used for drawing Coverage Graph 
- * 
- * Project supervisor: Vahid Garousi (http://www.ucalgary.ca/~vgarousi/)
- * @author Negar Koochakzadeh
- * @version 1.0 
- */
+
 
 import java.awt.Dimension;
 import java.util.Arrays;
@@ -26,6 +19,14 @@ import java.util.List;
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.graph.Graph;
 
+/**
+ * This {@link CoverageGraphLayout} is a subclass of AbstractLayout from
+ * jung visualization tool, this layout is used for drawing Coverage Graph 
+ * 
+ * Project supervisor: Vahid Garousi (http://www.ucalgary.ca/~vgarousi/)
+ * @author Negar Koochakzadeh
+ * @version 1.0 
+ */
 
 public class CoverageGraphLayout<V,E> extends AbstractLayout<V,E> {
 
