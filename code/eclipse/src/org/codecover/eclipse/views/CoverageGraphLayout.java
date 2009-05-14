@@ -1,46 +1,32 @@
-/*
- * Copyright (c) 2003, the JUNG Project and the Regents of the University 
- * of California
- * All rights reserved.
- *
- * This software is open-source under the BSD license; see either
- * "license.txt" or
- * http://jung.sourceforge.net/license.txt for a description.
- */
-/*
- * Created on Dec 4, 2003
- */
+/******************************************************************************
+ * Copyright (c) 2009 Negar Koochakzadeh, Vahid Garousi			      *
+ * All rights reserved. This program and the accompanying materials           *
+ * are made available under the terms of the Eclipse Public License v1.0      *
+ * which accompanies this distribution, and is available at                   *
+ * http://www.eclipse.org/legal/epl-v10.html                                  *
+ ******************************************************************************/
+
 package org.codecover.eclipse.views;
 
 /**
+ * This {@link CoverageGraphLayout} is a subclass of AbstractLayout from
+ * jung visualization tool, this layout is used for drawing Coverage Graph 
  * 
- * @author Negar and James
+ * Project supervisor: Vahid Garousi (http://www.ucalgary.ca/~vgarousi/)
+ * @author Negar Koochakzadeh
+ * @version 1.0 
  */
 
 import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.collections15.Factory;
-import org.apache.commons.collections15.map.LazyMap;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.graph.Graph;
 
 
-
-/**
- * Positions vertices equally spaced on a regular circle.
- * Does not respect filter calls.
- *
- * @author Masanori Harada
- */
 public class CoverageGraphLayout<V,E> extends AbstractLayout<V,E> {
 
 	org.eclipse.swt.graphics.Point size;
