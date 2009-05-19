@@ -129,6 +129,11 @@ import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
  * the SUT are covered by each test case.
  * 
  * Project supervisor: Vahid Garousi (http://www.ucalgary.ca/~vgarousi/)
+ * Software Quality Engineering Research Group (SoftQual)
+ * Department of Electrical and Computer Engineering
+ * Schulich School of Engineering
+ * University of Calgary, Alberta, Canada
+ * http://www.softqual.ucalgary.ca
  * @author Negar Koochakzadeh
  * @version 1.0 
  */
