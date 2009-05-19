@@ -8,8 +8,6 @@
 
 package org.codecover.eclipse.views;
 
-
-
 import java.awt.Dimension;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,6 +22,11 @@ import edu.uci.ics.jung.graph.Graph;
  * jung visualization tool, this layout is used for drawing Coverage Graph 
  * 
  * Project supervisor: Vahid Garousi (http://www.ucalgary.ca/~vgarousi/)
+ * Software Quality Engineering Research Group (SoftQual)
+ * Department of Electrical and Computer Engineering
+ * Schulich School of Engineering
+ * University of Calgary, Alberta, Canada
+ * http://www.softqual.ucalgary.ca
  * @author Negar Koochakzadeh
  * @version 1.0 
  */
