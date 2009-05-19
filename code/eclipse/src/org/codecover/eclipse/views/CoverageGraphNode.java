@@ -19,6 +19,11 @@ import org.codecover.model.mast.Statement;
  * This {@link CoverageGraphNode} is the type of each node in Coverage Graph 
  * 
  * Project supervisor: Vahid Garousi (http://www.ucalgary.ca/~vgarousi/)
+ * Software Quality Engineering Research Group (SoftQual)
+ * Department of Electrical and Computer Engineering
+ * Schulich School of Engineering
+ * University of Calgary, Alberta, Canada
+ * http://www.softqual.ucalgary.ca
  * @author Negar Koochakzadeh
  * @version 1.0 
  */
