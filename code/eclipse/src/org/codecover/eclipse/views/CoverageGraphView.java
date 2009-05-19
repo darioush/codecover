@@ -125,7 +125,7 @@ import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
 
 /**
  * This {@link CoverageGraphView} is a view in eclipse. It provides the user with
- * the opportunity to draw the coverage graph which shows how varoius items of 
+ * the opportunity to draw the coverage graph which shows how various items of 
  * the SUT are covered by each test case.
  * 
  * Project supervisor: Vahid Garousi (http://www.ucalgary.ca/~vgarousi/)
