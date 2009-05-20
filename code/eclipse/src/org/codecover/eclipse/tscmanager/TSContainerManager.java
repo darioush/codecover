@@ -1028,6 +1028,77 @@ public class TSContainerManager {
         }
     }
 
+    /**
+     * Sets the redundant <code>TestCase</code>s of the active
+     * <code>TestSessionContainer</code> which are visualized in the plugin's
+     * views.
+     * 
+     * @param testCases the redundant <code>TestCase</code>s or an empty
+     *                  <code>Set</code> if none are redundant
+     * 
+     * @throws NullPointerException
+     * if <code>testCases</code> is <code>null</code> (pass an empty set to
+     * deactivate all test cases)
+     * 
+     * @throws IllegalStateException
+     * if there is no redundant test session container
+     * 
+     * @throws TSContainerManagerModifyException
+     * if the <code>TSContainerManager</code> is locked (because of a change
+     * event which is currently propagated)
+     */
+    public void setRedundantTestCases(Set<TestCase> testCases, Set<TestCase> redundantTestCases) {
+        ActiveTSContainerInfo newActiveTSCInfo;
+
+        if(testCases == null) {
+            throw new NullPointerException(
+                    "testCases mustn't be null");                  //$NON-NLS-1$
+        }
+        if(redundantTestCases == null) {
+            throw new NullPointerException(
+                    "testCases mustn't be null");                  //$NON-NLS-1$
+        }
+
+        synchronized(this.getWriteLock()) {
+            if(this.isLocked()) {
+                throw new TSContainerManagerModifyException(
+                        "TSContainerManager is locked for" +       //$NON-NLS-1$
+                        " modifications during change event");     //$NON-NLS-1$
+            }
+
+            // check if there is an active test session container
+            if(this.activeTSCInfo == null) {
+                throw new IllegalStateException(
+                        "Active test cases can't be set if there" +//$NON-NLS-1$
+                        " is no active test session container.");  //$NON-NLS-1$
+            }
+            // check if given test cases belong to the active test session cont.
+            for(TestCase testCase : testCases) {
+                if(testCase.getTestSession().getTestSessionContainer()
+                        != this.activeTSCInfo.getTestSessionContainer()) {
+                    throw new IllegalArgumentException(
+                            "Test case to activate doesn't" +      //$NON-NLS-1$
+                            " belong to the active test session" + //$NON-NLS-1$
+                            " container.");                        //$NON-NLS-1$
+                }
+            }
+
+            /*
+             * the passed set of test cases is saved in the TSContainerInfo, too
+             * by the constructor
+             */
+            newActiveTSCInfo = new ActiveTSContainerInfo(
+                    this.activeTSCInfo.getTSContainerInfo(),
+                    this.activeTSCInfo.getTestSessionContainer(),
+                    testCases,
+                    redundantTestCases);
+            synchronized(this.getReadLock()) {
+                this.activeTSCInfo = newActiveTSCInfo;
+            }
+
+            this.listenerHandler.fireTestCasesActivated(this.activeTSCInfo);
+        }
+    }
     /*
      * private methods to add and remove test session containers
      */

@@ -40,6 +40,7 @@ public class ActiveTSContainerInfo implements TSContainerHandle {
     
     private final Set<TestCase> testCases;
 
+    private final Set<TestCase> RedundantTestCases;
     /**
      * Constructs a new <code>ActiveTSContainerInfo</code>-representation of
      * a test session container.
@@ -72,13 +73,61 @@ public class ActiveTSContainerInfo implements TSContainerHandle {
         } else {
             this.testCases = restoreActiveTestCases(this.tscInfo, this.tsc);
         }
+        this.RedundantTestCases = null;
     }
-
+    /**
+     * Constructs a new <code>ActiveTSContainerInfo</code>-representation of
+     * a test session container.
+     *
+     * @param tscInfo       the <code>TSContainerInfo</code>-representation
+     *                      of the represented test session container
+     * @param tsc           the represented test session container
+     * @param testCases     the active test cases of the represented test
+     *                      session container, the given set is copied into
+     *                      a new immutable set
+     * @param RedundantTestCases     the redundant test cases identified by human tester
+     *                      
+     * @throws NullPointerException if one of the given parameters is
+     *                              <code>null</code>
+     */
+    ActiveTSContainerInfo(TSContainerInfo tscInfo, TestSessionContainer tsc,
+            Set<TestCase> testCases,Set<TestCase> RedundantTestCases) {
+        if(tscInfo == null) {
+            throw new NullPointerException(
+                    "tscInfo mustn't be null");                //$NON-NLS-1$
+        }
+        if(tsc == null) {
+            throw new NullPointerException(
+                    "tsc mustn't be null");              //$NON-NLS-1$
+        }
+        this.tscInfo = tscInfo;
+        this.tsc = tsc;
+        if(testCases != null) {
+            this.testCases = CollectionUtil.copy(testCases);
+            this.storeActiveTestCases();
+        } else {
+            this.testCases = restoreActiveTestCases(this.tscInfo, this.tsc);
+        }
+        
+        if(RedundantTestCases != null) {
+            this.RedundantTestCases = CollectionUtil.copy(RedundantTestCases);
+            this.storeRedundantTestCases();
+        } else {
+            this.RedundantTestCases = restoreRedundantTestCases(this.tscInfo, this.tsc);
+        }
+    }
     /**
      * Stores the test cases in the <code>TSContainerInfo</code>.
      */
     private void storeActiveTestCases() {
         this.tscInfo.setActiveTestCases(this.testCases);
+    }
+    
+    /**
+     * Stores the redundant test cases in the <code>TSContainerInfo</code>.
+     */
+    private void storeRedundantTestCases() {
+        this.tscInfo.setRedundantTestCases(this.testCases);
     }
     
     /**
@@ -131,7 +180,57 @@ public class ActiveTSContainerInfo implements TSContainerHandle {
         }
         return activeTestCases;
     }
-
+    
+    /**
+     * Returns the restored redundant test cases of the represented test session
+     * container, i.e. translates the <code>TestCaseInfo</code>s of the
+     * <code>TSContainerInfo</code>-representation in real
+     * <code>TestCase</code>s and returns them. If a corresponding
+     * <code>TestCase</code> can't be found, the <code>TestCaseInfo</code>
+     * is just ignored and removed from the <code>TSContainerInfo</code>.
+     * 
+     * @param tscInfo
+     *            {@link TSContainerInfo} holding the {@link TestCaseInfo}s
+     * @param tsc
+     *            the {@link TestSessionContainer} holding the {@link TestCase}s
+     * @return the restored active test cases of the represented test session
+     *         container.
+     */
+    public static Set<TestCase> restoreRedundantTestCases(TSContainerInfo tscInfo,
+            TestSessionContainer tsc) {
+        Set<TestCase> redundantTestCases = new HashSet<TestCase>();
+        TestSession testSession;
+        TestCase testCase;
+        /*
+         * iterating over the list can't rise concurrency problems because
+         * tscInfo.getActiveTestCases returns a immutable copy of the list of
+         * TestCaseInfos
+         */
+        for(TestCaseInfo tcInfo : tscInfo.getRedundantTestCases()) {
+            testSession = tsc.getTestSessionWithName(
+                    tcInfo.getTestSessionName());
+            if(testSession == null) {
+                /*
+                 * can't rise concurrency problems because if tcInfo is already
+                 * removed it is just ignored by method removeActiveTestCase
+                 */
+                tscInfo.removeRedundantTestCase(tcInfo);
+                continue;
+            }
+            testCase = testSession.getTestCaseWithName(
+                    tcInfo.getName());
+            if(testCase == null) {
+                /*
+                 * can't rise concurrency problems because if tcInfo is already
+                 * removed it is just ignored by method removeActiveTestCase
+                 */
+                tscInfo.removeRedundantTestCase(tcInfo);
+                continue;
+            }
+            redundantTestCases.add(testCase);
+        }
+        return redundantTestCases;
+    }
     /**
      * Returns the <code>TSContainerInfo</code>-representation of the
      * represented test session container.
@@ -162,6 +261,18 @@ public class ActiveTSContainerInfo implements TSContainerHandle {
      */
     public Set<TestCase> getActiveTestCases() {
         return this.testCases;
+    }
+    
+    /**
+     * Returns an immutable copy of the set of redundant <code>TestCase</code>s
+     * of the represented test session container.
+     * 
+     * @return  an immutable copy of the set of redundant
+     *          <code>TestCase</code>s of the represented test session
+     *          container or an (immutable) empty set if none are redundant.
+     */
+    public Set<TestCase> getRedundantTestCases() {
+        return this.RedundantTestCases;
     }
     
     /**

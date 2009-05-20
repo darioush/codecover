@@ -49,6 +49,8 @@ public class TSContainerInfo implements TSContainerHandle {
      */
     private List<TestCaseInfo> activeTestCases;
 
+    private List<TestCaseInfo> redundantTestCases;
+    
     /**
      * <code>true</code> if the represented test session container is
      * synchronized with its <code>IFile</code>, <code>false</code> if there
@@ -129,6 +131,25 @@ public class TSContainerInfo implements TSContainerHandle {
     }
 
     /**
+     * Stores the given (redundant) test cases represented as a list of
+     * <code>TestCaseInfo</code>s.
+     * 
+     * @param testCases the test cases to save
+     */
+    void setRedundantTestCases(Set<TestCase> RedundantTestCases) {
+        this.setRedundantTestCases(TestCaseInfo.generateTestCaseInfos(RedundantTestCases));
+    }
+
+    void setRedundantTestCases(List<TestCaseInfo> testCaseInfos) {
+        if(testCaseInfos == null) {
+            throw new NullPointerException(
+                    "testCaseInfos mustn't be null");              //$NON-NLS-1$
+        }
+        synchronized(this.lockTestCases) {
+            this.activeTestCases = new LinkedList<TestCaseInfo>(testCaseInfos);
+        }
+    }
+    /**
      * Removes/Deactivates the given active test case. If the given test case
      * isn't active, nothing is changed.
      * 
@@ -141,6 +162,19 @@ public class TSContainerInfo implements TSContainerHandle {
         }
     }
 
+    /**
+     * Removes/Deactivates the given redundant test case. If the given test case
+     * isn't active, nothing is changed.
+     * 
+     * @param tcInfo    the <code>TestCaseInfo</code>-representation of the
+     *                  redundant test cases to remove/deactivate
+     */
+    void removeRedundantTestCase(TestCaseInfo tcInfo) {
+        synchronized(this.lockTestCases) {
+            this.redundantTestCases.remove(tcInfo);
+        }
+    }
+    
     /**
      * Sets whether the represented test session container is in sync
      * with its file in the workspace.
@@ -264,6 +298,19 @@ public class TSContainerInfo implements TSContainerHandle {
         }
     }
 
+    /**
+     * Returns the redundant test cases represented by an immutable copy of the
+     * list of <code>TestCaseInfo</code>s.
+     * 
+     * @return  the redundant test cases represented by a list of
+     *          <code>TestCaseInfo</code>s.
+     */
+    List<TestCaseInfo> getRedundantTestCases() {
+        synchronized(this.lockTestCases) {
+            return CollectionUtil.copy(this.redundantTestCases);
+        }
+    }
+    
     @Override
     public String toString() {
         return String.format(

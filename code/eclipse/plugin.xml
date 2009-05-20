@@ -51,6 +51,18 @@
             icon="icons/coverage_bar.gif"
             id="org.codecover.eclipse.views.CoverageGraphView"
             name="Coverage Graph"/>
+      <view
+            category="org.codecover.eclipse.views.CodeCoverCategory"
+            class="org.codecover.eclipse.views.RedundancyGraphView"
+            icon="icons/calculate_correlation.gif"
+            id="org.codecover.eclipse.views.RedundancyGraphView"
+            name="Redundancy Graph"/>
+      <view
+            category="org.codecover.eclipse.views.CodeCoverCategory"
+            class="org.codecover.eclipse.views.ManualRedundancyView"
+            icon="icons/calculate_correlation.gif"
+            id="org.codecover.eclipse.views.ManualRedundancyView"
+            name="Manual Redundancy"/>
    </extension>
    <extension
          id="org.codecover.eclipse.popup"
