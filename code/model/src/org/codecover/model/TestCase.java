@@ -1,7 +1,7 @@
 /******************************************************************************
  * Copyright (c) 2007 Stefan Franke, Robert Hanussek, Benjamin Keil,          *
- *                    Steffen Kieß, Johannes Langauf,                         *
- *                    Christoph Marian Müller, Igor Podolskiy,                *
+ *                    Steffen Kieأں, Johannes Langauf,                         *
+ *                    Christoph Marian Mأ¼ller, Igor Podolskiy,                *
  *                    Tilmann Scheller, Michael Starzmann, Markus Wittlinger  *
  * All rights reserved. This program and the accompanying materials           *
  * are made available under the terms of the Eclipse Public License v1.0      *
@@ -12,7 +12,6 @@
 package org.codecover.model;
 
 import java.util.*;
-
 import org.codecover.model.exceptions.NameAlreadyUsedException;
 import org.codecover.model.mast.*;
 import org.codecover.model.utils.*;
@@ -28,6 +27,7 @@ import org.codecover.model.utils.*;
  * @author Markus Wittlinger, Tilmann Scheller
  * @version 1.0 ($Id$)
  */
+
 public class TestCase extends AbstractMetaDataProvider {
     private final TestSession testSession;
 
@@ -45,6 +45,18 @@ public class TestCase extends AbstractMetaDataProvider {
 
     private Map<RootTerm, Map<BooleanAssignment, Boolean>> cachedAssignments = new HashMap<RootTerm, Map<BooleanAssignment, Boolean>>();
 
+    private double StatementRedundancy;
+    private double BranchRedundancy;
+    private double CondRedundancy;
+    private double LoopRedundancy;
+    private double TotalRedundancy;
+    
+    private int StatementCoveredItem;
+    private int BranchCoveredItem;
+    private int CondCoveredItem;
+    private int LoopCoveredItem;
+    private int TotalCoveredItem;
+    
     /**
      * Is true iff delete() has been called successfully.
      */
@@ -320,6 +332,156 @@ public class TestCase extends AbstractMetaDataProvider {
         return (Date) this.date.clone();
     }
 
+    /**
+     * @return the Statement Redundancy
+     */
+    public Double getSatementRedundancy() {
+        return this.StatementRedundancy;
+    }
+    
+    /**
+     * @return the Branch Redundancy
+     */
+    public Double getBranchRedundancy() {
+    	return this.BranchRedundancy;
+    }
+    
+    /**
+     * @return the Condition Redundancy
+     */
+    public Double getCondRedundancy() {
+    	return this.CondRedundancy;
+    }
+    
+    /**
+     * @return the Loop Redundancy
+     */
+    public Double getLoopRedundancy() {
+    	return this.LoopRedundancy;
+    }
+    
+    /**
+     * @return the Total Redundancy
+     */
+    public Double getTotalRedundancy() {
+    	return this.TotalRedundancy;
+    }
+    
+    /**
+     * @return the Statement Covered Item
+     */
+    public Integer getStatementCoveredItem() {
+    	return this.StatementCoveredItem;
+    }
+    
+    /**
+     * @return the Branch Covered Item
+     */
+    public Integer getBranchCoveredItem() {
+    	return this.BranchCoveredItem;
+    }
+    
+    /**
+     * @return the Condition Covered Item
+     */
+    public Integer getCondCoveredItem() {
+    	return this.CondCoveredItem;
+    }
+    
+    /**
+     * @return the Loop Covered Item
+     */
+    public Integer getLoopCoveredItem() {
+    	return this.LoopCoveredItem;
+    }
+    
+    /**
+     * @return the Total Covered Item
+     */
+    public Integer getTotalCoveredItem() {
+    	return this.TotalCoveredItem;
+    }
+    
+    /**
+     * @param d
+     *            the StatementRedundancy to set
+     */
+    public void setSatementRedundancy(Double d) {
+        this.StatementRedundancy = d;
+    }
+    
+    /**
+     * @param d
+     *            the BranchRedundancy to set
+     */
+    public void setBranchRedundancy(Double d) {
+    	this.BranchRedundancy = d;
+    }
+    
+    /**
+     * @param d
+     *            the CondRedundancy to set
+     */
+    public void setCondRedundancy(Double d) {
+    	this.CondRedundancy = d;
+    }
+    
+    /**
+     * @param d
+     *            the LoopRedundancy to set
+     */
+    public void setLoopRedundancy(Double d) {
+    	this.LoopRedundancy = d;
+    }
+    
+    /**
+     * @param d
+     *            the TotalRedundancy to set
+     */
+    public void setTotalRedundancy(Double d) {
+    	this.TotalRedundancy = d;
+    }
+    
+    /**
+     * @param i
+     *            the StatementCoveredItem to set
+     */
+    public void setSatementCoveredItem(Integer i) {
+    	this.StatementCoveredItem = i;
+    }
+    
+    /**
+     * @param i
+     *            the BranchCoveredItem to set
+     */
+    public void setBranchCoveredItem(Integer i) {
+    	this.BranchCoveredItem = i;
+    }
+    
+    /**
+     * @param i
+     *            the CondCoveredItem to set
+     */
+    public void setCondCoveredItem(Integer i) {
+    	this.CondCoveredItem = i;
+    }
+    
+    /**
+     * @param i
+     *            the LoopCoveredItem to set
+     */
+    public void setLoopCoveredItem(Integer i) {
+    	this.LoopCoveredItem = i;
+    }
+    
+    /**
+     * @param i
+     *            the TotalCoveredItem to set
+     */
+    public void setTotalCoveredItem(Integer i) {
+    	this.TotalCoveredItem = i;
+    }
+    
     /**
      * @return the name
      */
