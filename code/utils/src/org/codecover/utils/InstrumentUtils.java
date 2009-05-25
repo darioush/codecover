@@ -11,44 +11,68 @@
 
 package org.codecover.utils;
 
-import java.io.*;
-import java.nio.charset.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.Map.Entry;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.codecover.instrumentation.*;
-import org.codecover.instrumentation.exceptions.*;
-import org.codecover.model.*;
-import org.codecover.model.exceptions.*;
-import org.codecover.model.extensions.*;
-import org.codecover.model.utils.*;
-import org.codecover.model.utils.criteria.*;
-import org.codecover.model.utils.file.*;
+import org.codecover.instrumentation.DefaultInstrumenterFactory;
+import org.codecover.instrumentation.Instrumenter;
+import org.codecover.instrumentation.InstrumenterDescriptor;
+import org.codecover.instrumentation.InstrumenterDirective;
+import org.codecover.instrumentation.InstrumenterFactory;
+import org.codecover.instrumentation.exceptions.FactoryMisconfigurationException;
+import org.codecover.instrumentation.exceptions.InstrumentationException;
+import org.codecover.instrumentation.exceptions.InstrumentationFileNotFoundException;
+import org.codecover.instrumentation.exceptions.InstrumentationIOException;
+import org.codecover.instrumentation.exceptions.ParseException;
+import org.codecover.model.MASTBuilder;
+import org.codecover.model.TestSessionContainer;
+import org.codecover.model.extensions.PluginManager;
+import org.codecover.model.extensions.PluginUtils;
+import org.codecover.model.utils.Logger;
+import org.codecover.model.utils.ProgressHandler;
+import org.codecover.model.utils.StringUtil;
+import org.codecover.model.utils.criteria.BranchCoverage;
+import org.codecover.model.utils.criteria.ConditionCoverage;
+import org.codecover.model.utils.criteria.Criterion;
+import org.codecover.model.utils.criteria.LoopCoverage;
+import org.codecover.model.utils.criteria.StatementCoverage;
+import org.codecover.model.utils.file.FileTool;
+import org.codecover.model.utils.file.SourceTargetContainer;
 
 /**
  * Instrumentation utility methods.
- * 
+ *
  * @author Steffen Kieß
  * @version 1.0 ($Id$)
- * 
+ *
  */
 public final class InstrumentUtils {
-    
+
     private InstrumentUtils() {
         // private to prohibit external usage
     }
-    
+
     // Here we have a map which contains shortcuts for instrumenter criteria
     // which are included in codecover
     public static final Map<String, Criterion> instrumenterCriteriaShortcuts;
-    
+
     static {
         Map<String, Criterion> map = new TreeMap<String, Criterion>();
-        
+
         // TODO add a field abbreviation for criteria and use this for this
         // shortcuts --> you have to change it in ant and batch too
-        
+
         // ant and batch use this stuff, no need for a change there.
         // An abbreviation field might cause some trouble (like that it isn't
         // necessaryly unique).
@@ -56,23 +80,30 @@ public final class InstrumentUtils {
         map.put("br", BranchCoverage.getInstance());
         map.put("co", ConditionCoverage.getInstance());
         map.put("lo", LoopCoverage.getInstance());
-        
+
         instrumenterCriteriaShortcuts = Collections.unmodifiableMap(map);
     }
-    
+
     public static interface GetFilesCallback {
         public Collection<SourceTargetContainer> getFilesToInstrument(InstrumenterDescriptor descriptor, File rootFolderFile, File targetFolderFile);
-        
+
         public Collection<SourceTargetContainer> getFilesToCopy(InstrumenterDescriptor descriptor, File rootFolderFile, File targetFolderFile);
     }
-    
+
     public static interface SaveSessionContainerCallback {
         public void saveSessionContainer(TestSessionContainer testSessionContainer);
     }
-    
+
     private static final Pattern DIRECTIVE_PATTERN = Pattern.compile("([^\\s=]+)=([^\\s]*)");
 
-    public static void instrument(Logger logger, PluginManager pluginManager, ProgressHandler progressHandler, boolean pretend, String pRootDirectory, String pDestination, SaveSessionContainerCallback saveSessionContainerCallback, String pLanguage, boolean pHasCriteria, List<String> pCriteria, boolean pHasCharset, String pCharset, boolean pCopyUninstrumented, List<String> pDirectives, boolean pHasInstrumenterKey, String pInstrumenterKey, GetFilesCallback getFilesCallback) {
+    public static void instrument(Logger logger, PluginManager pluginManager,
+            ProgressHandler progressHandler, boolean pretend,
+            String pRootDirectory, String pDestination,
+            SaveSessionContainerCallback saveSessionContainerCallback,
+            String pLanguage, boolean pHasCriteria, List<String> pCriteria,
+            boolean pHasCharset, String pCharset, boolean pCopyUninstrumented,
+            List<String> pDirectives, boolean pHasInstrumenterKey,
+            String pInstrumenterKey, GetFilesCallback getFilesCallback) {
         // ////////////////////////////////////////////////////////////////////
         //
         // logger, and InstrumenterDescriptor
@@ -84,9 +115,8 @@ public final class InstrumentUtils {
         //logger.info("container: " + new File(pSessionContainer).getAbsolutePath());
         logger.info("language: " + pLanguage);
 
-
         InstrumenterDescriptor descriptor = null;
-        
+
         if (pHasInstrumenterKey) {
             for (final InstrumenterDescriptor descr : PluginUtils.getExtensionObjects(pluginManager, logger, InstrumenterDescriptor.class)) {
                 if (descr.getUniqueKey().equals(pInstrumenterKey)) {
@@ -98,7 +128,7 @@ public final class InstrumentUtils {
                 }
             }
             if (descriptor == null) {
-                logger.fatal("No suitable instrumenter found for the key " + 
+                logger.fatal("No suitable instrumenter found for the key " +
                              pInstrumenterKey);
             }
         } else {
@@ -109,15 +139,15 @@ public final class InstrumentUtils {
                 }
             }
             if (descriptors.isEmpty()) {
-                logger.fatal("No suitable instrumenter found for the " + 
+                logger.fatal("No suitable instrumenter found for the " +
                              "programming language: " + pLanguage);
             } else if (descriptors.size() > 1) {
                 final StringBuilder sb = new StringBuilder();
                 sb.append("More than one suitable instrumenter found for the " +
                              "programming language: " + pLanguage + "\n" +
-                             "Please use the command instrumenter-info to get " + 
-                             "to know the unique key of the instrumenter you " + 
-                             "prefer. Than use the option instrumenter for " + 
+                             "Please use the command instrumenter-info to get " +
+                             "to know the unique key of the instrumenter you " +
+                             "prefer. Than use the option instrumenter for " +
                              "this command to exactly specify the instrumenter " +
                              "by its unique key.");
                 for (InstrumenterDescriptor thisDescriptor : descriptors) {
@@ -167,10 +197,10 @@ public final class InstrumentUtils {
                         if (slashPos == -1) {
                             logger.fatal("Unknown criterion " + criterionName);
                         }
-                        
+
                         final String pluginName = criterionName.substring(0, slashPos);
                         final String extensionName = criterionName.substring(slashPos + 1);
-                        
+
                         criterion = PluginUtils.getExtensionObjectByName(pluginManager, logger, Criterion.class, pluginName, extensionName);
                     }
                     if (!descriptor.isCriterionSupported(criterion)) {
@@ -223,7 +253,7 @@ public final class InstrumentUtils {
         Map<String, Object> instrumenterDirectives = descriptor.getDefaultDirectiveValues();
         Map<String, InstrumenterDirective> registeredDirectives = descriptor.getRegisteredDirectives();
         for (String thisDirective : pDirectives) {
-            Matcher matcher = DIRECTIVE_PATTERN.matcher(thisDirective); 
+            Matcher matcher = DIRECTIVE_PATTERN.matcher(thisDirective);
             if (!matcher.matches()) {
                 logger.fatal("Wrong directive format: " + thisDirective);
             }
@@ -289,12 +319,12 @@ public final class InstrumentUtils {
             logger.fatal("The root-directory is the same than the destination. " +
             "This is not allowed to avoid overwriting of the source files.");
         }
-        
+
         Collection<SourceTargetContainer> filesToInstrument = getFilesCallback.getFilesToInstrument(descriptor, rootFolderFile, targetFolderFile);
 
         Collection<SourceTargetContainer> filesToCopy = getFilesCallback.getFilesToCopy(descriptor, rootFolderFile, targetFolderFile);
-        
-        
+
+
         // ////////////////////////////////////////////////////////////////////
         //
         // instrument
@@ -309,7 +339,7 @@ public final class InstrumentUtils {
             File theSourceFile = filesToInstrument.iterator().next().getSource();
             File theTargetFile = filesToInstrument.iterator().next().getTarget();
             logger.info("Instrument one single code file: " +
-                        theSourceFile.getAbsolutePath() + " to\n" + 
+                        theSourceFile.getAbsolutePath() + " to\n" +
                         theTargetFile.getAbsolutePath());
         } else {
             if (!instrumenter.allowsFileListInstrumentation()) {
@@ -338,7 +368,7 @@ public final class InstrumentUtils {
                 throw new RuntimeException();
             }
             logger.info("Instrumentation finished.");
-            
+
             saveSessionContainerCallback.saveSessionContainer(testSessionContainer);
         }
 

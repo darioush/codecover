@@ -17,17 +17,17 @@ import java.util.List;
 import org.apache.tools.ant.Task;
 
 /**
- * 
+ *
  * @author Steffen Kieß
  * @version 1.0 ($Id$)
- * 
+ *
  */
 public class CodecoverTask extends Task {
     private List<Command> commands = new ArrayList<Command>();
 
     /**
      * Adds the {@link LoadCommand}.
-     * 
+     *
      * @param command
      *                the configured command.
      */
@@ -37,7 +37,7 @@ public class CodecoverTask extends Task {
 
     /**
      * Adds the {@link SaveCommand}.
-     * 
+     *
      * @param command
      *                the configured command.
      */
@@ -47,7 +47,7 @@ public class CodecoverTask extends Task {
 
     /**
      * Adds the {@link CreateContainerCommand}.
-     * 
+     *
      * @param command
      *                the configured command.
      */
@@ -57,7 +57,7 @@ public class CodecoverTask extends Task {
 
     /**
      * Adds the {@link InstrumentCommand}.
-     * 
+     *
      * @param command
      *                the configured command.
      */
@@ -66,8 +66,18 @@ public class CodecoverTask extends Task {
     }
 
     /**
+     * Adds the {@link InstrumentCommand}.
+     *
+     * @param command
+     *                the configured command.
+     */
+    public void addConfiguredInstrumentProject(InstrumentProjectCommand command) {
+        this.commands.add(command);
+    }
+
+    /**
      * Adds the {@link AnalyzeCommand}.
-     * 
+     *
      * @param command
      *                the configured command.
      */
@@ -76,8 +86,18 @@ public class CodecoverTask extends Task {
     }
 
     /**
+     * Adds the {@link AnalyzeMultiCommand}.
+     *
+     * @param command
+     *                the configured command.
+     */
+    public void addConfiguredAnalyzeMulti(AnalyzeMultiCommand command) {
+        this.commands.add(command);
+    }
+
+    /**
      * Adds the {@link ReportCommand}.
-     * 
+     *
      * @param command
      *                the configured command.
      */
@@ -87,7 +107,7 @@ public class CodecoverTask extends Task {
 
     /**
      * Adds the {@link MergeSessionsCommand}.
-     * 
+     *
      * @param command
      *                the configured command.
      */
@@ -97,7 +117,7 @@ public class CodecoverTask extends Task {
 
     /**
      * Adds the {@link AlterSessionCommand}.
-     * 
+     *
      * @param command
      *                the configured command.
      */
@@ -107,7 +127,7 @@ public class CodecoverTask extends Task {
 
     /**
      * Adds the {@link CopySessionsCommand}.
-     * 
+     *
      * @param command
      *                the configured command.
      */
@@ -117,7 +137,7 @@ public class CodecoverTask extends Task {
 
     /**
      * Adds the {@link RemoveSessionsCommand}.
-     * 
+     *
      * @param command
      *                the configured command.
      */
@@ -127,7 +147,7 @@ public class CodecoverTask extends Task {
 
     /**
      * Adds the {@link MergeTestCasesCommand}.
-     * 
+     *
      * @param command
      *                the configured command.
      */
@@ -137,7 +157,7 @@ public class CodecoverTask extends Task {
 
     /**
      * Adds the {@link AlterTestCaseCommand}.
-     * 
+     *
      * @param command
      *                the configured command.
      */
@@ -147,7 +167,7 @@ public class CodecoverTask extends Task {
 
     /**
      * Adds the {@link RemoveTestCasesCommand}.
-     * 
+     *
      * @param command
      *                the configured command.
      */
@@ -157,7 +177,7 @@ public class CodecoverTask extends Task {
 
     /**
      * Adds the {@link AddPluginDirCommand}.
-     * 
+     *
      * @param command
      *                the configured command.
      */
