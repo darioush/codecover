@@ -13,27 +13,17 @@ import java.awt.Dimension;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.Point2D;
-import java.awt.geom.RectangularShape;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-
-import javax.swing.ToolTipManager;
 
 import org.apache.commons.collections15.Transformer;
 import org.codecover.eclipse.CodeCoverPlugin;
@@ -42,12 +32,7 @@ import org.codecover.eclipse.tscmanager.ActiveTSContainerInfo;
 import org.codecover.eclipse.tscmanager.TSContainerInfo;
 import org.codecover.eclipse.tscmanager.TSContainerManagerListener;
 import org.codecover.eclipse.utils.EclipseMASTLinkage;
-import org.codecover.eclipse.utils.EclipseMASTLinkage.MAST;
-import org.codecover.eclipse.views.controls.MatrixControl;
-import org.codecover.metrics.correlation.CorrelationMetric;
-import org.codecover.metrics.correlation.CorrelationResult;
 import org.codecover.metrics.coverage.BranchCoverage;
-import org.codecover.metrics.coverage.CoverageMetric;
 import org.codecover.metrics.coverage.CoverageResult;
 import org.codecover.metrics.coverage.LoopCoverage;
 import org.codecover.metrics.coverage.StatementCoverage;
@@ -67,29 +52,22 @@ import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.Statement;
 import org.codecover.model.mast.StatementSequence;
 import org.codecover.model.utils.ChangeType;
-import org.eclipse.jdt.internal.compiler.ast.BranchStatement;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.ISharedImages;
@@ -99,35 +77,27 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.eclipse.swt.layout.FillLayout;
 
-import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
-import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.ScreenDevice;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.EdgeShape;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.event.MouseEvent;
 import edu.uci.ics.jung.visualization.event.MouseListener;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 import edu.uci.ics.jung.visualization.swt.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.swt.VisualizationComposite;
-import edu.uci.ics.jung.visualization.transform.LensSupport;
-import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
 
 /**
  * This {@link CoverageGraphView} is a view in eclipse. It provides the user with
- * the opportunity to draw the coverage graph which shows how various items of 
+ * the opportunity to draw the coverage graph which shows how various items of
  * the SUT are covered by each test case.
- * 
+ *
  * Project supervisor: Vahid Garousi (http://www.ucalgary.ca/~vgarousi/)
  * Software Quality Engineering Research Group (SoftQual)
  * Department of Electrical and Computer Engineering
@@ -135,7 +105,7 @@ import edu.uci.ics.jung.visualization.transform.shape.ViewLensSupport;
  * University of Calgary, Alberta, Canada
  * http://www.softqual.ucalgary.ca
  * @author Negar Koochakzadeh
- * @version 1.0 
+ * @version 1.0
  */
 public class CoverageGraphView extends ViewPart {
 	LocationList locList;
@@ -145,16 +115,16 @@ public class CoverageGraphView extends ViewPart {
 	ActiveTSContainerInfo activeTSContainer;
 	TestSessionContainer tsc;
 	Statement st;
-	
+
     private static final String TAG_SELECTED = "Selected"; //$NON-NLS-1$
     private final List<IAction> correlationActions;
-    private final List<IAction> SUTLevels;   
+    private final List<IAction> SUTLevels;
     private final List<IAction> TestLevels;
     private final List<IAction> MouseStyle;
     private final List<IAction> Options;
     private final List<TestCase> selectedTestCases;
     private IMemento memento;
-    private SashForm sashForm; 
+    private SashForm sashForm;
     private boolean calculationPending = false;
     private final Object lock = new Object();
     private String ActiveCriterion;
@@ -164,24 +134,24 @@ public class CoverageGraphView extends ViewPart {
     private Boolean SelectedOnlyCovered;
     private Boolean CompleteName;
     private GraphComposite graphComposite;
-    private final TestCaseComparator testCaseComparator = new TestCaseComparator();   
+    private final TestCaseComparator testCaseComparator = new TestCaseComparator();
     private static final String LABEL_CHOOSE_COVERAGE_CRITERIA = Messages
-    .getString("CoverageGraphView.COVERAGE_CRITERIA"); //$NON-NLS-1$  
+    .getString("CoverageGraphView.COVERAGE_CRITERIA"); //$NON-NLS-1$
     private static final String LABEL_CHOOSE_SUT_LEVEL = Messages
-    .getString("CoverageGraphView.SUT_LEVEL"); //$NON-NLS-1$   
+    .getString("CoverageGraphView.SUT_LEVEL"); //$NON-NLS-1$
     private static final String LABEL_CHOOSE_MOUSE_STYLE = Messages
-    .getString("CoverageGraphView.MOUSE_STYLE"); //$NON-NLS-1$   
+    .getString("CoverageGraphView.MOUSE_STYLE"); //$NON-NLS-1$
     private static final String LABEL_CHOOSE_OPTIONS = Messages
-    .getString("CoverageGraphView.OPTIONS"); //$NON-NLS-1$   
+    .getString("CoverageGraphView.OPTIONS"); //$NON-NLS-1$
     private static final String LABEL_CHOOSE_TEST_LEVEL = Messages
     .getString("CoverageGraphView.TEST_LEVEL"); //$NON-NLS-1$
     /**
-     * Constructor. 
+     * Constructor.
      */
     public CoverageGraphView() {
-    	
-    	SelectedOnlyCovered = false;
-    	CompleteName = false;
+
+    	this.SelectedOnlyCovered = false;
+    	this.CompleteName = false;
     	this.SelectedMouseStyle = "Picking";
     	this.ActiveCriterion = "Statement";
     	this.ActiveSUTLevel = "Method";
@@ -192,14 +162,14 @@ public class CoverageGraphView extends ViewPart {
         this.SUTLevels = new Vector<IAction>();
         this.MouseStyle = new Vector<IAction>();
         this.Options = new Vector<IAction>();
-        
-        activeTSContainer = CodeCoverPlugin.getDefault()
-        .getTSContainerManager().getActiveTSContainer();        
-        if (!activeTSContainer.equals(null)) {
-        	tsc = activeTSContainer.getTestSessionContainer();
-        	selectedTestCases.addAll(sortTestCases(activeTSContainer
+
+        this.activeTSContainer = CodeCoverPlugin.getDefault()
+        .getTSContainerManager().getActiveTSContainer();
+        if (!this.activeTSContainer.equals(null)) {
+        	this.tsc = this.activeTSContainer.getTestSessionContainer();
+        	this.selectedTestCases.addAll(sortTestCases(this.activeTSContainer
         			.getActiveTestCases()));
-        	topLevel = activeTSContainer.getTestSessionContainer().getCode();
+        	this.topLevel = this.activeTSContainer.getTestSessionContainer().getCode();
         }
         CodeCoverPlugin.getDefault().getTSContainerManager().addListener(
                 new TSManagerListener());
@@ -249,7 +219,7 @@ public class CoverageGraphView extends ViewPart {
          * The name for
          * the {@link #CLASS} type is returned as &quot;class&quot; although it
          * subsumes classes, interfaces and enums.
-         * 
+         *
          * @return  the internal name of the <code>HierarchyLevel</code>
          */
         public String getName() {
@@ -259,9 +229,9 @@ public class CoverageGraphView extends ViewPart {
         /**
          * Returns the <code>Type</code> which matches the internal name
          * of the given <code>HierarchyLevel</code>.
-         * 
+         *
          * @param hLev  the <code>HierarchyLevel</code>
-         * 
+         *
          * @return  the <code>Type</code> which matches the internal name of the
          *          given <code>HierarchyLevel</code>
          */
@@ -272,9 +242,9 @@ public class CoverageGraphView extends ViewPart {
         /**
          * Returns the <code>Type</code> which matches the given internal name
          * of a <code>HierarchyLevel</code>.
-         * 
+         *
          * @param name  the name
-         * 
+         *
          * @return  the <code>Type</code> which matches the given internal name
          *          of a <code>HierarchyLevel</code>
          */
@@ -329,12 +299,12 @@ public class CoverageGraphView extends ViewPart {
             /* failed: no suitable Resource can be opened */
         } else {
             /* show hLev in the Editor */
-            EclipseMASTLinkage.showInEditor(editor,loc);
+            EclipseMASTLinkage.showInEditor(editor,this.loc);
         }
     }
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
      */
     @Override
@@ -348,16 +318,16 @@ public class CoverageGraphView extends ViewPart {
         initializeToolBar();
 
         org.eclipse.swt.graphics.Point size = new Point(1000, 500);
-        this.sashForm = new SashForm(parent, SWT.HORIZONTAL);     
-        graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(ActiveCriterion,ActiveSUTLevel,ActiveTestLevel,SelectedOnlyCovered,CompleteName),SelectedMouseStyle);
-        if(graphComposite.getLayout() != null){
-        	graphComposite.setLayout(new GridLayout(2, false));
-        	graphComposite.setLayout(new FillLayout());
+        this.sashForm = new SashForm(parent, SWT.HORIZONTAL);
+        this.graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(this.ActiveCriterion,this.ActiveSUTLevel,this.ActiveTestLevel,this.SelectedOnlyCovered,this.CompleteName),this.SelectedMouseStyle);
+        if(this.graphComposite.getLayout() != null){
+        	this.graphComposite.setLayout(new GridLayout(2, false));
+        	this.graphComposite.setLayout(new FillLayout());
         }
     }
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
      */
     @Override
@@ -465,68 +435,68 @@ public class CoverageGraphView extends ViewPart {
         return chooseMouseStyle;
     }
     private final void onChooseShowAll(Boolean ShowOnlyCovered) {
-    	org.eclipse.swt.graphics.Point size = graphComposite.getSize();
-    	graphComposite.dispose(); 
-    	SelectedOnlyCovered = ShowOnlyCovered;
-    	graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(ActiveCriterion,ActiveSUTLevel,ActiveTestLevel,SelectedOnlyCovered,CompleteName),SelectedMouseStyle);
-        graphComposite.setLayout(new GridLayout(2, false));
-        graphComposite.setLayout(new FillLayout());
-        graphComposite.setSize(size);
-        graphComposite.setRedraw(true);
+    	org.eclipse.swt.graphics.Point size = this.graphComposite.getSize();
+    	this.graphComposite.dispose();
+    	this.SelectedOnlyCovered = ShowOnlyCovered;
+    	this.graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(this.ActiveCriterion,this.ActiveSUTLevel,this.ActiveTestLevel,this.SelectedOnlyCovered,this.CompleteName),this.SelectedMouseStyle);
+        this.graphComposite.setLayout(new GridLayout(2, false));
+        this.graphComposite.setLayout(new FillLayout());
+        this.graphComposite.setSize(size);
+        this.graphComposite.setRedraw(true);
     }
     private final void onChooseCompleteName(Boolean CompleteName) {
-    	org.eclipse.swt.graphics.Point size = graphComposite.getSize();
-    	graphComposite.dispose(); 
+    	org.eclipse.swt.graphics.Point size = this.graphComposite.getSize();
+    	this.graphComposite.dispose();
     	this.CompleteName = CompleteName;
-    	graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(ActiveCriterion,ActiveSUTLevel,ActiveTestLevel,SelectedOnlyCovered,CompleteName),SelectedMouseStyle);
-        graphComposite.setLayout(new GridLayout(2, false));
-        graphComposite.setLayout(new FillLayout());
-        graphComposite.setSize(size);
-        graphComposite.setRedraw(true);
+    	this.graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(this.ActiveCriterion,this.ActiveSUTLevel,this.ActiveTestLevel,this.SelectedOnlyCovered,CompleteName),this.SelectedMouseStyle);
+        this.graphComposite.setLayout(new GridLayout(2, false));
+        this.graphComposite.setLayout(new FillLayout());
+        this.graphComposite.setSize(size);
+        this.graphComposite.setRedraw(true);
     }
     private final void onChooseMetric(String Criterion) {
-    	org.eclipse.swt.graphics.Point size = graphComposite.getSize();
-    	graphComposite.dispose(); 
-    	ActiveCriterion = Criterion;
-    	graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(ActiveCriterion,ActiveSUTLevel,ActiveTestLevel,SelectedOnlyCovered,CompleteName),SelectedMouseStyle);
-        graphComposite.setLayout(new GridLayout(2, false));
-        graphComposite.setLayout(new FillLayout());
-        graphComposite.setSize(size);
-        graphComposite.setRedraw(true);
+    	org.eclipse.swt.graphics.Point size = this.graphComposite.getSize();
+    	this.graphComposite.dispose();
+    	this.ActiveCriterion = Criterion;
+    	this.graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(this.ActiveCriterion,this.ActiveSUTLevel,this.ActiveTestLevel,this.SelectedOnlyCovered,this.CompleteName),this.SelectedMouseStyle);
+        this.graphComposite.setLayout(new GridLayout(2, false));
+        this.graphComposite.setLayout(new FillLayout());
+        this.graphComposite.setSize(size);
+        this.graphComposite.setRedraw(true);
     }
     private final void onChooseSUTLevel(String level) {
-    	org.eclipse.swt.graphics.Point size = graphComposite.getSize();
-    	graphComposite.dispose();
-    	ActiveSUTLevel = level;
-    	graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(ActiveCriterion,ActiveSUTLevel,ActiveTestLevel,SelectedOnlyCovered,CompleteName),SelectedMouseStyle);
-    	graphComposite.setLayout(new GridLayout(2, false));
-    	graphComposite.setLayout(new FillLayout());
-    	graphComposite.setSize(size);
-    	graphComposite.setRedraw(true);
+    	org.eclipse.swt.graphics.Point size = this.graphComposite.getSize();
+    	this.graphComposite.dispose();
+    	this.ActiveSUTLevel = level;
+    	this.graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(this.ActiveCriterion,this.ActiveSUTLevel,this.ActiveTestLevel,this.SelectedOnlyCovered,this.CompleteName),this.SelectedMouseStyle);
+    	this.graphComposite.setLayout(new GridLayout(2, false));
+    	this.graphComposite.setLayout(new FillLayout());
+    	this.graphComposite.setSize(size);
+    	this.graphComposite.setRedraw(true);
     }
     private final void onChooseTestLevel(String level) {
-    	org.eclipse.swt.graphics.Point size = graphComposite.getSize();
-    	graphComposite.dispose(); 
-    	ActiveTestLevel = level;
-    	graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(ActiveCriterion,ActiveSUTLevel,ActiveTestLevel,SelectedOnlyCovered,CompleteName),SelectedMouseStyle);
-        graphComposite.setLayout(new GridLayout(2, false));
-        graphComposite.setLayout(new FillLayout());
-        graphComposite.setSize(size);
-        graphComposite.setRedraw(true);
+    	org.eclipse.swt.graphics.Point size = this.graphComposite.getSize();
+    	this.graphComposite.dispose();
+    	this.ActiveTestLevel = level;
+    	this.graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(this.ActiveCriterion,this.ActiveSUTLevel,this.ActiveTestLevel,this.SelectedOnlyCovered,this.CompleteName),this.SelectedMouseStyle);
+        this.graphComposite.setLayout(new GridLayout(2, false));
+        this.graphComposite.setLayout(new FillLayout());
+        this.graphComposite.setSize(size);
+        this.graphComposite.setRedraw(true);
     }
     private final void onChooseMouseStyle(String selectedStyle) {
     	this.SelectedMouseStyle = selectedStyle;
-    	graphComposite.SetMouseStyle(selectedStyle);
+    	this.graphComposite.SetMouseStyle(selectedStyle);
     }
     private final Set<CoverableItem> CreateCoverableItemSet(String Criterion) {
-    	if (selectedTestCases.size() == 0) {
+    	if (this.selectedTestCases.size() == 0) {
 //            throw new IllegalArgumentException("testCases.size() == 0");
     		return null;
         }
-        if (!checkTestCases(selectedTestCases)) {
+        if (!checkTestCases(this.selectedTestCases)) {
             throw new IllegalArgumentException("Not all test cases have the same test session container");
         }
-        TestSessionContainer tsc = selectedTestCases.get(0).getTestSession().getTestSessionContainer();
+        TestSessionContainer tsc = this.selectedTestCases.get(0).getTestSession().getTestSessionContainer();
         final Set<CoverableItem> coverableItemSet = new HashSet<CoverableItem>();
         if(Criterion.compareTo("Statement") == 0){
         	tsc.getCode().accept(null, null, new Statement.DefaultVisitor() {
@@ -642,16 +612,17 @@ public class CoverageGraphView extends ViewPart {
     	float ratio;
     	String SUTLevel;
     	public CoverageGraphLink(int linkID) {
-    		id = linkID;
-    		times = 0;
-    		ratio = 0;
+    		this.id = linkID;
+    		this.times = 0;
+    		this.ratio = 0;
     	}
     	public String getLable() {
-    		if(SUTLevel.compareTo("Item") == 0)
-//    			return times.toString();
+    		if(this.SUTLevel.compareTo("Item") == 0) {
+          //    			return times.toString();
     			return "";
+        }
     		DecimalFormat df = new DecimalFormat("0.0 %");
-    		return times.toString() +", "+ df.format(ratio);
+    		return this.times.toString() +", "+ df.format(this.ratio);
     	}
     }
     private edu.uci.ics.jung.graph.Graph<CoverageGraphNode, CoverageGraphLink> createGraph(String Criterion, String SUTLevel, String TestLevel,Boolean ShowOnlyCovered, Boolean CompleteName) {
@@ -664,10 +635,10 @@ public class CoverageGraphView extends ViewPart {
             Vector<String> TestItemsId = new Vector<String>();
             int NumOfSUTNodes = 0;
             int NumOfTestNodes = 0;
-            if (selectedTestCases.size() != 0) {
+            if (this.selectedTestCases.size() != 0) {
             	CoverageGraphNode SUTNode;
-            	CoverageGraphNode TestNode; 
-            	List<CoverableItem> SUTItemList = new ArrayList<CoverableItem>(coverableItemSet); 
+            	CoverageGraphNode TestNode;
+            	List<CoverableItem> SUTItemList = new ArrayList<CoverableItem>(coverableItemSet);
             	List<CoverableItem> CoveredItemList;
 
             	//Adding all of the SUT Nodes to the graph:
@@ -702,30 +673,32 @@ public class CoverageGraphView extends ViewPart {
             						MethodName,
             						methodLevel.getLocation().getLocations().get(0),
             						ItemName,
-            						loc,
-            						StContent,
+            						this.loc,
+            						this.StContent,
             						methodLevel,
             						CompleteName
             				);
             				SUTItemsId.add(SUTNode.getLable());
             				SUTItems.add(SUTNode);
             				NumOfSUTNodes++;
-            				if(!ShowOnlyCovered)
-            					graph.addVertex(SUTNode);
+            				if(!ShowOnlyCovered) {
+                      graph.addVertex(SUTNode);
+                    }
             			}
             		}
             	}
 
             	Set<CoverableItem> coveredItemSet;
             	int testsize = 0;
-            	if (!selectedTestCases.equals(null))
-            		testsize = selectedTestCases.size();
+            	if (!this.selectedTestCases.equals(null)) {
+                testsize = this.selectedTestCases.size();
+              }
             	for(int i = 0; i < testsize; i++)
             	{
 
             		//Adding Test Nodes to the graph:
             		//-------------------------------
-            		TestCase tc = (TestCase)selectedTestCases.get(i);
+            		TestCase tc = this.selectedTestCases.get(i);
             		TestNode = new CoverageGraphNode("Test",
             				TestLevel,
             				getTestNodeName(tc.getName(), "Package"),
@@ -741,9 +714,11 @@ public class CoverageGraphView extends ViewPart {
             			NumOfTestNodes++;
             		}
             		else{
-            			for(int k=0;k<NumOfTestNodes; k++)
-            				if(TestItems.get(k).getLable().compareTo(testNodeName) == 0)
-            					TestNode = TestItems.get(k);
+            			for(int k=0;k<NumOfTestNodes; k++) {
+                    if(TestItems.get(k).getLable().compareTo(testNodeName) == 0) {
+                      TestNode = TestItems.get(k);
+                    }
+                  }
             			TestNode.Testcases.add(tc);
             		}
 
@@ -753,7 +728,7 @@ public class CoverageGraphView extends ViewPart {
             			coveredItemSet.add(SUTItemList.get(j));
             		}
             		coveredItemSet.retainAll(CoveredItemMap.keySet());
-            		CoveredItemList = new ArrayList<CoverableItem>(coveredItemSet); 
+            		CoveredItemList = new ArrayList<CoverableItem>(coveredItemSet);
 
             		String nodeName="";
             		for(int j = 0; j < CoveredItemList.size(); j++){
@@ -777,30 +752,33 @@ public class CoverageGraphView extends ViewPart {
             				//--------------------------
             				Integer id = graph.getEdgeCount()+1;
             				CoverageGraphLink CoverageLink = graph.findEdge(TestItems.lastElement(),SUTItems.elementAt(SUTItemsId.indexOf(nodeName)));
-            				if(CoverageLink == null){   							
+            				if(CoverageLink == null){
             					CoverageLink = new CoverageGraphLink(id);
             					CoverageLink.SUTLevel = SUTLevel;
-            				}
-            				else
-            					graph.removeEdge(CoverageLink);
+            				} else {
+                      graph.removeEdge(CoverageLink);
+                    }
             				CoverageLink.times ++;
 
             				CoverageGraphNode CurrentNode = new CoverageGraphNode();
-            				for(int k=0;k<NumOfSUTNodes; k++)
-            					if(SUTItems.get(k).getLable().compareTo(nodeName) == 0)
-            						CurrentNode = SUTItems.get(k);
+            				for(int k=0;k<NumOfSUTNodes; k++) {
+                      if(SUTItems.get(k).getLable().compareTo(nodeName) == 0) {
+                        CurrentNode = SUTItems.get(k);
+                      }
+                    }
             				if(CurrentNode != null){
-            					if(ShowOnlyCovered)
-            						graph.addVertex(CurrentNode);
+            					if(ShowOnlyCovered) {
+                        graph.addVertex(CurrentNode);
+                      }
 
             					//For calculating Ratio:
-            					if(SUTLevel.compareTo("Method")==0)
-            						currentlevel = methodLevel;
-            					else if(SUTLevel.compareTo("Class")==0)
-            						currentlevel = topLevel.getParent(methodLevel);
-            					else if(SUTLevel.compareTo("Package")==0){
-            						currentlevel = topLevel.getParent(methodLevel);
-            						currentlevel = topLevel.getParent(currentlevel);
+            					if(SUTLevel.compareTo("Method")==0) {
+                        currentlevel = methodLevel;
+                      } else if(SUTLevel.compareTo("Class")==0) {
+                        currentlevel = this.topLevel.getParent(methodLevel);
+                      } else if(SUTLevel.compareTo("Package")==0){
+            						currentlevel = this.topLevel.getParent(methodLevel);
+            						currentlevel = this.topLevel.getParent(currentlevel);
             					}
             					if(currentlevel != null){
             						CoverageResult coverageResult = null;
@@ -827,9 +805,9 @@ public class CoverageGraphView extends ViewPart {
             							}
             							CoverageLink.ratio = coverage;
             						}
-            					}
-            					else
-            						CoverageLink.ratio = 2;
+            					} else {
+                        CoverageLink.ratio = 2;
+                      }
             					graph.addEdge(CoverageLink,TestItems.lastElement(),CurrentNode,EdgeType.DIRECTED);
             				}
             			}
@@ -842,7 +820,7 @@ public class CoverageGraphView extends ViewPart {
     		return null;
     	}
     	return graph;
-    }  
+    }
     private Runnable getTSCChangedRunnable(final ActiveTSContainerInfo tscInfo) {
         return new Runnable() {
             public void run() {
@@ -872,18 +850,18 @@ public class CoverageGraphView extends ViewPart {
         this.selectedTestCases.addAll(sortTestCases(activetestCases));
     }
     private final void onTSCChanged(Set<TestCase> activetestCases) {
-    	synchronized (lock) {
+    	synchronized (this.lock) {
             this.calculationPending = false;
-        }      
+        }
     	try{
     	refreshActiveTestCaseList(activetestCases);
-    	org.eclipse.swt.graphics.Point size = graphComposite.getSize();
-    	graphComposite.dispose(); 
-    	graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(ActiveCriterion,ActiveSUTLevel,ActiveTestLevel,SelectedOnlyCovered,CompleteName),SelectedMouseStyle);
-        graphComposite.setLayout(new GridLayout(2, false));
-        graphComposite.setLayout(new FillLayout());
-        graphComposite.setSize(size);
-        graphComposite.setRedraw(true);
+    	org.eclipse.swt.graphics.Point size = this.graphComposite.getSize();
+    	this.graphComposite.dispose();
+    	this.graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(this.ActiveCriterion,this.ActiveSUTLevel,this.ActiveTestLevel,this.SelectedOnlyCovered,this.CompleteName),this.SelectedMouseStyle);
+        this.graphComposite.setLayout(new GridLayout(2, false));
+        this.graphComposite.setLayout(new FillLayout());
+        this.graphComposite.setSize(size);
+        this.graphComposite.setRedraw(true);
     	}
     	catch(Exception e){
 //    		try{
@@ -898,21 +876,21 @@ public class CoverageGraphView extends ViewPart {
     }
     private final void onActiveTestCasesChanged(Set<TestCase> activetestCases) {
     	refreshActiveTestCaseList(activetestCases);
-    	org.eclipse.swt.graphics.Point size = graphComposite.getSize();
-    	graphComposite.dispose(); 
-    	graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(ActiveCriterion,ActiveSUTLevel,ActiveTestLevel,SelectedOnlyCovered,CompleteName),SelectedMouseStyle);
-        graphComposite.setLayout(new GridLayout(2, false));
-        graphComposite.setLayout(new FillLayout());
-        graphComposite.setSize(size);
-        graphComposite.setRedraw(true); 	
+    	org.eclipse.swt.graphics.Point size = this.graphComposite.getSize();
+    	this.graphComposite.dispose();
+    	this.graphComposite = new GraphComposite(this.sashForm, SWT.NONE,size,createGraph(this.ActiveCriterion,this.ActiveSUTLevel,this.ActiveTestLevel,this.SelectedOnlyCovered,this.CompleteName),this.SelectedMouseStyle);
+        this.graphComposite.setLayout(new GridLayout(2, false));
+        this.graphComposite.setLayout(new FillLayout());
+        this.graphComposite.setSize(size);
+        this.graphComposite.setRedraw(true);
     }
     private final class GraphComposite extends Composite {
 
-    	
+
     	VisualizationComposite<CoverageGraphNode, CoverageGraphLink> vv;
 
     	final DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
-    	
+
     	Layout<CoverageGraphNode, CoverageGraphLink> layout;
 
     	public GraphComposite(Composite parent, int style, org.eclipse.swt.graphics.Point size, edu.uci.ics.jung.graph.Graph<CoverageGraphNode, CoverageGraphLink> graph,String MouseStyle) {
@@ -920,10 +898,10 @@ public class CoverageGraphView extends ViewPart {
     		setLayout(new GridLayout());
 
     		if(graph != null){
-    			layout = new CoverageGraphLayout<CoverageGraphNode, CoverageGraphLink>(graph,size);
+    			this.layout = new CoverageGraphLayout<CoverageGraphNode, CoverageGraphLink>(graph,size);
 //    			layout.setSize(new Dimension(size.x,size.y));
 
-    			final GraphZoomScrollPane<CoverageGraphNode, CoverageGraphLink> panel = new GraphZoomScrollPane<CoverageGraphNode, CoverageGraphLink>(this, SWT.NONE, layout, new Dimension(size.x,size.y));
+    			final GraphZoomScrollPane<CoverageGraphNode, CoverageGraphLink> panel = new GraphZoomScrollPane<CoverageGraphNode, CoverageGraphLink>(this, SWT.NONE, this.layout, new Dimension(size.x,size.y));
     			GridData gridData = new GridData();
     			gridData.grabExcessHorizontalSpace = true;
     			gridData.grabExcessVerticalSpace = true;
@@ -931,167 +909,167 @@ public class CoverageGraphView extends ViewPart {
     			gridData.verticalAlignment = GridData.FILL;
     			panel.setLayoutData(gridData);
 
-    			vv =  panel.vv;
-    			vv.setBackground(Color.white);
-    			
+    			this.vv =  panel.vv;
+    			this.vv.setBackground(Color.white);
+
     			//Setting Labels for each node:
     			Transformer<CoverageGraphNode,String> lableTransformer = new Transformer<CoverageGraphNode,String>() {
     				public String transform(CoverageGraphNode node) {
-    					if(node.CompletName)
-    						return node.getLable();
-    					else
-    						return node.getShortLable();
+    					if(node.CompletName) {
+                return node.getLable();
+              } else {
+                return node.getShortLable();
+              }
     				}
     			};
-    			vv.getRenderContext().setVertexLabelTransformer(lableTransformer);		
-    			
+    			this.vv.getRenderContext().setVertexLabelTransformer(lableTransformer);
+
     			//Changing the Shape of each node:
     			final Rectangle rectangle = new Rectangle();
     			Transformer<CoverageGraphNode,Shape> vertexTransformer = new Transformer<CoverageGraphNode,Shape>() {
     				public Shape transform(CoverageGraphNode node) {
     					int length;
-    					if(node.CompletName)
-    						length = node.getLable().length()*8;
-    					else
-    						length = node.getShortLable().length()*8;
+    					if(node.CompletName) {
+                length = node.getLable().length()*8;
+              } else {
+                length = node.getShortLable().length()*8;
+              }
     					rectangle.setSize(length, 16);
     					if(node.type == "SUT"){
     						rectangle.setLocation(0,-8);
     						return rectangle;
     					}
     					else{
-    						rectangle.setLocation(-length,-8);				
+    						rectangle.setLocation(-length,-8);
     						return rectangle;
     					}
     				}
     			};
-    			vv.getRenderContext().setVertexShapeTransformer(vertexTransformer);
-    			
+    			this.vv.getRenderContext().setVertexShapeTransformer(vertexTransformer);
+
     			//Changing the Color of each node:
     			Transformer<CoverageGraphNode,Paint> vertexPaint = new Transformer<CoverageGraphNode,Paint>() {
     				public Paint transform(CoverageGraphNode node) {
-    					if(node.type == "SUT")
-    						return Color.orange;
-    					else
-    						return Color.green;
+    					if(node.type == "SUT") {
+                return Color.orange;
+              } else {
+                return Color.green;
+              }
     				}
-    			};	
-    			vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
-    			
+    			};
+    			this.vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
+
     			//Setting Labels for each edge:
     			Transformer<CoverageGraphLink,String> edgeLableTransformer = new Transformer<CoverageGraphLink,String>() {
     				public String transform(CoverageGraphLink edge) {
     					return edge.getLable();
     				}
     			};
-    			vv.getRenderContext().setEdgeLabelTransformer(edgeLableTransformer);
-    			vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<CoverageGraphNode,CoverageGraphLink>());
-    			
-    			vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
- 
+    			this.vv.getRenderContext().setEdgeLabelTransformer(edgeLableTransformer);
+    			this.vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<CoverageGraphNode,CoverageGraphLink>());
+
+    			this.vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
+
     			GridData gd = new GridData();
     			gd.grabExcessHorizontalSpace = true;
     			gd.grabExcessVerticalSpace = true;
     			gd.horizontalAlignment = GridData.FILL;
     			gd.verticalAlignment = GridData.FILL;
-    			vv.getComposite().setLayoutData(gd);
-    			
+    			this.vv.getComposite().setLayoutData(gd);
 
-				vv.setGraphMouse(graphMouse);
-				vv.addKeyListener(graphMouse.getModeKeyListener());
+
+				this.vv.setGraphMouse(this.graphMouse);
+				this.vv.addKeyListener(this.graphMouse.getModeKeyListener());
 
 				final ScalingControl scaler = new CrossoverScalingControl();
-				vv.scaleToLayout(scaler);
+				this.vv.scaleToLayout(scaler);
 
-				if (MouseStyle.compareTo("Picking")==0)
-					graphMouse.setMode(edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode.PICKING);
-				else
-					graphMouse.setMode(edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode.TRANSFORMING);
+				if (MouseStyle.compareTo("Picking")==0) {
+          this.graphMouse.setMode(edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode.PICKING);
+        } else {
+          this.graphMouse.setMode(edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode.TRANSFORMING);
+        }
     		}
     		class JumperToEditor implements MouseListener<java.awt.event.MouseEvent>{
 
-				@Override
 				public void mouseClicked(
 						MouseEvent<java.awt.event.MouseEvent> arg0) {
 					// TODO Auto-generated method stub
-					
+
 				}
 
-				@Override
 				public void mouseDoubleClicked(
 						MouseEvent<java.awt.event.MouseEvent> mouseEvent) {
 					// TODO Auto-generated method stub
 					java.awt.Point p = mouseEvent.getPoint();
-					GraphElementAccessor<CoverageGraphNode, CoverageGraphLink> ps = vv.getServer().getPickSupport();
+					GraphElementAccessor<CoverageGraphNode, CoverageGraphLink> ps = GraphComposite.this.vv.getServer().getPickSupport();
 					if(ps != null){
-						CoverageGraphNode SelectedNode = ps.getVertex(layout, p.getX(), p.getY());
+						CoverageGraphNode SelectedNode = ps.getVertex(GraphComposite.this.layout, p.getX(), p.getY());
 
-						ITextEditor editor = EclipseMASTLinkage.openClassInEditor(SelectedNode.HL,tsc);
+						ITextEditor editor = EclipseMASTLinkage.openClassInEditor(SelectedNode.HL,CoverageGraphView.this.tsc);
 
 				        if (editor == null) {
 				            /* failed: no suitable Resource can be opened */
 				        } else {
 				            /* show hLev in the Editor */
-				        	if(SelectedNode.level == "Method")
-				        		EclipseMASTLinkage.showInEditor(editor,SelectedNode.MethodLocation);
-				        	else if (SelectedNode.level == "Class")
-				        		EclipseMASTLinkage.showInEditor(editor,SelectedNode.ClassLocation);
-				        	else if (SelectedNode.level == "Item")
-				        		EclipseMASTLinkage.showInEditor(editor,SelectedNode.itemLocation);
+				        	if(SelectedNode.level == "Method") {
+                    EclipseMASTLinkage.showInEditor(editor,SelectedNode.MethodLocation);
+                  } else if (SelectedNode.level == "Class") {
+                    EclipseMASTLinkage.showInEditor(editor,SelectedNode.ClassLocation);
+                  } else if (SelectedNode.level == "Item") {
+                    EclipseMASTLinkage.showInEditor(editor,SelectedNode.itemLocation);
+                  }
 				        }
 					}
 				}
 
-				@Override
 				public void mouseEntered(
 						MouseEvent<java.awt.event.MouseEvent> mouseEvent) {
 					// TODO Auto-generated method stub
-					
+
 				}
 
-				@Override
 				public void mouseExited(
 						MouseEvent<java.awt.event.MouseEvent> arg0) {
 					// TODO Auto-generated method stub
-					
+
 				}
 
-				@Override
 				public void mousePressed(
 						MouseEvent<java.awt.event.MouseEvent> arg0) {
 					// TODO Auto-generated method stub
-					
+
 				}
 
-				@Override
 				public void mouseReleased(
 						MouseEvent<java.awt.event.MouseEvent> arg0) {
 					// TODO Auto-generated method stub
-					
+
 				}
-    			
+
     		};
     		JumperToEditor jte = new JumperToEditor();
-			ScreenDevice<Composite> SD = vv.getScreenDevice();
+			ScreenDevice<Composite> SD = this.vv.getScreenDevice();
 			SD.addMouseListener(jte);
     	}
     	public void SetMouseStyle(String Style){
-    		if (Style.compareTo("Picking")==0)
-				graphMouse.setMode(edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode.PICKING);
-			else
-				graphMouse.setMode(edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode.TRANSFORMING);
+    		if (Style.compareTo("Picking")==0) {
+          this.graphMouse.setMode(edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode.PICKING);
+        } else {
+          this.graphMouse.setMode(edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode.TRANSFORMING);
+        }
     	}
 
     	/**
-    	 * 
+    	 *
     	 */
-  
+
     }
     private final class TSManagerListener implements TSContainerManagerListener {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testCaseChanged(ActiveTSContainerInfo,
          *      ChangeType, TestCase)
          */
@@ -1100,7 +1078,7 @@ public class CoverageGraphView extends ViewPart {
             Display d = getSite().getShell().getDisplay();
             switch (changeType) {
                 case CHANGE:
-                    	synchronized (lock) {
+                    	synchronized (CoverageGraphView.this.lock) {
                             if (CoverageGraphView.this.calculationPending) {
                                 return;
                             }
@@ -1119,12 +1097,12 @@ public class CoverageGraphView extends ViewPart {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testCasesActivated(ActiveTSContainerInfo)
          */
         public void testCasesActivated(final ActiveTSContainerInfo tscInfo) {
             Display disp = getSite().getShell().getDisplay();
-            synchronized (lock) {
+            synchronized (CoverageGraphView.this.lock) {
             	if (CoverageGraphView.this.calculationPending) {
                     return;
                 }
@@ -1135,7 +1113,7 @@ public class CoverageGraphView extends ViewPart {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionChanged(ActiveTSContainerInfo,
          *      ChangeType, TestSession)
          */
@@ -1143,7 +1121,7 @@ public class CoverageGraphView extends ViewPart {
                 ChangeType changeType, TestSession testSession) {
             Display disp = getSite().getShell().getDisplay();
 
-            synchronized (lock) {
+            synchronized (CoverageGraphView.this.lock) {
             	if (CoverageGraphView.this.calculationPending) {
                     return;
                 }
@@ -1155,14 +1133,14 @@ public class CoverageGraphView extends ViewPart {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionContainerActivated(ActiveTSContainerInfo)
          */
         public void testSessionContainerActivated(
                 final ActiveTSContainerInfo tscInfo) {
             Display disp = getSite().getShell().getDisplay();
-            
-            synchronized (lock) {
+
+            synchronized (CoverageGraphView.this.lock) {
             	if (CoverageGraphView.this.calculationPending) {
                     return;
                 }
@@ -1174,7 +1152,7 @@ public class CoverageGraphView extends ViewPart {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionContainerAdded(org.codecover.eclipse.tscmanager.TSContainerInfo,
          *      int)
          */
@@ -1184,7 +1162,7 @@ public class CoverageGraphView extends ViewPart {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionContainerChanged(ChangeType,
          *      ActiveTSContainerInfo)
          */
@@ -1192,7 +1170,7 @@ public class CoverageGraphView extends ViewPart {
                 final ActiveTSContainerInfo tscInfo) {
             Display disp = getSite().getShell().getDisplay();
 
-            synchronized (lock) {
+            synchronized (CoverageGraphView.this.lock) {
             	if (CoverageGraphView.this.calculationPending) {
                     return;
                 }
@@ -1204,16 +1182,16 @@ public class CoverageGraphView extends ViewPart {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionContainerRemoved(org.codecover.eclipse.tscmanager.TSContainerInfo)
          */
         public void testSessionContainerRemoved(TSContainerInfo tscInfo) {
             // We don't react on this.
         }
-        
+
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#synchronizedStateChanged(TSContainerInfo, boolean)
          */
         public void synchronizedStateChanged(TSContainerInfo tscInfo,
@@ -1226,18 +1204,18 @@ public class CoverageGraphView extends ViewPart {
 
     	/*
     	 * * (non-Javadoc)
-    	 * 
+    	 *
     	 * @see org.eclipse.jface.util.IPropertyChangeListener#propertyChange(org.eclipse.jface.util.PropertyChangeEvent)
     	 */
     	public void propertyChange(PropertyChangeEvent event) {
-    		org.eclipse.swt.graphics.Point size = graphComposite.getSize();
-        	graphComposite.dispose(); 
+    		org.eclipse.swt.graphics.Point size = CoverageGraphView.this.graphComposite.getSize();
+        	CoverageGraphView.this.graphComposite.dispose();
 //        	graphComposite = new Composite(sashForm, SWT.NONE);
-            graphComposite.setLayout(new GridLayout(2, false));
-            graphComposite.setLayout(new FillLayout());
+            CoverageGraphView.this.graphComposite.setLayout(new GridLayout(2, false));
+            CoverageGraphView.this.graphComposite.setLayout(new FillLayout());
 //            graphComposite.setSize(size);
 //            graphComposite.setRedraw(true);
-//        	Graph g = CreateGraph(graphComposite,ActiveCriterion,ActiveSUTLevel,ActiveTestLevel);		
+//        	Graph g = CreateGraph(graphComposite,ActiveCriterion,ActiveSUTLevel,ActiveTestLevel);
 //    		g.setLayoutAlgorithm(new TreeLayoutAlgorithm(LayoutStyles.ENFORCE_BOUNDS), true);
 //    		graphComposite.layout();
     	}
@@ -1246,10 +1224,11 @@ public class CoverageGraphView extends ViewPart {
     	int pckSeperator = fullname.lastIndexOf('.');
     	int classSeperator = fullname.indexOf(':');
     	if(level.compareTo("Package") == 0){
-    		if (pckSeperator == -1)
-    			return "default package";
-    		else
-    			return fullname.substring(0, pckSeperator);
+    		if (pckSeperator == -1) {
+          return "default package";
+        } else {
+          return fullname.substring(0, pckSeperator);
+        }
     	}
     	else if(level.compareTo("Class") == 0){
     		return fullname.substring(pckSeperator+1,classSeperator);
@@ -1259,18 +1238,18 @@ public class CoverageGraphView extends ViewPart {
     	}
     	return null;
     }
-    
+
     private String getSUTNodeName(String fullprefix,String id, String level){
     	int pckSeperator = fullprefix.substring(0,fullprefix.lastIndexOf('.')).lastIndexOf('.');
     	int classSeperator = fullprefix.lastIndexOf('.');
     	if(level.compareTo("Package") == 0){
-    		
+
     		return fullprefix.substring(0, pckSeperator);
     	}
     	else if(level.compareTo("Class") == 0){
     		return fullprefix.substring(pckSeperator+1, classSeperator);
     	}
-    	else if(level.compareTo("Method") == 0){ // we don't have information for this level 
+    	else if(level.compareTo("Method") == 0){ // we don't have information for this level
     		return "";
     	}
     	else if(level.compareTo("Item") == 0){
@@ -1281,12 +1260,12 @@ public class CoverageGraphView extends ViewPart {
     private String getSUTItemPackage(HierarchyLevel level){
     	String Package ="";
     	try{
-    		Package = topLevel.getParent(level).getName();
-    		level = topLevel.getParent(level);
-    		level = topLevel.getParent(level);
-    		while(level != topLevel){
+    		Package = this.topLevel.getParent(level).getName();
+    		level = this.topLevel.getParent(level);
+    		level = this.topLevel.getParent(level);
+    		while(level != this.topLevel){
     			Package = level.getName() +"."+ Package;
-    			level = topLevel.getParent(level);
+    			level = this.topLevel.getParent(level);
     		}
     	}
     	catch (Exception ex){
@@ -1295,7 +1274,7 @@ public class CoverageGraphView extends ViewPart {
     	return Package;
     }
     private HierarchyLevel getSUTItemClass(HierarchyLevel methodLevel){
-    	return topLevel.getParent(methodLevel);
+    	return this.topLevel.getParent(methodLevel);
     }
     private HierarchyLevel getSUTItemMethod(CoverableItem item){
     	String FileName1 = "";
@@ -1303,34 +1282,36 @@ public class CoverageGraphView extends ViewPart {
 		if (getSUTItemStatement(item) instanceof Branch){
 			FileName1 = ((Branch)getSUTItemStatement(item)).getLocation().getLocations().get(0).getFile().getFileName();
 			content1 = ((Branch)getSUTItemStatement(item)).getLocation().getLocations().get(0).getContent();
-			loc = ((Branch)getSUTItemStatement(item)).getLocation().getLocations().get(0);
-    		StContent = ((Branch)getSUTItemStatement(item)).getLocation().getLocations().get(0).getContent(); 		
+			this.loc = ((Branch)getSUTItemStatement(item)).getLocation().getLocations().get(0);
+    		this.StContent = ((Branch)getSUTItemStatement(item)).getLocation().getLocations().get(0).getContent();
 		}
 		else{
 			FileName1 = ((Statement)getSUTItemStatement(item)).getLocation().getLocations().get(0).getFile().getFileName();
     		content1 = ((Statement)getSUTItemStatement(item)).getLocation().getLocations().get(0).getContent();
-    		loc = ((Statement)getSUTItemStatement(item)).getLocation().getLocations().get(0);
-    		StContent = ((Statement)getSUTItemStatement(item)).getLocation().getLocations().get(0).getContent();
-    		
+    		this.loc = ((Statement)getSUTItemStatement(item)).getLocation().getLocations().get(0);
+    		this.StContent = ((Statement)getSUTItemStatement(item)).getLocation().getLocations().get(0).getContent();
+
 		}
-		
-    	List<HierarchyLevel> allMethods = oldestChildrenOfType(Type.METHOD,topLevel);
-    	for(int i=0;i<allMethods.size();i++)
-    		for (StatementSequence statements : allMethods.get(i).getSequences()) 
-            	for (Statement statement : statements.getStatements()) {	
-            		String FileName2 = statement.getLocation().getLocations().get(0).getFile().getFileName();
-            		String content2 = statement.getLocation().getLocations().get(0).getContent();
-            		if(FileName1.compareTo(FileName2)==0 && content2.contains(content1)){
-            			st = statement;
-            			return allMethods.get(i);  
-            		}
-            	}
-    	st = null;		
+
+    	List<HierarchyLevel> allMethods = oldestChildrenOfType(Type.METHOD,this.topLevel);
+    	for(int i=0;i<allMethods.size();i++) {
+        for (StatementSequence statements : allMethods.get(i).getSequences()) {
+          for (Statement statement : statements.getStatements()) {
+          	String FileName2 = statement.getLocation().getLocations().get(0).getFile().getFileName();
+          	String content2 = statement.getLocation().getLocations().get(0).getContent();
+          	if(FileName1.compareTo(FileName2)==0 && content2.contains(content1)){
+          		this.st = statement;
+          		return allMethods.get(i);
+          	}
+          }
+        }
+      }
+    	this.st = null;
     	return null;
     }
     private Object getSUTItemStatement(CoverableItem item){
-    	return topLevel.getParent(item);
-    	
+    	return this.topLevel.getParent(item);
+
     }
     private String getSUTItemId(String Id){
     	String ItemId = "";
@@ -1340,10 +1321,11 @@ public class CoverageGraphView extends ViewPart {
     		for(int i=idCode.length();i<5;i++){
     			idCode = "0"+idCode;
     		}
-    		if(Id.lastIndexOf('-') < Id.length())
-    			ItemId = "L"+idCode+Id.substring(Id.lastIndexOf('-'));
-    		else
-    			ItemId = "L"+idCode;
+    		if(Id.lastIndexOf('-') < Id.length()) {
+          ItemId = "L"+idCode+Id.substring(Id.lastIndexOf('-'));
+        } else {
+          ItemId = "L"+idCode;
+        }
     	}
     	else{
     		idCode = Id.substring(1);
@@ -1355,20 +1337,20 @@ public class CoverageGraphView extends ViewPart {
     	return ItemId;
     }
     private String getNodeLable(String level,String PackageName,String ClassName,String MethodName,String ItemName){
-    		if(level.compareTo("Package") == 0){      		
+    		if(level.compareTo("Package") == 0){
         		return PackageName;
         	}
         	else if(level.compareTo("Class") == 0){
         		return PackageName +"."+ ClassName;
         	}
-        	else if(level.compareTo("Method") == 0){ 
+        	else if(level.compareTo("Method") == 0){
         		return PackageName +"."+ ClassName +"."+ MethodName;
         	}
         	else if(level.compareTo("Item") == 0){
         		return PackageName +"."+ ClassName +"."+ MethodName +"."+ ItemName;
         	}
         	return "";
-    		
+
     }
     private final List<IAction> createCorrelationActions() {
         IWorkbench workbench = PlatformUI.getWorkbench();
@@ -1391,7 +1373,7 @@ public class CoverageGraphView extends ViewPart {
 //            (getBooleanFromMemento(escapeWhiteSpaces(name),
 //                    true));
             correlationActions.add(action);
-            
+
        //Create Action For Branch Criterion:
             name = "Branch Coverage";
             action = new Action(name, IAction.AS_RADIO_BUTTON) {
@@ -1422,7 +1404,7 @@ public class CoverageGraphView extends ViewPart {
             action.setChecked(false);
 //            (getBooleanFromMemento(escapeWhiteSpaces(name),
 //                    false));
-            correlationActions.add(action);    
+            correlationActions.add(action);
 
        //Create Action For Loop Criterion:
             name = "Loop Coverage";
@@ -1439,7 +1421,7 @@ public class CoverageGraphView extends ViewPart {
 //            (getBooleanFromMemento(escapeWhiteSpaces(name),
 //                    false));
             correlationActions.add(action);
-            
+
        //Create Action For All Criteria:
             name = "All Metrics";
             action = new Action(name, IAction.AS_RADIO_BUTTON) {
@@ -1455,7 +1437,7 @@ public class CoverageGraphView extends ViewPart {
 //            (getBooleanFromMemento(escapeWhiteSpaces(name),
 //                    false));
             correlationActions.add(action);
-           
+
         return correlationActions;
     }
 
@@ -1480,7 +1462,7 @@ public class CoverageGraphView extends ViewPart {
 //            (getBooleanFromMemento(escapeWhiteSpaces(name),
 //                    false));
             SUTLevelActions.add(action);
-        
+
          //Create Action For Class Level:
             name = "SUT Class";
             action = new Action(name, IAction.AS_RADIO_BUTTON) {
@@ -1495,7 +1477,7 @@ public class CoverageGraphView extends ViewPart {
             action.setChecked(false);
 //            (getBooleanFromMemento(escapeWhiteSpaces(name),
 //                    false));
-            SUTLevelActions.add(action); 
+            SUTLevelActions.add(action);
         //Create Action For Method Level:
             name = "SUT Method";
             action = new Action(name, IAction.AS_RADIO_BUTTON) {
@@ -1510,8 +1492,8 @@ public class CoverageGraphView extends ViewPart {
             action.setChecked(true);
 //            (getBooleanFromMemento(escapeWhiteSpaces(name),
 //                    true));
-            SUTLevelActions.add(action); 
-            
+            SUTLevelActions.add(action);
+
         //Create Action For Item Level:
             name = "SUT Item";
             action = new Action(name, IAction.AS_RADIO_BUTTON) {
@@ -1526,11 +1508,11 @@ public class CoverageGraphView extends ViewPart {
             action.setChecked(false);
 //            (getBooleanFromMemento(escapeWhiteSpaces(name),
 //                    false));
-            SUTLevelActions.add(action);   
+            SUTLevelActions.add(action);
 
         return SUTLevelActions;
     }
-    
+
     private final List<IAction> createTestLevelsActions() {
         IWorkbench workbench = PlatformUI.getWorkbench();
         ISharedImages platformImages = workbench.getSharedImages();
@@ -1552,7 +1534,7 @@ public class CoverageGraphView extends ViewPart {
 //            (getBooleanFromMemento(escapeWhiteSpaces(name),
 //                    false));
             TestLevelActions.add(action);
-            
+
         //Create Action For Class Level:
             name = "Test Class";
             action = new Action(name, IAction.AS_RADIO_BUTTON) {
@@ -1567,8 +1549,8 @@ public class CoverageGraphView extends ViewPart {
             action.setChecked(false);
 //            (getBooleanFromMemento(escapeWhiteSpaces(name),
 //                    false));
-            TestLevelActions.add(action); 
-            
+            TestLevelActions.add(action);
+
         //Create Action For Method Level:
             name = "Test Method";
             action = new Action(name, IAction.AS_RADIO_BUTTON) {
@@ -1583,7 +1565,7 @@ public class CoverageGraphView extends ViewPart {
             action.setChecked(true);
 //            (getBooleanFromMemento(escapeWhiteSpaces(name),
 //                    true));
-            TestLevelActions.add(action);   
+            TestLevelActions.add(action);
 
         return TestLevelActions;
     }
@@ -1606,7 +1588,7 @@ public class CoverageGraphView extends ViewPart {
 
             action.setChecked(true);
             MouseStyleActions.add(action);
-            
+
         //Create Action For Transforming:
             name = "Moving";
             action = new Action(name, IAction.AS_RADIO_BUTTON) {
@@ -1619,7 +1601,7 @@ public class CoverageGraphView extends ViewPart {
                     .getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
 
             action.setChecked(false);
-            MouseStyleActions.add(action); 
+            MouseStyleActions.add(action);
         return MouseStyleActions;
     }
     private final List<IAction> createOptionsActions() {
@@ -1641,7 +1623,7 @@ public class CoverageGraphView extends ViewPart {
 
             action.setChecked(false);
             MouseStyleActions.add(action);
-            
+
           //Create Action For Picking:
             name = "Show Complete Names";
             action = new Action(name, IAction.AS_CHECK_BOX) {
@@ -1655,7 +1637,7 @@ public class CoverageGraphView extends ViewPart {
 
             action.setChecked(false);
             MouseStyleActions.add(action);
-           
+
         return MouseStyleActions;
     }
 
@@ -1669,7 +1651,7 @@ public class CoverageGraphView extends ViewPart {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.part.ViewPart#init(org.eclipse.ui.IViewSite,
      *      org.eclipse.ui.IMemento)
      */
@@ -1681,7 +1663,7 @@ public class CoverageGraphView extends ViewPart {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.part.ViewPart#saveState(org.eclipse.ui.IMemento)
      */
     @Override
@@ -1692,12 +1674,12 @@ public class CoverageGraphView extends ViewPart {
         return text.replace(' ', '_');
     }
 
-   
+
 
     private final class TestCaseComparator implements Comparator<TestCase> {
         /**
          * Compares two {@link TestCase}s
-         * 
+         *
          * @param testCase1
          *            the first {@link TestCase}
          * @param testCase2
@@ -1745,7 +1727,7 @@ public class CoverageGraphView extends ViewPart {
         public void dispose() {
             // Nothing to do here.
         }
-        
+
         public Menu getMenu(Control parent) {
             Menu dropDownMenu = new Menu(parent);
             for (IAction action : CoverageGraphView.this.SUTLevels) {
@@ -1758,7 +1740,7 @@ public class CoverageGraphView extends ViewPart {
             }
             return dropDownMenu;
         }
-        
+
         public Menu getMenu(Menu parent) {
             return null;
         }
@@ -1767,7 +1749,7 @@ public class CoverageGraphView extends ViewPart {
         public void dispose() {
             // Nothing to do here.
         }
-        
+
         public Menu getMenu(Control parent) {
             Menu dropDownMenu = new Menu(parent);
             for (IAction action : CoverageGraphView.this.MouseStyle) {
@@ -1780,7 +1762,7 @@ public class CoverageGraphView extends ViewPart {
             }
             return dropDownMenu;
         }
-        
+
         public Menu getMenu(Menu parent) {
             return null;
         }
@@ -1789,7 +1771,7 @@ public class CoverageGraphView extends ViewPart {
         public void dispose() {
             // Nothing to do here.
         }
-        
+
         public Menu getMenu(Control parent) {
             Menu dropDownMenu = new Menu(parent);
             for (IAction action : CoverageGraphView.this.Options) {
@@ -1802,7 +1784,7 @@ public class CoverageGraphView extends ViewPart {
             }
             return dropDownMenu;
         }
-        
+
         public Menu getMenu(Menu parent) {
             return null;
         }
@@ -1811,7 +1793,7 @@ public class CoverageGraphView extends ViewPart {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.action.IMenuCreator#dispose()
          */
         public void dispose() {
@@ -1820,7 +1802,7 @@ public class CoverageGraphView extends ViewPart {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.action.IMenuCreator#getMenu(org.eclipse.swt.widgets.Control)
          */
         public Menu getMenu(Control parent) {
@@ -1838,11 +1820,11 @@ public class CoverageGraphView extends ViewPart {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.action.IMenuCreator#getMenu(org.eclipse.swt.widgets.Menu)
          */
         public Menu getMenu(Menu parent) {
             return null;
         }
-    } 
+    }
     }

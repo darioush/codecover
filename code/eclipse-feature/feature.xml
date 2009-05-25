@@ -3,7 +3,7 @@
 <feature
       id="codecover"
       label="CodeCover"
-      version="1.0.0.1">
+      version="1.0.0.2">
 
    <description url="http://www.codecover.org/">
       CodeCover is a free glass box testing tool which measures the code coverage of a running Java program. It supports multiple coverage criteria and is extensible to provide coverage measurement for other programming languages.
@@ -131,65 +131,65 @@ This Agreement is governed by the laws of the State of New York and the intellec
          id="org.codecover.eclipse"
          download-size="0"
          install-size="0"
-         version="1.0.0.1"
+         version="1.0.0.2"
          unpack="false"/>
 
    <plugin
          id="org.codecover.instrumentation"
          download-size="0"
          install-size="0"
-         version="1.0.0.1"
+         version="1.0.0.2"
          unpack="false"/>
 
    <plugin
          id="org.codecover.instrumentation.java"
          download-size="0"
          install-size="0"
-         version="1.0.0.1"
+         version="1.0.0.2"
          unpack="false"/>
 
    <plugin
          id="org.codecover.instrumentation.java.junit"
          download-size="0"
          install-size="0"
-         version="1.0.0.1"/>
+         version="1.0.0.2"/>
 
    <plugin
          id="org.codecover.instrumentation.java.measurement"
          download-size="0"
          install-size="0"
-         version="1.0.0.1"/>
+         version="1.0.0.2"/>
 
    <plugin
          id="org.codecover.metrics"
          download-size="0"
          install-size="0"
-         version="1.0.0.1"
+         version="1.0.0.2"
          unpack="false"/>
 
    <plugin
          id="org.codecover.model"
          download-size="0"
          install-size="0"
-         version="1.0.0.1"/>
+         version="1.0.0.2"/>
 
    <plugin
          id="org.codecover.report"
          download-size="0"
          install-size="0"
-         version="1.0.0.1"
+         version="1.0.0.2"
          unpack="false"/>
 
    <plugin
          id="org.codecover.report.html"
          download-size="0"
          install-size="0"
-         version="1.0.0.1"/>
+         version="1.0.0.2"/>
 
    <plugin
          id="org.codecover.report.csv"
          download-size="0"
          install-size="0"
-         version="1.0.0.1"/>
+         version="1.0.0.2"/>
 
 </feature>
