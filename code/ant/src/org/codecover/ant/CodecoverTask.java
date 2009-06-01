@@ -71,7 +71,7 @@ public class CodecoverTask extends Task {
      * @param command
      *                the configured command.
      */
-    public void addConfiguredInstrumentProject(InstrumentProjectCommand command) {
+    public void addConfiguredInstrumentMulti(InstrumentMultiCommand command) {
         this.commands.add(command);
     }
 

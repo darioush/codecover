@@ -25,10 +25,10 @@ import org.codecover.model.utils.file.SourceTargetContainer;
 /**
  *
  * @author Steffen Kieß
- * @version 1.0 ($Id: InstrumentCommand.java 1 2007-12-12 17:37:26Z t-scheller $)
+ * @version 1.0 ($Id$)
  *
  */
-public class InstrumentProjectCommand extends AInstrumentCommand {
+public class InstrumentMultiCommand extends AInstrumentCommand {
 
     private static final FileUtils FILE_UTILS = FileUtils.getFileUtils();
 
@@ -114,7 +114,7 @@ public class InstrumentProjectCommand extends AInstrumentCommand {
             sourceTargetContainers.addAll(createSourceTargetContainerSet(
                     rootSourceFolder,
                     rootTargetFolder,
-                    thisFileSet.getDirectoryScanner(getProject()).getDeselectedFiles()));
+                    thisFileSet.getDirectoryScanner(getProject()).getNotIncludedFiles()));
         }
 
         return sourceTargetContainers;

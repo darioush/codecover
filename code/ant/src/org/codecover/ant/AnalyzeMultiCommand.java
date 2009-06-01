@@ -30,10 +30,8 @@ import org.codecover.model.TestSessionContainer;
 import org.codecover.model.utils.Logger;
 
 /**
- *
- * @author Steffen Kieß
- * @version 1.0 ($Id: AnalyzeCommand.java 1 2007-12-12 17:37:26Z t-scheller $)
- *
+ * @author Christoph Müller
+ * @version 1.0 ($Id$)
  */
 public class AnalyzeMultiCommand extends Command {
 
@@ -127,8 +125,7 @@ public class AnalyzeMultiCommand extends Command {
             try {
                 coverageLogCharset = Charset.forName(this.charset);
             } catch (UnsupportedCharsetException e) {
-                context.getLogger().fatal("The charset \"" + this.charset
-                                        + "\" is not supported", e);
+                context.getLogger().fatal("The charset \"" + this.charset + "\" is not supported", e);
                 throw new RuntimeException();
             }
         } else {
@@ -145,39 +142,36 @@ public class AnalyzeMultiCommand extends Command {
             final File coverageLogFile = FILE_UTILS.resolveFile(baseDir, thisCoverageLogPath);
 
             final String sessionName = String.format("%s [%03d]", this.baseName, Integer.valueOf(i + 1));
-            final String sessionComment = String.format("[%03d] %s%n%s",
-                    Integer.valueOf(i + 1), coverageLogFile.getName(), this.baseComment);
+            final String sessionComment = String.format("[%03d] %s%n%s", Integer.valueOf(i + 1),
+                    coverageLogFile.getName(), this.baseComment);
 
-            logger.info("Analysing " + sessionName + " from file " + coverageLogFile);
+            logger.info("Analyzing " + sessionName + " from file " + coverageLogFile);
 
-            TestSession testSession = testSessionContainer.createTestSession(
-                    sessionName, sessionComment, new Date());
+            TestSession testSession = testSessionContainer.createTestSession(sessionName, sessionComment,
+                    new Date());
             // If the name of the test session already existed, the user should
             // know, that the session is called something like
             // %test session name (1)%
             if (!sessionName.equals(testSession.getName())) {
-                logger.warning(
-                        "A test session with the name \""
-                        + sessionName
+                logger.warning("A test session with the name \"" + sessionName
                         + "\" already exists! The created test session can be found under the name: \""
                         + testSession.getName() + "\"");
             }
 
             try {
-                CoverageLogParser logParser = new CoverageLogParser(
-                        coverageLogFile, coverageLogCharset);
+                CoverageLogParser logParser = new CoverageLogParser(coverageLogFile, coverageLogCharset);
 
-                CoverageResultLogReader coverageResultLogReader = new CoverageResultLogReader(
-                        testSession, context.getMASTBuilder());
+                CoverageResultLogReader coverageResultLogReader = new CoverageResultLogReader(testSession,
+                        context.getMASTBuilder());
 
-                logParser.CompilationUnit(coverageResultLogReader,
-                        testSessionContainer.getId());
+                logParser.CompilationUnit(coverageResultLogReader, testSessionContainer.getId());
 
                 // Success
             } catch (IOException e) {
                 context.getLogger().fatal("Error accessing the coverage log file", e);
             } catch (WrongUIDException e) {
-                context.getLogger().fatal("The coverage log file does not fit to the session container! Process aborted.", e);
+                context.getLogger().fatal(
+                        "The coverage log file does not fit to the session container! Process aborted.", e);
             } catch (ParseException e) {
                 context.getLogger().fatal("Error parsing the coverage log", e);
             }

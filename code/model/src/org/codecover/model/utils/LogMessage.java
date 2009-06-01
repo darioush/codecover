@@ -12,12 +12,15 @@
 
 package org.codecover.model.utils;
 
-import java.io.*;
-import java.util.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A message that can be logged using a {@link Logger}.
- * 
+ *
  * @author Steffen Kieß
  * @version 1.0 ($Id$)
  */
@@ -32,7 +35,7 @@ public final class LogMessage {
 
     /**
      * Constructor
-     * 
+     *
      * @param level
      *            the {@link LogLevel} of the {@link LogMessage}
      * @param message
@@ -65,7 +68,7 @@ public final class LogMessage {
 
     /**
      * Calls {@link #LogMessage(LogLevel, String, Exception, List)}
-     * 
+     *
      * @param level
      *            the {@link LogLevel} of the {@link LogMessage}
      * @param message
@@ -81,7 +84,7 @@ public final class LogMessage {
 
     /**
      * Calls {@link #LogMessage(LogLevel, String, Exception, List)}
-     * 
+     *
      * @param level
      *            the {@link LogLevel} of the {@link LogMessage}
      * @param message
@@ -95,7 +98,7 @@ public final class LogMessage {
 
     /**
      * Calls {@link #LogMessage(LogLevel, String, Exception, List)}
-     * 
+     *
      * @param level
      *            the {@link LogLevel} of the {@link LogMessage}
      * @param message
@@ -109,15 +112,15 @@ public final class LogMessage {
         final StackTraceElement[] stackTrace = Thread.currentThread()
                 .getStackTrace();
         final List<StackTraceElement> stackTraceList = new ArrayList<StackTraceElement>();
-        
+
         int localStackFramesToDiscard = 0;
         for (; localStackFramesToDiscard < stackTrace.length
-                 && (stackTrace[localStackFramesToDiscard].getClassName().equals(LogMessage.class.getName()) 
-                     || stackTrace[localStackFramesToDiscard].getClassName().equals(Logger.class.getName()) 
+                 && (stackTrace[localStackFramesToDiscard].getClassName().equals(LogMessage.class.getName())
+                     || stackTrace[localStackFramesToDiscard].getClassName().equals(Logger.class.getName())
                      || stackTrace[localStackFramesToDiscard].getClassName().equals(Thread.class.getName())); localStackFramesToDiscard++) {
             /*FIXME is this empty loop intended?*/
         }
-        
+
         for (int i = localStackFramesToDiscard; i < stackTrace.length; i++) {
             stackTraceList.add(stackTrace[i]);
         }
@@ -127,7 +130,7 @@ public final class LogMessage {
 
     /**
      * Gets the {@link LogLevel} of the {@link LogMessage}
-     * 
+     *
      * @return the {@link LogLevel}
      */
     public LogLevel getLevel() {
@@ -136,7 +139,7 @@ public final class LogMessage {
 
     /**
      * Gets the message of the {@link LogMessage}
-     * 
+     *
      * @return the message.
      */
     public String getMessage() {
@@ -145,7 +148,7 @@ public final class LogMessage {
 
     /**
      * Gets the {@link Exception} of the {@link LogMessage}
-     * 
+     *
      * @return the {@link Exception}
      */
     public Exception getException() {
@@ -154,7 +157,7 @@ public final class LogMessage {
 
     /**
      * Gets the stackTrace of the {@link LogMessage}
-     * 
+     *
      * @return the list of {@link StackTraceElement}s
      */
     public List<StackTraceElement> getStackTrace() {
@@ -163,7 +166,7 @@ public final class LogMessage {
 
     /**
      * Calls {@link #toString(boolean)} with true as the parameter
-     * 
+     *
      * @see #toString(boolean)
      * @return the value of toString(true)
      */
@@ -179,7 +182,7 @@ public final class LogMessage {
      * <br>
      * as well as the stackTrace of the exception, if it is not
      * <code>null</code>
-     * 
+     *
      * @param showPosition
      *            <br>
      *            <code>true</code> &rarr; (at position) is shown <br>

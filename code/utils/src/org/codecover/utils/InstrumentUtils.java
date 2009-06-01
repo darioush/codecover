@@ -378,6 +378,7 @@ public final class InstrumentUtils {
         //
         // ////////////////////////////////////////////////////////////////////
         if (!pCopyUninstrumented) {
+            logger.info("No files will be copied");
             return;
         }
 

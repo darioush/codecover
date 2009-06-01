@@ -167,8 +167,10 @@ public abstract class AInstrumentCommand extends Command implements
         final boolean pCopyUninstrumented = this.copyUninstrumented;
 
         final List<String> pDirectives = new ArrayList<String>();
-        for (Directive thisDirective : this.directives.getDirectives()) {
-            pDirectives.add(thisDirective.getKey() + "=" + thisDirective.getValue());
+        if (this.directives != null) {
+            for (Directive thisDirective : this.directives.getDirectives()) {
+                pDirectives.add(thisDirective.getKey() + "=" + thisDirective.getValue());
+            }
         }
 
         validateBeforeRun();

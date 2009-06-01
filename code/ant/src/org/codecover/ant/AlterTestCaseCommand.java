@@ -18,17 +18,17 @@ import org.codecover.model.TestSessionContainer;
 import org.codecover.model.exceptions.NameAlreadyUsedException;
 
 /**
- * 
+ *
  * @author Steffen Kieß
  * @version 1.0 ($Id$)
- * 
+ *
  */
 public class AlterTestCaseCommand extends Command {
     String containerId;
 
     String session;
 
-    String testCase;
+    String testCaseName;
 
     String name;
 
@@ -36,7 +36,7 @@ public class AlterTestCaseCommand extends Command {
 
     /**
      * Sets the containerId.
-     * 
+     *
      * @param containerId
      *                the containerId to set
      */
@@ -46,7 +46,7 @@ public class AlterTestCaseCommand extends Command {
 
     /**
      * Sets the session.
-     * 
+     *
      * @param session
      *                the session to set
      */
@@ -56,17 +56,17 @@ public class AlterTestCaseCommand extends Command {
 
     /**
      * Sets the testCase.
-     * 
+     *
      * @param testCase
      *                the testCase to set
      */
     public void setTestCase(String testCase) {
-        this.testCase = testCase;
+        this.testCaseName = testCase;
     }
 
     /**
      * Sets the name.
-     * 
+     *
      * @param name
      *                the name to set
      */
@@ -76,7 +76,7 @@ public class AlterTestCaseCommand extends Command {
 
     /**
      * Sets the comment.
-     * 
+     *
      * @param comment
      *                the comment to set
      */
@@ -94,7 +94,7 @@ public class AlterTestCaseCommand extends Command {
             throw new BuildException("The attribute 'session' is missing.");
         }
 
-        if (this.testCase == null) {
+        if (this.testCaseName == null) {
             throw new BuildException("The attribute 'testCase' is missing.");
         }
 
@@ -109,7 +109,7 @@ public class AlterTestCaseCommand extends Command {
                     "Session '" + this.session + "' not found.");
         }
 
-        TestCase testCase = testSession.getTestCaseWithName(this.testCase);
+        TestCase testCase = testSession.getTestCaseWithName(this.testCaseName);
 
         if (this.name != null) {
             String newTestCaseName = this.name;

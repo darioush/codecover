@@ -26,7 +26,7 @@ public class AntLogger extends Logger {
 
     /**
      * Converts the {@link LogLevel} to the respective ant level
-     * 
+     *
      * @param level
      *                the {@link LogLevel} to convert.
      * @return the ant level.
@@ -53,10 +53,10 @@ public class AntLogger extends Logger {
 
     /**
      * Constructor
-     * 
+     *
      * @param project
      *                the given {@link Project} to log.
-     * 
+     *
      */
     public AntLogger(Project project) {
         this.project = project;
@@ -69,7 +69,7 @@ public class AntLogger extends Logger {
         }
 
         if (message.getLevel() == LogLevel.FATAL) {
-            throw new BuildException(message.getMessage());
+            throw new BuildException(message.getMessage(), message.getException());
         }
 
         this.project.log(message.toString(false), convertLevel(message.getLevel()));
