@@ -12,16 +12,23 @@
 package org.codecover.model.mast;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A BooleanAssignmentMap is a map which assigns each BooleanAssignment a long
  * indicating the number of times this BooleanAssignment was evaluated.
- * 
+ *
  * @author Steffen Kieß
  * @version 1.0 ($Id$)
  */
-public final class BooleanAssignmentMap implements Serializable {
+public final class BooleanAssignmentMap
+    implements Serializable {
+
     private static final long serialVersionUID = 8300108213347003689L;
 
     private final int length;
@@ -30,7 +37,7 @@ public final class BooleanAssignmentMap implements Serializable {
 
     /**
      * Creates a {@code BooleanAssignmentMap}.
-     * 
+     *
      * @param length
      *            the length of the {@link BooleanAssignment}s.
      * @param data
@@ -102,7 +109,7 @@ public final class BooleanAssignmentMap implements Serializable {
 
     /**
      * Creates an empty {@link BooleanAssignmentMap} with the given length.
-     * 
+     *
      * @param length
      *            the given length
      * @return the empty {@link BooleanAssignmentMap}.
@@ -124,7 +131,7 @@ public final class BooleanAssignmentMap implements Serializable {
 
     /**
      * Gets the {@link Map} containing the data of this object
-     * 
+     *
      * @return the {@link Map} containing the data.
      */
     public Map<BooleanAssignment, Long> getData() {
@@ -134,7 +141,7 @@ public final class BooleanAssignmentMap implements Serializable {
     /**
      * Gets a set of all the {@link BooleanAssignment}s which were evaluated at
      * all.
-     * 
+     *
      * @return the set of {@link BooleanAssignment}s
      */
     public Set<BooleanAssignment> getEvaluatedAssignments() {
@@ -143,7 +150,7 @@ public final class BooleanAssignmentMap implements Serializable {
 
     /**
      * Gets the number of times the {@link BooleanAssignment} was evaluated
-     * 
+     *
      * @param assignment
      *            the given assignment
      * @return the numebr of time the given {@link BooleanAssignment} was
@@ -171,7 +178,7 @@ public final class BooleanAssignmentMap implements Serializable {
     /**
      * Merges a collection of {@link BooleanAssignmentMap}s which all have the
      * given length
-     * 
+     *
      * @param length
      *            the length of all {@link BooleanAssignmentMap}s
      * @param maps
@@ -231,7 +238,7 @@ public final class BooleanAssignmentMap implements Serializable {
 
     /**
      * Merges two {@link BooleanAssignmentMap}s
-     * 
+     *
      * @param map1
      *            the one map to be merged
      * @param map2

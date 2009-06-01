@@ -21,100 +21,96 @@ import org.eclipse.core.runtime.CoreException;
 
 /**
  * This handler can be registered as an Eclipse save participant (see
- * {@link org.eclipse.core.resources.IWorkspace#addSaveParticipant(
- * org.eclipse.core.runtime.Plugin, ISaveParticipant)}), it then redirects the
- * received save requests of Eclipse to the {@link SaveParticipant}s which have
- * been previously registered (via {@link #add(SaveParticipant)}) to itself.
- * This procedure is needed to be able to split up the save participant into
- * several independent classes. Eclipse doesn't support this natively since it
- * only allows to register one save participant. The save participants
+ * {@link org.eclipse.core.resources.IWorkspace#addSaveParticipant( org.eclipse.core.runtime.Plugin,
+ * ISaveParticipant)}), it then redirects the received save requests of Eclipse to the {@link SaveParticipant}s
+ * which have been previously registered (via {@link #add(SaveParticipant)}) to itself. This procedure is
+ * needed to be able to split up the save participant into several independent classes. Eclipse doesn't
+ * support this natively since it only allows to register one save participant. The save participants
  * registered to this handler are executed in the order they were registered.
  * 
  * @author Robert Hanussek
  * @version 1.0 ($Id$)
  */
 public class TSContainerManagerSaveParticipantHandler
-implements ISaveParticipant {
+  implements ISaveParticipant {
 
-    /**
-     * The <code>SaveParticipant</code>s in the order they are executed.
+  /**
+   * The <code>SaveParticipant</code>s in the order they are executed.
+   */
+  private final List<SaveParticipant> saveParticipants;
+
+  private final Logger logger;
+
+  /**
+   * Constructor.
+   * 
+   * @param logger the {@link Logger} to be used.
+   */
+  public TSContainerManagerSaveParticipantHandler(Logger logger) {
+    this.saveParticipants = new ArrayList<SaveParticipant>();
+    this.logger = logger;
+  }
+
+  /**
+   * Adds the given {@link SaveParticipant}.
+   * 
+   * @param saveParticipant the {@link SaveParticipant} to be added.
+   */
+  public void add(SaveParticipant saveParticipant) {
+    if (!this.saveParticipants.contains(saveParticipant)) {
+      this.saveParticipants.add(saveParticipant);
+    }
+  }
+
+  public void prepareToSave(ISaveContext context) throws CoreException {
+    for (SaveParticipant saveParticipant : this.saveParticipants) {
+      saveParticipant.prepareToSave(context);
+    }
+  }
+
+  public void saving(ISaveContext context) throws CoreException {
+    boolean performedSave = false;
+    boolean currentSave;
+    // output some debug messages
+    switch (context.getKind()) {
+      case ISaveContext.FULL_SAVE:
+        logger.debug("Full save requested" + //$NON-NLS-1$
+          " (by Eclipse)"); //$NON-NLS-1$
+        break;
+      case ISaveContext.PROJECT_SAVE:
+        logger.debug("Project (" //$NON-NLS-1$
+          + context.getProject().getName() + ") save requested (by Eclipse)"); //$NON-NLS-1$
+        break;
+      /*
+       * case ISaveContext.SNAPSHOT: logger.debug("Snapshot save requested" + //$NON-NLS-1$ " (by Eclipse)");
+       * //$NON-NLS-1$ break;
+       */
+    }
+    // perform the saves
+    for (SaveParticipant saveParticipant : this.saveParticipants) {
+      currentSave = saveParticipant.saving(context);
+      performedSave = performedSave || currentSave;
+    }
+    // tell that we actively participated in this save
+    if (performedSave) {
+      context.needSaveNumber();
+    }
+  }
+
+  public void doneSaving(ISaveContext context) {
+    for (SaveParticipant saveParticipant : this.saveParticipants) {
+      saveParticipant.doneSaving(context);
+    }
+  }
+
+  public void rollback(ISaveContext context) {
+    /*
+     * This method is only called if method this.saving completed without exceptions and the save operation
+     * failed because of an _other_ save participant.
      */
-    private final List<SaveParticipant> saveParticipants;
-    
-    private final Logger logger;
-    
-    /**
-     * Constructor.
-     * @param logger the {@link Logger} to be used.
-     */
-    public TSContainerManagerSaveParticipantHandler(Logger logger) {
-        this.saveParticipants = new ArrayList<SaveParticipant>();
-        this.logger = logger;
+    for (SaveParticipant saveParticipant : this.saveParticipants) {
+      saveParticipant.rollback(context);
     }
-    
-    /**
-     * Adds the given {@link SaveParticipant}.
-     * 
-     * @param saveParticipant
-     *            the {@link SaveParticipant} to be added.
-     */
-    public void add(SaveParticipant saveParticipant) {
-        if(!this.saveParticipants.contains(saveParticipant)) {
-            this.saveParticipants.add(saveParticipant);
-        }
-    }
-    
-    public void prepareToSave(ISaveContext context) throws CoreException {
-        for(SaveParticipant saveParticipant : this.saveParticipants) {
-            saveParticipant.prepareToSave(context);
-        }
-    }
-
-    public void saving(ISaveContext context) throws CoreException {
-        boolean performedSave = false;
-        boolean currentSave;
-        // output some debug messages
-        switch(context.getKind()) {
-            case ISaveContext.FULL_SAVE:
-                logger.debug("Full save requested" +           //$NON-NLS-1$
-                        " (by Eclipse)");                      //$NON-NLS-1$
-            break;
-            case ISaveContext.PROJECT_SAVE:
-                logger.debug("Project ("                       //$NON-NLS-1$
-                        + context.getProject().getName()
-                        + ") save requested (by Eclipse)");    //$NON-NLS-1$
-            break;
-            /* case ISaveContext.SNAPSHOT:
-                logger.debug("Snapshot save requested" +       //$NON-NLS-1$
-                        " (by Eclipse)");                      //$NON-NLS-1$
-            break; */
-        }
-        // perform the saves
-        for(SaveParticipant saveParticipant : this.saveParticipants) {
-            currentSave = saveParticipant.saving(context);
-            performedSave = performedSave || currentSave;
-        }
-        // tell that we actively participated in this save
-        if(performedSave) {
-            context.needSaveNumber();
-        }
-    }
-
-    public void doneSaving(ISaveContext context) {
-        for(SaveParticipant saveParticipant : this.saveParticipants) {
-            saveParticipant.doneSaving(context);
-        }
-    }
-
-    public void rollback(ISaveContext context) {
-        /*
-         * This method is only called if method this.saving completed
-         * without exceptions and the save operation failed because of an
-         * _other_ save participant.
-         */
-        for(SaveParticipant saveParticipant : this.saveParticipants) {
-            saveParticipant.rollback(context);
-        }
-    }
+  }
 
 }

@@ -25,176 +25,155 @@ import org.eclipse.core.runtime.Status;
  * Saves the known test session containers if Eclipse requests to do so.
  * 
  * @see TSContainerManagerSaveParticipantHandler
- * 
  * @author Robert Hanussek
  * @version 1.0 ($Id$)
  */
-public class TSContainerSaveParticipant implements SaveParticipant {
+public class TSContainerSaveParticipant
+  implements SaveParticipant {
 
-    private final TSContainerManager tscManager;
-    private final TSContainerStorage tscStorage;
-    private final Logger logger;
-    
-    /**
-     * Constructor.
-     * 
-     * @param tscManager
-     *            the {@link TSContainerManager}
-     * @param tscStorage
-     *            the storage class of the test session container.
-     * @param logger
-     *            the given {@link Logger} to use.
-     */
-    public TSContainerSaveParticipant(TSContainerManager tscManager,
-            TSContainerStorage tscStorage,
-            Logger logger) {
-        this.tscManager = tscManager;
-        this.tscStorage = tscStorage;
-        this.logger = logger;
-    }
+  private final TSContainerManager tscManager;
 
-    public void prepareToSave(ISaveContext context) throws CoreException {
-        // nothing to do here, we're always prepared ;)
-    }
+  private final TSContainerStorage tscStorage;
 
-    public boolean saving(ISaveContext context) throws CoreException {
-        switch(context.getKind()) {
-            case ISaveContext.FULL_SAVE:
-                return this.performFullSave(context);
-            case ISaveContext.PROJECT_SAVE:
-                return this.performProjectSave(context);
-            case ISaveContext.SNAPSHOT:
-                /*
-                 * snapshot savings must be very fast thus saving a test
-                 * session container (which is a long-running operation)
-                 * can't be done here
-                 */
-                return false;
-        }
+  private final Logger logger;
+
+  /**
+   * Constructor.
+   * 
+   * @param tscManager the {@link TSContainerManager}
+   * @param tscStorage the storage class of the test session container.
+   * @param logger the given {@link Logger} to use.
+   */
+  public TSContainerSaveParticipant(TSContainerManager tscManager, TSContainerStorage tscStorage,
+    Logger logger) {
+    this.tscManager = tscManager;
+    this.tscStorage = tscStorage;
+    this.logger = logger;
+  }
+
+  public void prepareToSave(ISaveContext context) throws CoreException {
+    // nothing to do here, we're always prepared ;)
+  }
+
+  public boolean saving(ISaveContext context) throws CoreException {
+    switch (context.getKind()) {
+      case ISaveContext.FULL_SAVE:
+        return this.performFullSave(context);
+      case ISaveContext.PROJECT_SAVE:
+        return this.performProjectSave(context);
+      case ISaveContext.SNAPSHOT:
+        /*
+         * snapshot savings must be very fast thus saving a test session container (which is a long-running
+         * operation) can't be done here
+         */
         return false;
     }
+    return false;
+  }
 
-    public void doneSaving(ISaveContext context) {
-        // nothing to do here
-    }
+  public void doneSaving(ISaveContext context) {
+    // nothing to do here
+  }
 
-    public void rollback(ISaveContext context) {
-        // nothing to do here
+  public void rollback(ISaveContext context) {
+    // nothing to do here
+  }
+
+  private boolean performFullSave(ISaveContext context) throws CoreException {
+    CoreException exception = null;
+    boolean performedSaveOfActive = false;
+    boolean performedQueuedSave = false;
+    // save active test session container
+    try {
+      performedSaveOfActive = this.tscManager.saveActiveTSContainer(false, null);
     }
-    
-    private boolean performFullSave(ISaveContext context)
-    throws CoreException {
-        CoreException exception = null;
-        boolean performedSaveOfActive = false;
-        boolean performedQueuedSave = false;
-        // save active test session container
+    /*
+     * catch TSCFileCreateException, FileSaveException and OutOfMemoryError and wrap them into a CoreException
+     */
+    catch (Throwable t) {
+      exception =
+        new CoreException(new Status(IStatus.ERROR, CodeCoverPlugin.PLUGIN_ID, IStatus.OK,
+          "Error while saving active" + //$NON-NLS-1$
+            " test session container", //$NON-NLS-1$
+          t));
+    }
+    // perform queued saves
+    try {
+      synchronized (this.tscManager.getWriteLock()) {
+        performedQueuedSave = this.tscStorage.getSaveQueue().saveQueued(null);
+      }
+    } catch (TSCQueuedSaveException e) {
+      logger.error("Error while performing queued" + //$NON-NLS-1$
+        " saves of test session" + //$NON-NLS-1$
+        " containers", //$NON-NLS-1$
+        e);
+      if (exception == null) {
+        exception =
+          new CoreException(new Status(IStatus.ERROR, CodeCoverPlugin.PLUGIN_ID, IStatus.OK,
+            "Error while performing queued" + //$NON-NLS-1$
+              " saves of test session" + //$NON-NLS-1$
+              " containers", //$NON-NLS-1$
+            e));
+      }
+    } catch (CancelException e) {
+      /*
+       * ignore because it can't happen if no progress monitor was passed
+       */
+    }
+    if (exception != null) {
+      throw exception;
+    }
+    return performedSaveOfActive || performedQueuedSave;
+  }
+
+  private boolean performProjectSave(ISaveContext context) throws CoreException {
+    IProject project = context.getProject(); // the saved project
+    ActiveTSContainerInfo activeTSCInfo;
+    CoreException exception = null;
+    boolean performedSaveOfActive = false;
+    boolean performedQueuedSave = false;
+    // save active test session container if it belongs to the saved project
+    synchronized (this.tscManager.getWriteLock()) {
+      activeTSCInfo = this.tscManager.getActiveTSContainer();
+      if (activeTSCInfo != null && activeTSCInfo.getFile().getProject().equals(project)) {
         try {
-            performedSaveOfActive = this.tscManager.saveActiveTSContainer(false,
-                    null);
+          performedSaveOfActive = this.tscManager.saveActiveTSContainer(false, null);
         }
         /*
-         * catch TSCFileCreateException, FileSaveException and
-         * OutOfMemoryError and wrap them into a CoreException
+         * catch TSCFileCreateException, FileSaveException and OutOfMemoryError and wrap them into a
+         * CoreException
          */
-        catch(Throwable t) {
-            exception = new CoreException(new Status(
-                    IStatus.ERROR,
-                    CodeCoverPlugin.PLUGIN_ID,
-                    IStatus.OK,
-                    "Error while saving active" +      //$NON-NLS-1$
-                    " test session container",         //$NON-NLS-1$
-                    t));
+        catch (Throwable t) {
+          exception =
+            new CoreException(new Status(IStatus.ERROR, CodeCoverPlugin.PLUGIN_ID, IStatus.OK,
+              "Error while saving active" + //$NON-NLS-1$
+                " test session container", //$NON-NLS-1$
+              t));
         }
-        // perform queued saves
-        try {
-            synchronized (this.tscManager.getWriteLock()) {
-                performedQueuedSave = this.tscStorage.getSaveQueue()
-                        .saveQueued(null);
-            }
-        } catch(TSCQueuedSaveException e)  {
-            logger.error(
-                    "Error while performing queued" +  //$NON-NLS-1$
-                    " saves of test session" +         //$NON-NLS-1$
-                    " containers",                     //$NON-NLS-1$
-                    e);
-            if(exception == null) {
-                exception = new CoreException(new Status(
-                    IStatus.ERROR,
-                    CodeCoverPlugin.PLUGIN_ID,
-                    IStatus.OK,
-                    "Error while performing queued" +  //$NON-NLS-1$
-                    " saves of test session" +         //$NON-NLS-1$
-                    " containers",                     //$NON-NLS-1$
-                    e));
-            }
-        } catch(CancelException e)  {
-            /*
-             * ignore because it can't happen if no progress
-             * monitor was passed
-             */
-        }
-        if(exception != null) {
-            throw exception;
-        }
-        return performedSaveOfActive || performedQueuedSave;
+      }
     }
+    // save queued test session containers which belong to the saved project
+    try {
+      synchronized (this.tscManager.getWriteLock()) {
+        performedQueuedSave = this.tscStorage.getSaveQueue().saveQueued(project, null);
+      }
+    } catch (TSCQueuedSaveException e) {
+      logger.error("Error while performing" + //$NON-NLS-1$
+        " queued saves of" + //$NON-NLS-1$
+        " test session containers", e); //$NON-NLS-1$
+      if (exception == null) {
+        exception =
+          new CoreException(new Status(IStatus.ERROR, CodeCoverPlugin.PLUGIN_ID, IStatus.OK,
+            "Error while performing queued" + //$NON-NLS-1$
+              " saves of test session" + //$NON-NLS-1$
+              " containers", //$NON-NLS-1$
+            e));
+      }
+    }
+    if (exception != null) {
+      throw exception;
+    }
+    return performedSaveOfActive || performedQueuedSave;
+  }
 
-    private boolean performProjectSave(ISaveContext context)
-            throws CoreException {
-        IProject project = context.getProject(); // the saved project
-        ActiveTSContainerInfo activeTSCInfo;
-        CoreException exception = null;
-        boolean performedSaveOfActive = false;
-        boolean performedQueuedSave = false;
-        // save active test session container if it belongs to the saved project
-        synchronized(this.tscManager.getWriteLock()) {
-            activeTSCInfo = this.tscManager.getActiveTSContainer();
-            if(activeTSCInfo != null
-                    && activeTSCInfo.getFile().getProject().equals(project)) {
-                try {
-                    performedSaveOfActive
-                           = this.tscManager.saveActiveTSContainer(false, null);
-                }
-                /*
-                 * catch TSCFileCreateException, FileSaveException and
-                 * OutOfMemoryError and wrap them into a CoreException
-                 */
-                catch(Throwable t) {
-                    exception = new CoreException(new Status(
-                            IStatus.ERROR,
-                            CodeCoverPlugin.PLUGIN_ID,
-                            IStatus.OK,
-                            "Error while saving active" +  //$NON-NLS-1$
-                            " test session container",     //$NON-NLS-1$
-                            t));
-                }
-            }
-        }
-        // save queued test session containers which belong to the saved project
-        try {
-            synchronized(this.tscManager.getWriteLock()) {
-                performedQueuedSave = this.tscStorage.getSaveQueue()
-                        .saveQueued(project, null);
-            }
-        } catch(TSCQueuedSaveException e)  {
-            logger.error("Error while performing" +    //$NON-NLS-1$
-                    " queued saves of" +               //$NON-NLS-1$
-                    " test session containers", e);    //$NON-NLS-1$
-            if(exception == null) {
-                exception = new CoreException(new Status(
-                    IStatus.ERROR,
-                    CodeCoverPlugin.PLUGIN_ID,
-                    IStatus.OK,
-                    "Error while performing queued" +  //$NON-NLS-1$
-                        " saves of test session" +     //$NON-NLS-1$
-                        " containers",                 //$NON-NLS-1$
-                    e));
-            }
-        }
-        if(exception != null) {
-            throw exception;
-        }
-        return performedSaveOfActive || performedQueuedSave;
-    }
-    
 }
