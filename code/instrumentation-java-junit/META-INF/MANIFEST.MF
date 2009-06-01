@@ -5,7 +5,8 @@ Bundle-SymbolicName: org.codecover.instrumentation.java.junit
 Bundle-Version: 1.0.0.2
 Bundle-ClassPath: bin,
  lib/junit3.8.1.jar,
- lib/junit-4.3.1.jar
+ lib/junit-4.5.jar,
+ .
 Export-Package: org.codecover.junit,
  org.codecover.junit3,
  org.codecover.junit3.awt,

@@ -3,7 +3,8 @@
 <feature
       id="codecover"
       label="CodeCover"
-      version="1.0.0.2">
+      version="1.0.0.2"
+      plugin="http://update.codecover.org/">
 
    <description url="http://www.codecover.org/">
       CodeCover is a free glass box testing tool which measures the code coverage of a running Java program. It supports multiple coverage criteria and is extensible to provide coverage measurement for other programming languages.
