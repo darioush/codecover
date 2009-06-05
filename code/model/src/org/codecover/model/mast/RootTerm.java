@@ -15,8 +15,7 @@ import java.util.*;
 
 /**
  * A RootTerm is a boolean term which is not a part of another boolean term. A
- * RootTerm consists of a BooleanTerm and a CoverableItem for every possible
- * assign- ment of this term.
+ * RootTerm consists of a BooleanTerm and a CoverableItem.
  * 
  * @author Markus Wittlinger, Tilmann Scheller
  * @version 1.0 ($Id$)
