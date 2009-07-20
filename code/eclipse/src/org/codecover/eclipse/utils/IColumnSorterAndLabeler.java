@@ -11,28 +11,13 @@
 
 package org.codecover.eclipse.utils;
 
-import java.util.Comparator;
-
 /**
  * @author Markus Wittlinger
  * @version 1.0 ($Id$)
- * @param <T> 
  */
-public interface InvertableComparator<T> extends Comparator<T> {
+public interface IColumnSorterAndLabeler<T> extends ISorterAndLabeler<T> {
 
-    /**
-     * @return TODO
-     */
-    abstract InvertableComparator<T> getInverseSorter();
-    
-    /**
-     * @return TODO
-     */
-    abstract InvertableComparator<T> getDefaultSorter();
+    public IColumnSorterAndLabeler<T> getNextSorter();
 
-    /**
-     * @return TODO
-     */
-    public abstract int getSortDirection();
-
+    public IColumnSorterAndLabeler<T> getDefaultSorter();
 }

@@ -3,7 +3,7 @@
 <feature
       id="codecover"
       label="CodeCover"
-      version="1.0.0.3"
+      version="1.0.0.4"
       plugin="http://update.codecover.org/">
 
    <description url="http://www.codecover.org/">
@@ -134,65 +134,65 @@ This Agreement is governed by the laws of the State of New York and the intellec
          id="org.codecover.eclipse"
          download-size="0"
          install-size="0"
-         version="1.0.0.3"
+         version="1.0.0.4"
          unpack="false"/>
 
    <plugin
          id="org.codecover.instrumentation"
          download-size="0"
          install-size="0"
-         version="1.0.0.3"
+         version="1.0.0.4"
          unpack="false"/>
 
    <plugin
          id="org.codecover.instrumentation.java"
          download-size="0"
          install-size="0"
-         version="1.0.0.3"
+         version="1.0.0.4"
          unpack="false"/>
 
    <plugin
          id="org.codecover.instrumentation.java.junit"
          download-size="0"
          install-size="0"
-         version="1.0.0.3"/>
+         version="1.0.0.4"/>
 
    <plugin
          id="org.codecover.instrumentation.java.measurement"
          download-size="0"
          install-size="0"
-         version="1.0.0.3"/>
+         version="1.0.0.4"/>
 
    <plugin
          id="org.codecover.metrics"
          download-size="0"
          install-size="0"
-         version="1.0.0.3"
+         version="1.0.0.4"
          unpack="false"/>
 
    <plugin
          id="org.codecover.model"
          download-size="0"
          install-size="0"
-         version="1.0.0.3"/>
+         version="1.0.0.4"/>
 
    <plugin
          id="org.codecover.report"
          download-size="0"
          install-size="0"
-         version="1.0.0.3"
+         version="1.0.0.4"
          unpack="false"/>
 
    <plugin
          id="org.codecover.report.html"
          download-size="0"
          install-size="0"
-         version="1.0.0.3"/>
+         version="1.0.0.4"/>
 
    <plugin
          id="org.codecover.report.csv"
          download-size="0"
          install-size="0"
-         version="1.0.0.3"/>
+         version="1.0.0.4"/>
 
 </feature>
