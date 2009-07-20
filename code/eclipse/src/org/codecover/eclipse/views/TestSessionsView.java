@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.codecover.eclipse.CodeCoverPlugin;
 import org.codecover.eclipse.Messages;
+import org.codecover.eclipse.importWizards.CoverageLogImportWizard;
 import org.codecover.eclipse.tscmanager.ActiveTSContainerInfo;
 import org.codecover.eclipse.tscmanager.TSContainerInfo;
 import org.codecover.eclipse.tscmanager.TSContainerManagerListener;
@@ -67,8 +68,14 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
@@ -98,7 +105,7 @@ import org.eclipse.ui.part.ViewPart;
  * <li>Merging of test elements</li>
  * <li>Changing the name and comment of test elements</li>
  * </ul>
- * 
+ *
  * @author Robert Hanussek
  * @version 1.0 ($Id$)
  */
@@ -170,6 +177,11 @@ public class TestSessionsView extends ViewPart
      */
     private Action deleteTSC;
     /**
+     * Importer for CoverageLogFiles.
+     * @see CoverageLogImportWizard
+     */
+    private Action coverageImportToolBar;
+    /**
      * Deletes test elements and is added to the toolbar.
      */
     private Action deleteToolBar;
@@ -202,7 +214,7 @@ public class TestSessionsView extends ViewPart
     /**
      * Debug action which is added to the pulldown if the plugin's logger is in
      * debug mode.
-     * 
+     *
      * @see CodeCoverPlugin#getLogLevel()
      */
     private Action showActiveTestCases;
@@ -264,7 +276,7 @@ public class TestSessionsView extends ViewPart
     /**
      * Returns the <code>TSContainerInfo</code>-representations of the test
      * session containers which are currently listed in the combo box.
-     * 
+     *
      * @return  the <code>TSContainerInfo</code>-representations of the test
      *          session containers which are currently listed in the combo box.
      */
@@ -275,7 +287,7 @@ public class TestSessionsView extends ViewPart
     /**
      * Returns the <code>TestSessionContainer</code> which is currently
      * visualized in the viewer.
-     * 
+     *
      * @return  the <code>TestSessionContainer</code> which is currently
      *          visualized in the viewer.
      */
@@ -286,7 +298,7 @@ public class TestSessionsView extends ViewPart
     /**
      * Returns the <code>TSContainerInfo</code>-representation of the test
      * session container which is currently visualized in the viewer.
-     * 
+     *
      * @return  the <code>TSContainerInfo</code>-representation of the test
      *          session container which is currently visualized in the viewer.
      */
@@ -297,7 +309,7 @@ public class TestSessionsView extends ViewPart
     /**
      * Returns the <code>TestCase</code>s which are currently visualized in the
      * viewer as being active (by checked checkboxes).
-     * 
+     *
      * @return  the <code>TestCase</code>s which are currently visualized in the
      *          viewer as being active (by checked checkboxes).
      */
@@ -337,6 +349,9 @@ public class TestSessionsView extends ViewPart
                                 .removeListener(TestSessionsView.this);
                     }
                 });
+        // we allow the drag and drop of coverageLogFiles
+        this.viewer.addDropSupport(DND.DROP_COPY | DND.DROP_DEFAULT,
+                new Transfer[] {FileTransfer.getInstance()}, new CoverageLogDropListener());
 
         // create actions and add them to context menu and toolbars
         this.makeActions();
@@ -412,9 +427,88 @@ public class TestSessionsView extends ViewPart
         }
     }
 
+    private class CoverageLogDropListener extends DropTargetAdapter
+    {
+        @Override
+        public void dragEnter(DropTargetEvent event) {
+            // we have to look at the event and modify it a litte in order to allow file drop
+            if (event.detail == DND.DROP_DEFAULT) {
+                if ((event.operations & DND.DROP_COPY) != 0) {
+                    event.detail = DND.DROP_COPY;
+                } else {
+                    event.detail = DND.DROP_NONE;
+                }
+            }
+            for (int i = 0; i < event.dataTypes.length; i++) {
+                if (FileTransfer.getInstance().isSupportedType(event.dataTypes[i])) {
+                    event.currentDataType = event.dataTypes[i];
+                    // files should only be copied
+                    if (event.detail != DND.DROP_COPY) {
+                        event.detail = DND.DROP_NONE;
+                    }
+                    break;
+                }
+            }
+        }
+
+        @Override
+        public void dragOperationChanged(DropTargetEvent event) {
+            if (event.detail == DND.DROP_DEFAULT) {
+                if ((event.operations & DND.DROP_COPY) != 0) {
+                    event.detail = DND.DROP_COPY;
+                } else {
+                    event.detail = DND.DROP_NONE;
+                }
+            }
+            if (FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
+                if (event.detail != DND.DROP_COPY) {
+                    event.detail = DND.DROP_NONE;
+                }
+            }
+        }
+
+        @Override
+        public void drop(DropTargetEvent event)
+        {
+            if (TestSessionsView.this.getVisTSC() == null) {
+                // no active TSC
+                return;
+            }
+
+            if (FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
+                String[] files = (String[]) event.data;
+                if (files == null || files.length == 0)
+                {
+                    return;
+                }
+
+                // for every file, we start a Wizard
+                for (String thisFile : files)
+                {
+                    CoverageLogImportWizard coverageLogImportWizard = new CoverageLogImportWizard();
+                    coverageLogImportWizard.init(PlatformUI.getWorkbench(), null);
+
+                    // Instantiates the wizard container with the wizard and opens it
+                    WizardDialog wizardDialog = new WizardDialog(TestSessionsView.this.getSite().getShell(),
+                            coverageLogImportWizard);
+                    wizardDialog.create();
+
+                    // we now select a specific file
+                    coverageLogImportWizard.selectCoverageLogFile(thisFile);
+
+                    if (wizardDialog.open() != Window.OK)
+                    {
+                        // this import was cancelled -> cancel all imports
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionContainerAdded(org.codecover.eclipse.tscmanager.TSContainerManager.TSContainerInfo,
      *      int)
      */
@@ -445,7 +539,7 @@ public class TestSessionsView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionContainerRemoved(org.codecover.eclipse.tscmanager.TSContainerManager.TSContainerInfo)
      */
     public void testSessionContainerRemoved(final TSContainerInfo tscInfo) {
@@ -473,7 +567,7 @@ public class TestSessionsView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionContainerActivated(ActiveTSContainerInfo)
      */
     public void testSessionContainerActivated(
@@ -520,7 +614,7 @@ public class TestSessionsView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testCaseChanged(ActiveTSContainerInfo, ChangeType, TestCase)
      */
     public void testCaseChanged(    final ActiveTSContainerInfo tscInfo,
@@ -568,7 +662,7 @@ public class TestSessionsView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionChanged(ActiveTSContainerInfo, ChangeType, TestSession)
      */
     public void testSessionChanged( final ActiveTSContainerInfo tscInfo,
@@ -615,7 +709,7 @@ public class TestSessionsView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionContainerChanged(ChangeType, ActiveTSContainerInfo)
      */
     public void testSessionContainerChanged(ChangeType changeType,
@@ -623,7 +717,7 @@ public class TestSessionsView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testCasesActivated(ActiveTSContainerInfo)
      */
     public void testCasesActivated(final ActiveTSContainerInfo tscInfo) {
@@ -648,7 +742,7 @@ public class TestSessionsView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#synchronizedStateChanged(TSContainerInfo, boolean)
      */
     public void synchronizedStateChanged(final TSContainerInfo tscInfo,
@@ -734,7 +828,7 @@ public class TestSessionsView extends ViewPart
      * Checks if the states of the checkboxes of all <code>TestCase</code>s
      * of a given <code>TestSession</code> match a given state (checked or
      * unchecked).
-     * 
+     *
      * @param state
      *            the state to check the checkboxes for
      * @param testSession
@@ -785,7 +879,7 @@ public class TestSessionsView extends ViewPart
                         } catch(FileLoadException e) {
                             throw new InvocationTargetException(e);
                         } catch(OutOfMemoryError e) {
-                            logger.error(
+                            TestSessionsView.this.logger.error(
                                     "Out of memory while" +        //$NON-NLS-1$
                                     " activating test session" +   //$NON-NLS-1$
                                     " container: "                 //$NON-NLS-1$
@@ -798,7 +892,7 @@ public class TestSessionsView extends ViewPart
                              * was passed
                              */
                         } catch(CancelException e) {
-                            logger.warning(
+                            TestSessionsView.this.logger.warning(
                                     "Canceled activation " +       //$NON-NLS-1$
                                     " of test session container",  //$NON-NLS-1$
                                     e);
@@ -843,13 +937,13 @@ public class TestSessionsView extends ViewPart
                                 DIALOG_ERROR_ACTIVATING_TSC_OUT_OF_MEM_TITLE,
                                 DIALOG_ERROR_ACTIVATING_TSC_OUT_OF_MEM_MSG);
                     } else if(!(e.getCause() instanceof CancelException)) {
-                        logger.error(
+                        TestSessionsView.this.logger.error(
                                 "Unknown error while activating" + //$NON-NLS-1$
                                 " test session container",         //$NON-NLS-1$
                                 e);
                     }
                 } catch(InterruptedException e) {
-                    logger.error(
+                    TestSessionsView.this.logger.error(
                             "Unknown error while activating" +     //$NON-NLS-1$
                             " test session container",             //$NON-NLS-1$
                             e);
@@ -859,7 +953,7 @@ public class TestSessionsView extends ViewPart
                         TestSessionsView.this.getSite().getShell(),
                         DIALOG_ERROR_UNKNOWN_TSC_SELECTED_TITLE,
                         DIALOG_ERROR_UNKNOWN_TSC_SELECTED_MSG);
-                logger.fatal(
+                TestSessionsView.this.logger.fatal(
                         "Unknown test session container selected" +//$NON-NLS-1$
                         " in Test Sessions view");                 //$NON-NLS-1$
             }
@@ -931,6 +1025,7 @@ public class TestSessionsView extends ViewPart
         this.deactivateAll = this.makeDeactivateAllAction();
         this.merge = this.makeMergeAction();
         this.deleteToolBar = this.makeTestElementDeleteAction(false);
+        this.coverageImportToolBar = this.makeImportCoverageAction();
         this.deleteContextMenu = this.makeTestElementDeleteAction(true);
         this.propertiesAction = this.makePropertiesAction();
         this.showActiveTestCases = this.makeActiveTestCasesDialogAction();
@@ -944,6 +1039,9 @@ public class TestSessionsView extends ViewPart
         bars.getToolBarManager().add(new Separator());
         bars.getToolBarManager().add(this.merge);
         bars.getToolBarManager().add(this.deleteToolBar);
+        bars.getToolBarManager().add(new Separator());
+        bars.getToolBarManager().add(this.coverageImportToolBar);
+
         // fill pulldown menu of view
         bars.getMenuManager().add(this.saveTSC);
         bars.getMenuManager().add(this.deleteTSC);
@@ -953,6 +1051,9 @@ public class TestSessionsView extends ViewPart
         bars.getMenuManager().add(new Separator());
         bars.getMenuManager().add(this.merge);
         bars.getMenuManager().add(this.deleteToolBar);
+        bars.getMenuManager().add(new Separator());
+        bars.getMenuManager().add(this.coverageImportToolBar);
+
         // fill context menu
         MenuManager menuMgr = new MenuManager("#PopupMenu");       //$NON-NLS-1$
         menuMgr.setRemoveAllWhenShown(true);
@@ -1035,7 +1136,7 @@ public class TestSessionsView extends ViewPart
                                         TSC_DELETE_DIALOG_ERROR_MSG,
                                         e));
                 } catch(CancelException e) {
-                    logger.warning("Canceled deleting of" +    //$NON-NLS-1$
+                    TestSessionsView.this.logger.warning("Canceled deleting of" +    //$NON-NLS-1$
                             " test session container.", e);    //$NON-NLS-1$
                 }
             }
@@ -1152,7 +1253,7 @@ public class TestSessionsView extends ViewPart
                                                 elementToDelete),
                                         null);
                     } catch(CancelException e) {
-                        logger.warning(
+                        TestSessionsView.this.logger.warning(
                                 "User canceled deletion of" +      //$NON-NLS-1$
                                 " test sessions/test cases", e);   //$NON-NLS-1$
                     } catch(Exception e) {
@@ -1167,7 +1268,7 @@ public class TestSessionsView extends ViewPart
                                            IStatus.OK,
                                            DIALOG_ERROR_ELEMENT_DELETE_MSG,
                                            e));
-                        logger.error(
+                        TestSessionsView.this.logger.error(
                                 "Error while deleting" +           //$NON-NLS-1$
                                 " test session/test case", e);     //$NON-NLS-1$
                     } catch(OutOfMemoryError e) {
@@ -1182,7 +1283,7 @@ public class TestSessionsView extends ViewPart
                                            IStatus.OK,
                                            DIALOG_ERROR_ELEMENT_DELETE_MSG,
                                            e));
-                        logger.error(
+                        TestSessionsView.this.logger.error(
                                 "Error while deleting" +           //$NON-NLS-1$
                                 " test session/test case",         //$NON-NLS-1$
                                 new InvocationTargetException(e));
@@ -1213,7 +1314,30 @@ public class TestSessionsView extends ViewPart
                 this.setEnabled(false);
             }
         }
+    }
 
+    private Action makeImportCoverageAction() {
+        Action action = new Action() {
+            @Override
+            public void run() {
+                if (TestSessionsView.this.getVisTSC() == null) {
+                    return;
+                }
+                CoverageLogImportWizard coverageLogImportWizard = new CoverageLogImportWizard();
+                coverageLogImportWizard.init(PlatformUI.getWorkbench(), null);
+
+                // Instantiates the wizard container with the wizard and opens it
+                WizardDialog wizardDialog = new WizardDialog(TestSessionsView.this.getSite().getShell(),
+                        coverageLogImportWizard);
+                wizardDialog.create();
+                wizardDialog.open();
+            }
+        };
+        action.setText(Messages.getString("CoverageLogImportWizard.0")); //$NON-NLS-1$
+        action.setImageDescriptor(CodeCoverPlugin.getDefault().getImageRegistry().
+                getDescriptor(CodeCoverPlugin.Image.COVERAGE_LOG.getPath()));
+
+        return action;
     }
 
     private Action makeMergeAction() {
@@ -1333,7 +1457,7 @@ public class TestSessionsView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.action.Action#run()
          */
         @Override
@@ -1354,7 +1478,7 @@ public class TestSessionsView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.viewers.ISelectionChangedListener#selectionChanged(org.eclipse.jface.viewers.SelectionChangedEvent)
          */
         public void selectionChanged(SelectionChangedEvent e) {
@@ -1381,7 +1505,7 @@ public class TestSessionsView extends ViewPart
      * Generates an action which opens a dialog which lists all active test
      * cases as reported by the TSContainerManager. This action is used for
      * debugging purposes.
-     * 
+     *
      * @return  an action which opens a dialog which lists all active test
      *          cases as reported by the TSContainerManager.
      */
@@ -1487,7 +1611,7 @@ public class TestSessionsView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
      */
     @Override

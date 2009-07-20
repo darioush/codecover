@@ -99,7 +99,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 /**
  * The Coverage View displays the coverage results of the active
  * <code>TestSessionContainer</code>.
- * 
+ *
  * @author Robert Hanussek, Markus Wittlinger
  * @version 1.0 ($Id$)
  */
@@ -234,7 +234,7 @@ public class CoverageView extends ViewPart
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.part.ViewPart#init(org.eclipse.ui.IViewSite,
      *      org.eclipse.ui.IMemento)
      */
@@ -246,7 +246,7 @@ public class CoverageView extends ViewPart
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
      */
     @Override
@@ -304,7 +304,7 @@ public class CoverageView extends ViewPart
         CodeCoverPlugin.getDefault().getTSContainerManager().addListener(this);
     }
 
-    /* 
+    /*
      * methods to create and layout the tree viewer
      */
 
@@ -454,7 +454,7 @@ public class CoverageView extends ViewPart
     /**
      * Returns the <code>TestSessionContainer</code> which is currently
      * visualized by this view.
-     * 
+     *
      * @return  the <code>TestSessionContainer</code> which is currently
      *          visualized by this view.
      */
@@ -469,7 +469,7 @@ public class CoverageView extends ViewPart
     /**
      * Returns the <code>TSContainerInfo</code>-representation of the test
      * session container which is currently visualized by this view.
-     * 
+     *
      * @return  the <code>TSContainerInfo</code>-representation of the test
      *          session container which is currently visualized by this view.
      */
@@ -484,7 +484,7 @@ public class CoverageView extends ViewPart
     /**
      * Returns the <code>TestCase</code>s which are currently visualized by this
      * view.
-     * 
+     *
      * @return  the <code>TestCase</code>s which are currently visualized by
      *          this view.
      */
@@ -499,7 +499,7 @@ public class CoverageView extends ViewPart
     /**
      * Returns the <code>IProject</code> the test session container, which is
      * visualized in this view, belongs to.
-     * 
+     *
      * @return  the <code>IProject</code> the test session container, which is
      *          visualized in this view, belongs to.
      */
@@ -512,7 +512,7 @@ public class CoverageView extends ViewPart
     }
 
     /**
-     * 
+     *
      */
     private void createTableColumns(List<CoverageMetric> metrics) {
         Tree tree = this.viewer.getTree();
@@ -555,7 +555,7 @@ public class CoverageView extends ViewPart
 
     /**
      * Gets all the {@link CoverageMetric}s
-     * 
+     *
      * @return the {@link Set} of {@link CoverageMetric}s
      */
     private static List<CoverageMetric> getCoverageMetrics() {
@@ -597,11 +597,11 @@ public class CoverageView extends ViewPart
     /**
      * Searches the given collection of <code>Metric</code>s for a
      * <code>CoverageMetric</code> with the given name.
-     * 
+     *
      * @param name      the name of the <code>CoverageMetric</code> to search
      *                  for
      * @param metrics   the collection to search
-     * 
+     *
      * @return  the first found <code>CoverageMetric</code> which has the given
      *          name
      */
@@ -619,10 +619,10 @@ public class CoverageView extends ViewPart
     /**
      * Removes the suffix &quot; Coverage&quot; from the given
      * <code>String</code> if it ends with this suffix.
-     * 
+     *
      * @param name  the <code>String</code> to remove the suffix
      *              &quot; Coverage&quot; from
-     * 
+     *
      * @return  the given <code>String</code> with the suffix removed, or the
      *          given <code>String</code> without any change if it didn't end
      *          with the suffix &quot; Coverage&quot; in the first place
@@ -645,7 +645,7 @@ public class CoverageView extends ViewPart
             implements IStructuredContentProvider, ITreeContentProvider {
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer,
          *      java.lang.Object, java.lang.Object)
          */
@@ -655,7 +655,7 @@ public class CoverageView extends ViewPart
 
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.viewers.IContentProvider#dispose()
          */
         public void dispose() {
@@ -665,7 +665,7 @@ public class CoverageView extends ViewPart
 
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
          */
         public Object[] getElements(Object parent) {
@@ -714,7 +714,7 @@ public class CoverageView extends ViewPart
 
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang.Object)
          */
         public Object getParent(Object child) {
@@ -732,7 +732,7 @@ public class CoverageView extends ViewPart
                     parent
                         = tsc.getParentOfHierarchyLevel((HierarchyLevel)child);
                 } catch(IllegalArgumentException e) {
-                    logger.error(   "Possible inconsistency in" +  //$NON-NLS-1$
+                    CoverageView.this.logger.error(   "Possible inconsistency in" +  //$NON-NLS-1$
                                     " Coverage view", e);          //$NON-NLS-1$
 
                     Display.getDefault().asyncExec(new Runnable() {
@@ -765,7 +765,7 @@ public class CoverageView extends ViewPart
 
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.viewers.ITreeContentProvider#getChildren(java.lang.Object)
          */
         public Object[] getChildren(Object parent) {
@@ -781,7 +781,7 @@ public class CoverageView extends ViewPart
 
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.viewers.ITreeContentProvider#hasChildren(java.lang.Object)
          */
         public boolean hasChildren(Object parent) {
@@ -797,7 +797,7 @@ public class CoverageView extends ViewPart
             implements ITableLabelProvider {
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang.Object,
          *      int)
          */
@@ -832,7 +832,7 @@ public class CoverageView extends ViewPart
 
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java.lang.Object,
          *      int)
          */
@@ -845,32 +845,20 @@ public class CoverageView extends ViewPart
                  * given HierarchyLevel. The default package is visualized as
                  * the (top-level) project node (with a project icon).
                  */
-                if(hLev.getType().getInternalName()
-                        .equals(Type.DEFAULT_PACKAGE_NAME)) /* project */ {
+                if (hLev.getType().getInternalName().equals(DEFAULT_PACKAGE_NAME)) /* project */{
                     return PlatformUI.getWorkbench().getSharedImages().getImage(
-                        IDE.SharedImages.IMG_OBJ_PROJECT);
-                } else if(hLev.getType().getInternalName()
-                        .equals(Type.PACKAGE_NAME)) {
-                    return JavaUI.getSharedImages()
-                                 .getImage(ISharedImages.IMG_OBJS_PACKAGE);
-                } else if(hLev.getType().getInternalName()
-                        .equals(Type.CLASS_NAME)) {
-                    return JavaUI.getSharedImages()
-                                 .getImage(ISharedImages.IMG_OBJS_CLASS);
-                } else if(hLev.getType().getInternalName()
-                        .equals(Type.INTERFACE_NAME)){
-                    return JavaUI.getSharedImages()
-                                 .getImage(ISharedImages.IMG_OBJS_INTERFACE);
-                } else if(hLev.getType().getInternalName()
-                        .equals(Type.ENUM_NAME)){
-                    return JavaUI.getSharedImages()
-                                 .getImage(ISharedImages.IMG_OBJS_ENUM);
-                } else if(hLev.getType().getInternalName()
-                        .equals(Type.ANNOTATION_NAME)){
-                    return JavaUI.getSharedImages()
-                                 .getImage(ISharedImages.IMG_OBJS_ANNOTATION);
-                } else if(hLev.getType().getInternalName()
-                        .equals(Type.METHOD_NAME)) {
+                            IDE.SharedImages.IMG_OBJ_PROJECT);
+                } else if (hLev.getType().getInternalName().equals(PACKAGE_NAME)) {
+                    return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_PACKAGE);
+                } else if (hLev.getType().getInternalName().equals(CLASS_NAME)) {
+                    return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_CLASS);
+                } else if (hLev.getType().getInternalName().equals(INTERFACE_NAME)) {
+                    return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_INTERFACE);
+                } else if (hLev.getType().getInternalName().equals(ENUM_NAME)) {
+                    return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_ENUM);
+                } else if (hLev.getType().getInternalName().equals(ANNOTATION_NAME)) {
+                    return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_ANNOTATION);
+                } else if (hLev.getType().getInternalName().equals(METHOD_NAME)) {
                     return CodeCoverPlugin.getDefault().getImageRegistry().get(
                             CodeCoverPlugin.Image.METHOD.getPath());
                 }
@@ -922,7 +910,7 @@ public class CoverageView extends ViewPart
     /**
      * Checks the given {@link CoverageResult} and returns the float value of
      * it's quotient
-     * 
+     *
      * @param result
      *            the given {@link CoverageResult}
      * @return result.getCoveredItems() / result.getTotalItems(), or 1f if
@@ -1028,7 +1016,7 @@ public class CoverageView extends ViewPart
 
     /**
      * Open and shown in Editor if possible. Inform user of errors.
-     * 
+     *
      * @param hLev
      * a java element that has code (no package)
      */
@@ -1106,7 +1094,7 @@ public class CoverageView extends ViewPart
 
         /**
          * Constructor
-         * 
+         *
          * @param initialRootType
          * @param toolBarManager
          */
@@ -1119,7 +1107,7 @@ public class CoverageView extends ViewPart
 
         /**
          * Adds the action to this manager, as well as the toolbar.
-         * 
+         *
          * @param rootType
          *            the {@link Type} of the action
          * @param action
@@ -1133,7 +1121,7 @@ public class CoverageView extends ViewPart
 
         /**
          * Creates a groupByAction with the given parameters.
-         * 
+         *
          * @param rootType
          *            the {@link Type} of the action
          * @param text
@@ -1180,7 +1168,7 @@ public class CoverageView extends ViewPart
 
         /**
          * Gets the rootType
-         * 
+         *
          * @return the {@link Type}
          */
         public Type getRootType() {
@@ -1189,7 +1177,7 @@ public class CoverageView extends ViewPart
 
         /**
          * Gets the actions for the given {@link Type}
-         * 
+         *
          * @param rootType
          *            the given {@link Type}
          * @return the actions.
@@ -1198,6 +1186,18 @@ public class CoverageView extends ViewPart
             return this.actions.get(rootType);
         }
     }
+
+    /*
+     * The following constants are the internal names of all types.
+     */
+    private static final String DEFAULT_PACKAGE_NAME
+             = "default package";                              //$NON-NLS-1$
+    private static final String PACKAGE_NAME = "package";      //$NON-NLS-1$
+    private static final String CLASS_NAME = "class";          //$NON-NLS-1$
+    private static final String INTERFACE_NAME = "interface";  //$NON-NLS-1$
+    private static final String ENUM_NAME = "enum";            //$NON-NLS-1$
+    private static final String ANNOTATION_NAME = "@interface";//$NON-NLS-1$
+    private static final String METHOD_NAME = "method";        //$NON-NLS-1$
 
     /**
      * The types of hierarchical levels, e.g. packages or classes. This enum is
@@ -1211,38 +1211,26 @@ public class CoverageView extends ViewPart
      * <code>HierarchyLevel</code> would be a parent (or grandparent) of a
      * <code>HierarchyLevel</code> of the other type, i.e. packages are greater
      * than classes.
-     * 
+     *
      * @see GroupByActionsManager
      */
     private static enum Type {
         /**
          * Constant for projects.
          */
-        PROJECT     (CoverageView.Type.DEFAULT_PACKAGE_NAME),
+        PROJECT     (DEFAULT_PACKAGE_NAME),
         /**
          * Constant for packages.
          */
-        PACKAGE     (CoverageView.Type.PACKAGE_NAME),
+        PACKAGE     (PACKAGE_NAME),
         /**
          * Constant for classes, interfaces and enums.
          */
-        CLASS       (CoverageView.Type.CLASS_NAME),
+        CLASS       (CLASS_NAME),
         /**
          * Constant for methods.
          */
-        METHOD      (CoverageView.Type.METHOD_NAME);
-
-        /*
-         * The following constants are the internal names of all types.
-         */
-        private static final String DEFAULT_PACKAGE_NAME
-                 = "default package";                              //$NON-NLS-1$
-        private static final String PACKAGE_NAME = "package";      //$NON-NLS-1$
-        private static final String CLASS_NAME = "class";          //$NON-NLS-1$
-        private static final String INTERFACE_NAME = "interface";  //$NON-NLS-1$
-        private static final String ENUM_NAME = "enum";            //$NON-NLS-1$
-        private static final String ANNOTATION_NAME = "@interface";//$NON-NLS-1$
-        private static final String METHOD_NAME = "method";        //$NON-NLS-1$
+        METHOD      (METHOD_NAME);
 
         private final String internalName;
 
@@ -1259,7 +1247,7 @@ public class CoverageView extends ViewPart
          * The name for
          * the {@link #CLASS} type is returned as &quot;class&quot; although it
          * subsumes classes, interfaces and enums.
-         * 
+         *
          * @return  the internal name of the <code>HierarchyLevel</code>
          */
         public String getName() {
@@ -1269,9 +1257,9 @@ public class CoverageView extends ViewPart
         /**
          * Returns the <code>Type</code> which matches the internal name
          * of the given <code>HierarchyLevel</code>.
-         * 
+         *
          * @param hLev  the <code>HierarchyLevel</code>
-         * 
+         *
          * @return  the <code>Type</code> which matches the internal name of the
          *          given <code>HierarchyLevel</code>
          */
@@ -1282,16 +1270,16 @@ public class CoverageView extends ViewPart
         /**
          * Returns the <code>Type</code> which matches the given internal name
          * of a <code>HierarchyLevel</code>.
-         * 
+         *
          * @param name  the name
-         * 
+         *
          * @return  the <code>Type</code> which matches the given internal name
          *          of a <code>HierarchyLevel</code>
          */
         public static Type typeOf(String name) {
-            if(name.equals(Type.INTERFACE_NAME)
-                    || name.equals(Type.ENUM_NAME)
-                    || name.equals(Type.ANNOTATION_NAME)) {
+            if(name.equals(INTERFACE_NAME)
+                    || name.equals(ENUM_NAME)
+                    || name.equals(ANNOTATION_NAME)) {
                 return Type.CLASS;
             }
             for(Type type : Type.values()) {
@@ -1498,7 +1486,7 @@ public class CoverageView extends ViewPart
 
         /**
          * Gets the text associated with this compare operator.
-         * 
+         *
          * @return   the text associated with this compare operator
          */
         public String getText() {
@@ -1525,7 +1513,7 @@ public class CoverageView extends ViewPart
 
         /**
          * Constructor
-         * 
+         *
          * @param metricIndex
          * @param compareOp
          * @param compareWith
@@ -1540,7 +1528,7 @@ public class CoverageView extends ViewPart
 
         /**
          * Sets the index of the metric
-         * 
+         *
          * @param metricIndex the given index.
          */
         public void setMetricIndex(int metricIndex) {
@@ -1549,7 +1537,7 @@ public class CoverageView extends ViewPart
 
         /**
          * Set the operator to use to compare the coverage result.
-         * 
+         *
          * @param compareOp
          *            the given {@link CovFilterCompareOperator}
          */
@@ -1559,7 +1547,7 @@ public class CoverageView extends ViewPart
 
         /**
          * Sets the coverage to compare with
-         * 
+         *
          * @param compareWith
          *            the coverage between <code>0.0</code> and
          *            <code>1.0</code>
@@ -1571,7 +1559,7 @@ public class CoverageView extends ViewPart
 
         /**
          * Sets the number of percentage fractions. digits
-         * 
+         *
          * @param fractionDigits
          *            the number of digits
          */
@@ -1585,7 +1573,7 @@ public class CoverageView extends ViewPart
 
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.viewers.ViewerFilter#select(org.eclipse.jface.viewers.Viewer,
          *      java.lang.Object, java.lang.Object)
          */
@@ -1614,7 +1602,7 @@ public class CoverageView extends ViewPart
         /**
          * Returns whether the given <code>HierarchyLevel</code> makes it
          * through this filter.
-         * 
+         *
          * @return  <code>true</code> if element is included in the filtered
          *          set, and <code>false</code> if excluded
          */
@@ -1667,7 +1655,7 @@ public class CoverageView extends ViewPart
 
             /**
              * Gets the list of {@link HierarchyLevel}s, that are methods.
-             * 
+             *
              * @return the list of methods.
              */
             public List<HierarchyLevel> getMethods() {
@@ -1684,7 +1672,7 @@ public class CoverageView extends ViewPart
 
     /*
      * methods and class for name filtering
-     * 
+     *
      * Since the implementation of name filtering runs much too slow, it was
      * commented out in method createPartControl. It wasn't deleted since an
      * enhanced version (e.g., by using caching) could be used in future
@@ -1748,7 +1736,7 @@ public class CoverageView extends ViewPart
 
         /**
          * Sets the prefix.
-         * 
+         *
          * @param prefix
          *            the given prefix.
          */
@@ -1774,9 +1762,9 @@ public class CoverageView extends ViewPart
          * Checks if the beginning of the name of the given
          * <code>HierarchyLevel</code> or of one of its children matches the
          * prefix this filter filters for.
-         * 
+         *
          * @param parent    the <code>HierarchyLevel</code> to check
-         * 
+         *
          * @return  <code>true</code> if the beginning of the name of the given
          *          <code>HierarchyLevel</code> or of one of its children
          *          matches the prefix this filter filters for.
@@ -1797,7 +1785,7 @@ public class CoverageView extends ViewPart
             private boolean containsChild;
             /**
              * Constructor
-             * 
+             *
              * @param prefix
              *            the prefix, with which the {@link HierarchyLevel} must
              *            begin.
@@ -1809,7 +1797,7 @@ public class CoverageView extends ViewPart
             /**
              * Indicates if a {@link HierarchyLevel} began with the given
              * prefix.
-             * 
+             *
              * @return true &rarr; a {@link HierarchyLevel} began with the given
              *         prefix <br>
              *         false &rarr; no {@link HierarchyLevel} began with the
@@ -1832,7 +1820,7 @@ public class CoverageView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionContainerActivated(ActiveTSContainerInfo)
      */
     public void testSessionContainerActivated(ActiveTSContainerInfo tscInfo) {
@@ -1841,7 +1829,7 @@ public class CoverageView extends ViewPart
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testCasesActivated(ActiveTSContainerInfo)
      */
     public void testCasesActivated(ActiveTSContainerInfo tscInfo) {
@@ -1850,7 +1838,7 @@ public class CoverageView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionContainerRemoved(org.codecover.eclipse.tscmanager.TSContainerManager.TSContainerInfo)
      */
     public void testSessionContainerRemoved(TSContainerInfo tscInfo) {
@@ -1859,7 +1847,7 @@ public class CoverageView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionContainerAdded(org.codecover.eclipse.tscmanager.TSContainerManager.TSContainerInfo,
      *      int)
      */
@@ -1867,7 +1855,7 @@ public class CoverageView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testCaseChanged(ActiveTSContainerInfo, ChangeType, TestCase)
      */
     public void testCaseChanged(ActiveTSContainerInfo tscInfo,
@@ -1875,7 +1863,7 @@ public class CoverageView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionChanged(ActiveTSContainerInfo, ChangeType, TestSession)
      */
     public void testSessionChanged(ActiveTSContainerInfo tscInfo,
@@ -1883,7 +1871,7 @@ public class CoverageView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#testSessionContainerChanged(ChangeType, ActiveTSContainerInfo)
      */
     public void testSessionContainerChanged(ChangeType changeType,
@@ -1891,12 +1879,12 @@ public class CoverageView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.eclipse.tscmanager.TSContainerManagerListener#synchronizedStateChanged(TSContainerInfo, boolean)
      */
     public void synchronizedStateChanged(TSContainerInfo tscInfo,
             boolean isSynchronized) {}
-    
+
     /*
      * methods and class for saving and restoring the the expanded elements of
      * the visualized code tree
@@ -1951,7 +1939,7 @@ public class CoverageView extends ViewPart
 
         /**
          * Sets the id
-         * 
+         *
          * @param id
          *            the id to set.
          */
@@ -1962,7 +1950,7 @@ public class CoverageView extends ViewPart
 
         /**
          * Gets the {@link HierarchyLevel}
-         * 
+         *
          * @return the {@link HierarchyLevel}
          */
         public HierarchyLevel getHierarchyLevel() {
@@ -1971,7 +1959,7 @@ public class CoverageView extends ViewPart
 
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.codecover.model.mast.HierarchyLevel.Visitor#visit(org.codecover.model.mast.HierarchyLevel)
          */
         public void visit(HierarchyLevel hierarchyLevel) {
@@ -1991,7 +1979,7 @@ public class CoverageView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.part.ViewPart#saveState(org.eclipse.ui.IMemento)
      */
     @Override

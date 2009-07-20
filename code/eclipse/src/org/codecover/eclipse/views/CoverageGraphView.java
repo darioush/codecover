@@ -174,35 +174,37 @@ public class CoverageGraphView extends ViewPart {
         CodeCoverPlugin.getDefault().getTSContainerManager().addListener(
                 new TSManagerListener());
     }
+
+
+    /*
+     * The following constants are the internal names of all types.
+     */
+    private static final String DEFAULT_PACKAGE_NAME
+             = "default package";                              //$NON-NLS-1$
+    private static final String PACKAGE_NAME = "package";      //$NON-NLS-1$
+    private static final String CLASS_NAME = "class";          //$NON-NLS-1$
+    private static final String INTERFACE_NAME = "interface";  //$NON-NLS-1$
+    private static final String ENUM_NAME = "enum";            //$NON-NLS-1$
+    private static final String ANNOTATION_NAME = "@interface";//$NON-NLS-1$
+    private static final String METHOD_NAME = "method";        //$NON-NLS-1$
+
     private static enum Type {
         /**
          * Constant for projects.
          */
-        PROJECT     (CoverageGraphView.Type.DEFAULT_PACKAGE_NAME),
+        PROJECT     (DEFAULT_PACKAGE_NAME),
         /**
          * Constant for packages.
          */
-        PACKAGE     (CoverageGraphView.Type.PACKAGE_NAME),
+        PACKAGE     (PACKAGE_NAME),
         /**
          * Constant for classes, interfaces and enums.
          */
-        CLASS       (CoverageGraphView.Type.CLASS_NAME),
+        CLASS       (CLASS_NAME),
         /**
          * Constant for methods.
          */
-        METHOD      (CoverageGraphView.Type.METHOD_NAME);
-
-        /*
-         * The following constants are the internal names of all types.
-         */
-        private static final String DEFAULT_PACKAGE_NAME
-                 = "default package";                              //$NON-NLS-1$
-        private static final String PACKAGE_NAME = "package";      //$NON-NLS-1$
-        private static final String CLASS_NAME = "class";          //$NON-NLS-1$
-        private static final String INTERFACE_NAME = "interface";  //$NON-NLS-1$
-        private static final String ENUM_NAME = "enum";            //$NON-NLS-1$
-        private static final String ANNOTATION_NAME = "@interface";//$NON-NLS-1$
-        private static final String METHOD_NAME = "method";        //$NON-NLS-1$
+        METHOD      (METHOD_NAME);
 
         private final String internalName;
 
@@ -249,9 +251,9 @@ public class CoverageGraphView extends ViewPart {
          *          of a <code>HierarchyLevel</code>
          */
         public static Type typeOf(String name) {
-            if(name.equals(Type.INTERFACE_NAME)
-                    || name.equals(Type.ENUM_NAME)
-                    || name.equals(Type.ANNOTATION_NAME)) {
+            if(name.equals(INTERFACE_NAME)
+                    || name.equals(ENUM_NAME)
+                    || name.equals(ANNOTATION_NAME)) {
                 return Type.CLASS;
             }
             for(Type type : Type.values()) {

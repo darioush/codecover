@@ -42,7 +42,7 @@ import org.osgi.framework.BundleContext;
 
 /**
  * The activator class controls the plug-in life cycle
- * 
+ *
  * @author Robert Hanussek, Tilmann Scheller, Markus Wittlinger
  * @version 1.0 ($Id$)
  */
@@ -50,7 +50,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
 
     /**
      * A class holding references to the images used in the plugin.
-     * 
+     *
      * @author Robert Hanussek, Markus Wittlinger
      * @version 1.0 ($Id$)
      */
@@ -107,7 +107,12 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
          * Image for the csv export action.
          */
         CSV_EXPORT("icons/csv_export.gif"), //$NON-NLS-1$
-      //Added by Negar:
+        /**
+         * Image for the coverage log import wizard.
+         */
+        COVERAGE_LOG("icons/coverage_log.gif"), //$NON-NLS-1$
+
+        //Added by Negar:
         OPTIONS("icons/options.ico"), //$NON-NLS-1$
         MOUSE_STYLE("icons/mousestyle.ico"), //$NON-NLS-1$
         SUT_LEVEL("icons/sutlevel.ico"), //$NON-NLS-1$
@@ -115,6 +120,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
         COVERAGE_CRITERIA("icons/coveragecriteria.ico"), //$NON-NLS-1$
         DRAW_GRAPH("icons/draw_graph.gif"), //$NON-NLS-1$
         CSV_EXPORT2("icons/csv_export2.gif"); //$NON-NLS-1$
+
         private final String path;
 
         private Image(String path) {
@@ -123,19 +129,19 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
 
         /**
          * Gets the path of the {@link Image}
-         * 
+         *
          * @return the path.
          */
         public String getPath() {
             return this.path;
         }
     }
-    
+
     /**
      * The shared logger of the plugin.
      */
     private final Logger logger;
-    
+
     /**
      * The log level of the logger of the plugin.
      */
@@ -145,23 +151,23 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
      * The shared test session container manager of the plugin.
      */
     private TSContainerManager tsContainerManager;
-    
+
     private Object eclipsePluginManagerLock = new Object();
     private volatile EclipsePluginManager eclipsePluginManager;
-    
+
     private Object initTSCManagerLock;
     private boolean creatingTSCManager;
     private boolean doneCreatingTSCManager;
-    
+
     private InstrumentableItemsManager instrumentableItemsManager;
 
     private EditorTracker editorTracker;
 
     private Object booleanAnalyzerLock = new Object();
     private BooleanAnalyzer booleanAnalyzer = null;
-    
+
     private BundleContext bundleContext = null;
-    
+
     /**
      * The shared instance of the plugin.
      */
@@ -171,7 +177,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
      * The name of the plugin
      */
     public static final String NAME = "CodeCover";                 //$NON-NLS-1$
-    
+
     /**
      * The ID of the plugin.
      */
@@ -204,7 +210,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
      * The name of the folder in whom coverage log files are stored
      */
     public static final String COVERAGE_LOG_FOLDER = "coverage-logs"; //$NON-NLS-1$
-    
+
     /**
      * The {@link QualifiedName} for the
      * {@link IResource#getPersistentProperty(QualifiedName)}.
@@ -231,7 +237,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
         this.creatingTSCManager = false;
         this.doneCreatingTSCManager = false;
     }
-    
+
     //TODO: this seems to have a race condition (as no one knows when the
     //      constructor is executed)
     /* TODO: FIXME: XXX:
@@ -245,7 +251,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
      * - It is (more or less) busy waiting, causing unnecessary load.
     /**
      * Returns the shared instance of the plugin.
-     * 
+     *
      * @return the shared instance of the plugin
      */
     public static CodeCoverPlugin getDefault() {
@@ -258,60 +264,60 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
         }
         return plugin;
     }
-    
+
     /**
      * Gets the {@link EclipsePluginManager}
      * @return the {@link EclipsePluginManager}
      */
     public EclipsePluginManager getEclipsePluginManager() {
-        EclipsePluginManager result = eclipsePluginManager;
+        EclipsePluginManager result = this.eclipsePluginManager;
         if (result != null) {
             return result;
         }
-        
-        synchronized (eclipsePluginManagerLock) {
-            result = eclipsePluginManager;
+
+        synchronized (this.eclipsePluginManagerLock) {
+            result = this.eclipsePluginManager;
             if (result != null) {
                 return result;
             }
-            final BundleContext context = bundleContext;
+            final BundleContext context = this.bundleContext;
             if (context == null) {
                 // should never happen
                 throw new RuntimeException(
                         "start() has not been called");            //$NON-NLS-1$
             }
             result = new EclipsePluginManager(this, context);
-            eclipsePluginManager = result;
+            this.eclipsePluginManager = result;
             return result;
         }
     }
-    
+
     /**
      * Returns the currently opened boolean analyzer.
-     * 
+     *
      * @return the instance of the boolean analyzer, null if it is not opened
      */
     public BooleanAnalyzer getBooleanAnalyzer() {
-        synchronized (booleanAnalyzerLock) {
+        synchronized (this.booleanAnalyzerLock) {
             return this.booleanAnalyzer;
         }
     }
 
     /**
      * Set the currently opened boolean analyzer.
-     * 
+     *
      * @param booleanAnalyzer
      *            the {@link BooleanAnalyzer} to set.
      */
     public void setBooleanAnalyzer(BooleanAnalyzer booleanAnalyzer) {
-        synchronized (booleanAnalyzerLock) {
+        synchronized (this.booleanAnalyzerLock) {
             this.booleanAnalyzer = booleanAnalyzer;
         }
     }
 
     /**
      * Returns the shared <code>TSContainerManager</code> of the plugin.
-     * 
+     *
      * @return the shared <code>TSContainerManager</code> of the plugin
      */
     public TSContainerManager getTSContainerManager() {
@@ -354,7 +360,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
                                 " lost!");                         //$NON-NLS-1$
                         }
                     });
-                    logger.fatal("Saving is partly deactivated!",  //$NON-NLS-1$
+                    this.logger.fatal("Saving is partly deactivated!",  //$NON-NLS-1$
                             e);
                     /*
                      * throw an exception to be safe (if we have a buggy logger
@@ -373,7 +379,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
 
     /**
      * Returns the shared {@link InstrumentableItemsManager} of the plugin
-     * 
+     *
      * @return the shared {@link InstrumentableItemsManager} of the plugin
      */
     public InstrumentableItemsManager getInstrumentableItemsManager() {
@@ -386,16 +392,16 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
 
     /**
      * Returns the shared logger of the plugin.
-     * 
+     *
      * @return the shared logger of the plugin
      */
     public Logger getLogger() {
         return this.logger;
     }
-    
+
     /**
      * Returns the log level of the logger of the plugin.
-     * 
+     *
      * @return the log level of the logger of the plugin
      */
     public LogLevel getLogLevel() {
@@ -405,7 +411,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
     /**
      * Returns an image descriptor for the image file at the given plug-in
      * relative path.
-     * 
+     *
      * @param path
      *            the path
      * @return the image descriptor
@@ -425,18 +431,18 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
             registry.put(image.getPath(), imageDesc);
         }
     }
-    
+
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
      */
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
-        
+
         this.bundleContext = context;
-        
+
         /* Watch for editors with source code to annotate */
         this.editorTracker = new EditorTracker(getWorkbench());
 
@@ -447,7 +453,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
      */
     @Override
@@ -456,12 +462,12 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
         super.stop(context);
 
         ResourcesPlugin.getWorkspace().removeSaveParticipant(this);
-        
+
         /* Stop Tracking editors. */
         this.editorTracker.dispose();
 
         ImageProvider.dispose();
-        
+
         // Save the data of the managers
         getInstrumentableItemsManager().saveInstrumentableItems();
         plugin = null;
@@ -470,7 +476,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
     /**
      * Rebuilds a CodeCover project taking into account whether
      * auto-build is activated for the workspace of the project.
-     * 
+     *
      * @param project the project to build
      */
     public static void build(IProject project) {
@@ -484,10 +490,10 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
             }
         }
     }
-    
+
     /**
      * Checks whether CodeCover is activated for a project.
-     * 
+     *
      * @param project
      *            the project which you want to check
      * @return the enabled state.
@@ -505,7 +511,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
 
     /**
      * Sets the activation for a project.
-     * 
+     *
      * @param project
      *            The project.
      * @param enabled
@@ -521,11 +527,11 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
             // TODO error handling
         }
     }
-    
+
     /**
      * Gets a unique and constant {@link QualifiedName} for a given
      * {@link Criterion}.
-     * 
+     *
      * @param criterion
      *            the given {@link Criterion}.
      * @return the {@link QualifiedName}
@@ -536,11 +542,11 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
                 + "//" + criterion.getExtensionName(); //$NON-NLS-1$
         return new QualifiedName("", identifer); //$NON-NLS-1$
     }
-    
+
     /**
      * Sets the activation state for the given {@link Criterion} in the given
      * {@link IProject}.
-     * 
+     *
      * @param project
      *            the given {@link IProject}.
      * @param criterion
@@ -557,11 +563,11 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
             // TODO error handling
         }
     }
-    
+
     /**
      * Gets the activation state for the given {@link Criterion} in the given
      * {@link IProject}.
-     * 
+     *
      * @param project
      *            the given {@link IProject}.
      * @param criterion
@@ -572,7 +578,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
     public static boolean getCriterionSelectedState(IProject project,
             Criterion criterion) {
         String state;
-        
+
         try {
             state = project.getPersistentProperty(getCriterionIdentifier(criterion));
             if (state == null) {
@@ -588,7 +594,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
 
     /**
      * Get path to a place where project specific files can be stored.
-     * 
+     *
      * @param project
      *            the {@link IProject} to use.
      * @return the {@link IPath} to the place where project specific files can
@@ -600,7 +606,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
 
     /**
      * Get path to the folder where the instrumented files of a project are stored.
-     * 
+     *
      * @param project
      *            the {@link IProject} to use.
      * @return the {@link IPath} to the place where the instrumented files of a
@@ -612,7 +618,7 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
 
     /**
      * Get path to the folder where the coverage logs of a project are stored.
-     * 
+     *
      * @param project
      *            the {@link IProject} to use.
      * @return the {@link IPath} to the place where the coverage logs of a

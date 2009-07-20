@@ -37,6 +37,7 @@ import org.codecover.model.MASTBuilder;
 import org.codecover.model.TestSession;
 import org.codecover.model.TestSessionContainer;
 import org.codecover.model.exceptions.FileLoadException;
+import org.codecover.model.utils.file.FileTool;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -50,6 +51,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.wizard.WizardPage;
@@ -70,9 +73,9 @@ import org.eclipse.ui.ide.IDE;
 
 /**
  * The (one and only) page of the wizard to import coverage logs.
- * 
+ *
  * @see CoverageLogImportWizard
- * 
+ *
  * @author Robert Hanussek
  * @version 1.0 ($Id$)
  */
@@ -146,7 +149,7 @@ public class CoverageLogImportWizardPage extends WizardPage {
 
     private static final String DIALOG_ERROR_ACTIVATE_TSC_OUT_OF_MEM_MSG = Messages
             .getString("CoverageLogImportWizardPage.DIALOG_ERROR_ACTIVATE_TSC_OUT_OF_MEM_MSG"); //$NON-NLS-1$
-    
+
     private static final String DIALOG_WARNING_TEST_SESSION_RENAMED_TITLE = Messages
             .getString("CoverageLogImportWizardPage.DIALOG_WARNING_TEST_SESSION_RENAMED_TITLE"); //$NON-NLS-1$
 
@@ -285,6 +288,16 @@ public class CoverageLogImportWizardPage extends WizardPage {
         this.viewer.setInput(
                 ResourcesPlugin.getWorkspace().getRoot().getProjects());
         this.viewer.addSelectionChangedListener(new ViewerListener());
+        // per default, we select the current test session container
+        ActiveTSContainerInfo activeTSCInfo = CodeCoverPlugin.getDefault().getTSContainerManager().getActiveTSContainer();
+        if (activeTSCInfo != null)
+        {
+            IProject testSessionContainerProject = activeTSCInfo.getProject();
+            TreePath selectedTreePath = new TreePath(
+                    new Object[] { testSessionContainerProject, activeTSCInfo });
+            TreeSelection selection = new TreeSelection(selectedTreePath);
+            this.viewer.setSelection(selection, true);
+        }
 
         // create group which will host the test session name and comment field
         Group grpTestSession = new Group(mainComposite, SWT.NONE);
@@ -347,6 +360,12 @@ public class CoverageLogImportWizardPage extends WizardPage {
 
         this.setControl(mainComposite);
         this.applyErrorMessage();
+    }
+
+    /** Overwrites the currently selected file and may be used to select a file intialy. */
+    public void selectCoverageLogFile(String path)
+    {
+        this.fldFile.setStringValue(path);
     }
 
     boolean importCoverageLog() {
@@ -619,8 +638,7 @@ public class CoverageLogImportWizardPage extends WizardPage {
                 = CoverageLogImportWizardPage.this.fldFile.getStringValue();
             File covLogFile = new File(
                 CoverageLogImportWizardPage.this.filepath);
-            if(CoverageLogImportWizardPage
-                    .this.fldFile.getStringValue().length() == 0) {
+            if(CoverageLogImportWizardPage.this.fldFile.getStringValue().length() == 0) {
                 error = ERROR_FILE_NONE_SPECIFIED;
             } else if(!covLogFile.exists()) {
                 error = ERROR_FILE_FILE_NOT_FOUND;
@@ -628,6 +646,14 @@ public class CoverageLogImportWizardPage extends WizardPage {
                 error = ERROR_FILE_NOT_A_FILE;
             } else if(!covLogFile.canRead()) {
                 error = ERROR_FILE_NOT_READABLE;
+            } else if (CoverageLogImportWizardPage.this.txtTestSessionName.getText().length() == 0) {
+                // if we do not have a test session name set, we set the filename
+                String fileName = covLogFile.getName();
+                String extension = FileTool.getExtension(fileName);
+                if (extension != null) {
+                    fileName = fileName.substring(0, fileName.length() - extension.length() - 1);
+                }
+                CoverageLogImportWizardPage.this.txtTestSessionName.setText(fileName);
             }
             CoverageLogImportWizardPage.this.fileError = error;
 

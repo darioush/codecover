@@ -19,7 +19,7 @@ import org.eclipse.ui.IWorkbench;
 
 /**
  * A wizard to import a coverage log.
- * 
+ *
  * @see CoverageLogImportWizardPage
  * @author Robert Hanussek
  * @version 1.0 ($Id$)
@@ -46,5 +46,11 @@ public class CoverageLogImportWizard extends Wizard implements IImportWizard {
     public void addPages() {
         super.addPages();
         this.addPage(this.mainPage);
+    }
+
+    /** Overwrites the currently selected file and may be used to select a file intialy. */
+    public void selectCoverageLogFile(String thisFile)
+    {
+        this.mainPage.selectCoverageLogFile(thisFile);
     }
 }

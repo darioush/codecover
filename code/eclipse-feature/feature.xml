@@ -3,7 +3,7 @@
 <feature
       id="codecover"
       label="CodeCover"
-      version="1.0.0.2"
+      version="1.0.0.3"
       plugin="http://update.codecover.org/">
 
    <description url="http://www.codecover.org/">
@@ -123,6 +123,8 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <import plugin="org.eclipse.jdt.junit"/>
       <import plugin="org.eclipse.debug.ui"/>
       <import plugin="org.eclipse.core.expressions"/>
+      <import plugin="org.eclipse.ui.console"/>
+      <import plugin="org.eclipse.search"/>
       <import plugin="org.eclipse.jdt.junit.runtime"/>
       <import plugin="org.eclipse.jdt.junit4.runtime"/>
       <import feature="org.eclipse.jdt" version="3.3.0.v20070606-0010-7o7jCHEFpPoqQYvnXqejeR" match="compatible"/>
@@ -132,65 +134,65 @@ This Agreement is governed by the laws of the State of New York and the intellec
          id="org.codecover.eclipse"
          download-size="0"
          install-size="0"
-         version="1.0.0.2"
+         version="1.0.0.3"
          unpack="false"/>
 
    <plugin
          id="org.codecover.instrumentation"
          download-size="0"
          install-size="0"
-         version="1.0.0.2"
+         version="1.0.0.3"
          unpack="false"/>
 
    <plugin
          id="org.codecover.instrumentation.java"
          download-size="0"
          install-size="0"
-         version="1.0.0.2"
+         version="1.0.0.3"
          unpack="false"/>
 
    <plugin
          id="org.codecover.instrumentation.java.junit"
          download-size="0"
          install-size="0"
-         version="1.0.0.2"/>
+         version="1.0.0.3"/>
 
    <plugin
          id="org.codecover.instrumentation.java.measurement"
          download-size="0"
          install-size="0"
-         version="1.0.0.2"/>
+         version="1.0.0.3"/>
 
    <plugin
          id="org.codecover.metrics"
          download-size="0"
          install-size="0"
-         version="1.0.0.2"
+         version="1.0.0.3"
          unpack="false"/>
 
    <plugin
          id="org.codecover.model"
          download-size="0"
          install-size="0"
-         version="1.0.0.2"/>
+         version="1.0.0.3"/>
 
    <plugin
          id="org.codecover.report"
          download-size="0"
          install-size="0"
-         version="1.0.0.2"
+         version="1.0.0.3"
          unpack="false"/>
 
    <plugin
          id="org.codecover.report.html"
          download-size="0"
          install-size="0"
-         version="1.0.0.2"/>
+         version="1.0.0.3"/>
 
    <plugin
          id="org.codecover.report.csv"
          download-size="0"
          install-size="0"
-         version="1.0.0.2"/>
+         version="1.0.0.3"/>
 
 </feature>

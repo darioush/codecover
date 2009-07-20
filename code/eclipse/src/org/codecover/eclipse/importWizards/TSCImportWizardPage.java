@@ -45,9 +45,9 @@ import org.eclipse.swt.widgets.Listener;
 
 /**
  * The (one and only) page of the wizard to import test session containers.
- * 
+ *
  * @see TSCImportWizard
- * 
+ *
  * @author Robert Hanussek
  * @version 1.0 ($Id$)
  */
@@ -86,7 +86,7 @@ public class TSCImportWizardPage extends WizardPage implements Listener {
 
     /**
      * Constructor
-     * 
+     *
      * @param pageName
      *            the name of the page
      * @param selection
@@ -104,7 +104,7 @@ public class TSCImportWizardPage extends WizardPage implements Listener {
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
      */
     public void createControl(Composite parent) {
@@ -173,7 +173,7 @@ public class TSCImportWizardPage extends WizardPage implements Listener {
 
     /**
      * Imports the test session container
-     * 
+     *
      * @return true; because scheduling always works.
      */
     boolean importTestSessionContainer() {
@@ -196,10 +196,10 @@ public class TSCImportWizardPage extends WizardPage implements Listener {
 
         /**
          * Constructs a job which imports a test session container
-         * 
+         *
          * @param filepath  the path (in the file system) to the test session
          *                  container to import
-         * 
+         *
          * @param project   the project to import the test session container
          *                  into
          */
@@ -266,36 +266,32 @@ public class TSCImportWizardPage extends WizardPage implements Listener {
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.swt.widgets.Listener#handleEvent(org.eclipse.swt.widgets.Event)
      */
     public void handleEvent(Event event) {
         String error = null;
         File tscFile;
-        if(event.widget == this.fileField
-                .getTextControl(this.fileFieldComposite)) {
+        if (event.widget == this.fileField.getTextControl(this.fileFieldComposite)) {
             this.filepath = this.fileField.getStringValue();
             tscFile = new File(this.filepath);
-            if(this.filepath.length() == 0) {
+            if (this.filepath.length() == 0) {
                 error = FILE_ERROR_NONE_SPECIFIED;
-            } else if(!tscFile.exists()) {
+            } else if (!tscFile.exists()) {
                 error = FILE_ERROR_FILE_NOT_FOUND;
-            } else if(!tscFile.isFile()) {
+            } else if (!tscFile.isFile()) {
                 error = FILE_ERROR_NOT_A_FILE;
-            } else if(!tscFile.canRead()) {
+            } else if (!tscFile.canRead()) {
                 error = FILE_ERROR_NOT_READABLE;
             }
             this.fileError = error;
-        } else if(event.widget == this.list) {
-            try {
-                this.selectedProject = this.projects.get(this.list
-                        .getSelectionIndex());
-            } catch(IndexOutOfBoundsException e) {
+        } else if (event.widget == this.list) {
+            int selectedIndex = this.list.getSelectionIndex();
+            if (selectedIndex < 0 || selectedIndex >= this.projects.size()) {
                 this.selectedProject = null;
                 error = PROJECT_ERROR_NONE_SPECIFIED;
-                CodeCoverPlugin.getDefault().getLogger().warning(
-                        "Exception while getting selection index" +//$NON-NLS-1$
-                        " of list", e);                            //$NON-NLS-1$
+            } else {
+                this.selectedProject = this.projects.get(selectedIndex);
             }
             this.projectError = error;
         }
