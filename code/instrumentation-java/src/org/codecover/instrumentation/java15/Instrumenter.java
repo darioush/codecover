@@ -30,12 +30,14 @@ import org.codecover.instrumentation.java15.manipulators.ArrayBranchManipulator;
 import org.codecover.instrumentation.java15.manipulators.ArrayConditionManipulator;
 import org.codecover.instrumentation.java15.manipulators.ArrayLoopManipulator;
 import org.codecover.instrumentation.java15.manipulators.ArrayStatementManipulator;
+import org.codecover.instrumentation.java15.manipulators.ArraySynchronizedManipulator;
 import org.codecover.instrumentation.java15.manipulators.BranchManipulator;
 import org.codecover.instrumentation.java15.manipulators.CommentManipulator;
 import org.codecover.instrumentation.java15.manipulators.ConditionManipulator;
 import org.codecover.instrumentation.java15.manipulators.DefaultCommentManipulator;
 import org.codecover.instrumentation.java15.manipulators.LoopManipulator;
 import org.codecover.instrumentation.java15.manipulators.StatementManipulator;
+import org.codecover.instrumentation.java15.manipulators.SynchronizedManipulator;
 import org.codecover.instrumentation.java15.parser.JavaParser;
 import org.codecover.instrumentation.java15.syntaxtree.CompilationUnit;
 import org.codecover.instrumentation.java15.visitor.InstrumentationVisitor;
@@ -49,6 +51,7 @@ import org.codecover.model.utils.criteria.BranchCoverage;
 import org.codecover.model.utils.criteria.ConditionCoverage;
 import org.codecover.model.utils.criteria.LoopCoverage;
 import org.codecover.model.utils.criteria.StatementCoverage;
+import org.codecover.model.utils.criteria.SynchronizedStatementCoverage;
 import org.codecover.model.utils.file.SourceTargetContainer;
 
 import static org.codecover.instrumentation.java15.InstrumenterDescriptor.CoverageLogPathDirective;
@@ -107,6 +110,7 @@ class Instrumenter extends org.codecover.instrumentation.Instrumenter {
         ConditionManipulator conditionManipulator;
         LoopManipulator loopManipulator;
         CommentManipulator commentManipulator;
+        SynchronizedManipulator syncStatementManipulator;
         Class<? extends CoverageResultLog> coveragResultLog;
         String preferredCoverageLogPath;
 
@@ -142,6 +146,11 @@ class Instrumenter extends org.codecover.instrumentation.Instrumenter {
         if (super.isCriterionSet(LoopCoverage.getInstance())) {
             loopManipulator = new ArrayLoopManipulator();
             instrumentationVisitor.setLoopManipulator(loopManipulator);
+        }
+
+        if (super.isCriterionSet(SynchronizedStatementCoverage.getInstance())) {
+            syncStatementManipulator = new ArraySynchronizedManipulator();
+            instrumentationVisitor.setSyncStatementManipulator(syncStatementManipulator);
         }
 
         commentManipulator = new DefaultCommentManipulator();

@@ -80,7 +80,8 @@ public final class InstrumentUtils {
         map.put("br", BranchCoverage.getInstance());
         map.put("co", ConditionCoverage.getInstance());
         map.put("lo", LoopCoverage.getInstance());
-
+        map.put("sy", SynchronizedStatementCoverage.getInstance());
+        
         instrumenterCriteriaShortcuts = Collections.unmodifiableMap(map);
     }
 

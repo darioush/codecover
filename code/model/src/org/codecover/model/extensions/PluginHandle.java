@@ -144,6 +144,11 @@ public class PluginHandle {
                             return ConditionCoverage.getInstance();
                         }
                     },
+                    new AbstractExtension<Criterion>(Criterion.class, "org.codecover.model.utils.criteria.SynchronizedStatementCoverage") {
+                        public Criterion getObject() {
+                            return SynchronizedStatementCoverage.getInstance();
+                        }
+                    },
                 });
             final Set<Extension<?>> result = new HashSet<Extension<?>>();
             for (Extension<?> element : ar) {

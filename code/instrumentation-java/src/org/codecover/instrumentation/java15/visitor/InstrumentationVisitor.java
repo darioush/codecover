@@ -38,9 +38,11 @@ import org.codecover.instrumentation.java15.manipulators.DummyCommentManipulator
 import org.codecover.instrumentation.java15.manipulators.DummyConditionManipulator;
 import org.codecover.instrumentation.java15.manipulators.DummyLoopManipulator;
 import org.codecover.instrumentation.java15.manipulators.DummyStatementManipulator;
+import org.codecover.instrumentation.java15.manipulators.DummySynchronizedManipulator;
 import org.codecover.instrumentation.java15.manipulators.LoopManipulator;
 import org.codecover.instrumentation.java15.manipulators.Manipulator;
 import org.codecover.instrumentation.java15.manipulators.StatementManipulator;
+import org.codecover.instrumentation.java15.manipulators.SynchronizedManipulator;
 import org.codecover.instrumentation.java15.manipulators.ConditionManipulator.ConditionManipualtionResult;
 import org.codecover.instrumentation.java15.parser.JavaParser;
 import org.codecover.instrumentation.java15.syntaxtree.AllocationExpression;
@@ -81,6 +83,7 @@ import org.codecover.instrumentation.java15.syntaxtree.Statement;
 import org.codecover.instrumentation.java15.syntaxtree.StatementExpression;
 import org.codecover.instrumentation.java15.syntaxtree.SwitchLabel;
 import org.codecover.instrumentation.java15.syntaxtree.SwitchStatement;
+import org.codecover.instrumentation.java15.syntaxtree.SynchronizedStatement;
 import org.codecover.instrumentation.java15.syntaxtree.ThrowStatement;
 import org.codecover.instrumentation.java15.syntaxtree.TryStatement;
 import org.codecover.instrumentation.java15.syntaxtree.Type;
@@ -116,6 +119,7 @@ import org.codecover.model.utils.Attic;
  * <li>{@link BranchManipulator}</li>
  * <li>{@link ConditionManipulator}</li>
  * <li>{@link LoopManipulator}</li>
+ * <li>{@link SynchronizedManipulator}</li>
  * </ul>
  * Which are informed, when a Statement, Branch, BooleanTerm or Looping Statement
  * is found in the syntaxtree. These {@link Manipulator}s each exist in a dummy
@@ -270,6 +274,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
      * of the {@link Protocol}.
      */
     private CommentManipulator commentManipulator;
+    
+    private SynchronizedManipulator syncStatementManipulator;
 
     /**
      * This is an instance of {@link JavaExpressionParser} which is used for
@@ -426,6 +432,7 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         this.conditionManipulator = new DummyConditionManipulator();
         this.loopManipulator = new DummyLoopManipulator();
         this.commentManipulator = new DummyCommentManipulator();
+        this.syncStatementManipulator = new DummySynchronizedManipulator();
         this.expressionParser = new JavaExpressionParser();
         this.counterIDManager = null;
         this.packageName = null;
@@ -452,6 +459,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 .requiresBlockExpansionsForBranches();
         this.needToExpandBranchesToBlock |= this.commentManipulator
                 .requiresBlockExpansionsForBranches();
+        this.needToExpandBranchesToBlock |= this.syncStatementManipulator
+                .requiresBlockExpansionsForBranches();
 
         this.needToExpandLoopsToBlock = false;
         this.needToExpandLoopsToBlock |= this.statementManipulator
@@ -463,6 +472,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         this.needToExpandLoopsToBlock |= this.loopManipulator
                 .requiresBlockExpansionsForLoops();
         this.needToExpandLoopsToBlock |= this.commentManipulator
+                .requiresBlockExpansionsForLoops();
+        this.needToExpandLoopsToBlock |= this.syncStatementManipulator
                 .requiresBlockExpansionsForLoops();
     }
 
@@ -908,6 +919,17 @@ public class InstrumentationVisitor extends TreeDumperWithException {
 
         recalcExpandToBlock();
     }
+    
+    /**
+     * 
+     * @param syncStatementManipulator
+     */
+    public void setSyncStatementManipulator(SynchronizedManipulator syncStatementManipulator) {
+        this.syncStatementManipulator = syncStatementManipulator;
+        this.syncStatementManipulator.setTreeDumper(this);
+        
+        recalcExpandToBlock();
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     //
@@ -1029,6 +1051,7 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         this.counterIDManager.addCounterManager(this.branchManipulator);
         this.counterIDManager.addCounterManager(this.conditionManipulator);
         this.counterIDManager.addCounterManager(this.loopManipulator);
+        this.counterIDManager.addCounterManager(this.syncStatementManipulator);
 
         // ( ImportDeclaration() )*
         n.f1.accept(this);
@@ -2506,6 +2529,36 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 CounterIDManager.generateLoopSubIDOne(primaryLoopID),
                 CounterIDManager.generateLoopSubIDAbove(primaryLoopID),
                 false);
+    }
+
+    /**
+     * <PRE>
+     * f0 -> "synchronized"
+     * f1 -> "("
+     * f2 -> Expression()
+     * f3 -> ")"
+     * f4 -> Block()
+     * </PRE>
+     */
+    @Override
+    public void visit(SynchronizedStatement n) throws IOException {
+        String syncStatementID = this.counterIDManager.nextSyncStatementID();
+        
+        this.syncStatementManipulator.manipulateBefore(n, syncStatementID);
+        
+        n.f0.accept(this);
+        n.f1.accept(this);
+        n.f2.accept(this);
+        n.f3.accept(this);
+        pushNewStatementLevelToAttic();
+
+        // {
+        n.f4.f0.accept(this);
+        this.syncStatementManipulator.manipulateInner(n, syncStatementID);
+        // ( BlockStatement() )*
+        n.f4.f1.accept(this);
+        // }
+        n.f4.f2.accept(this);
     }
 
     /**

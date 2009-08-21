@@ -38,6 +38,7 @@ import org.codecover.model.utils.criteria.BranchCoverage;
 import org.codecover.model.utils.criteria.ConditionCoverage;
 import org.codecover.model.utils.criteria.LoopCoverage;
 import org.codecover.model.utils.criteria.StatementCoverage;
+import org.codecover.model.utils.criteria.SynchronizedStatementCoverage;
 
 /**
  * This class manages all the counters and IDs needed for instrumentation.<br>
@@ -228,6 +229,8 @@ public class CounterIDManager {
     private static final String LOOP_SUB_ID_FORMAT_ABOVE = "%s"
         + MeasurementConstants.ID_ASSIGNMENT_SEPERATOR + "2";
     
+    private static final String SYNC_STATEMENT_ID_FORMAT = SynchronizedStatementCoverage.ID_PREFIX + "%1$d";
+    
     private static final Charset CHARSET_FOR_CREATING_NAME = Charset.forName("UTF-8");
     
     private static final CharsetEncoder ENCODER_FOR_NAME = CHARSET_FOR_CREATING_NAME.newEncoder();
@@ -247,7 +250,7 @@ public class CounterIDManager {
     private Writer writer;
 
     /**
-     * A class that is used as the {@link CoverageResultLog} when instumenting.
+     * A class that is used as the {@link CoverageResultLog} when instrumenting.
      */
     private Class<? extends CoverageResultLog> coverageResultLog;
 
@@ -262,6 +265,8 @@ public class CounterIDManager {
     private int conditionCount;
 
     private int loopCount;
+    
+    private int syncStatementCount;
 
     private final String testSessionContainerUID;
 
@@ -404,6 +409,25 @@ public class CounterIDManager {
     public static String generateLoopSubIDAbove(String primaryLoopID) {
         return String.format(LOOP_SUB_ID_FORMAT_ABOVE, primaryLoopID);
     }
+    
+    /**
+     * 
+     * @param statementNumber
+     * @return
+     */
+    public static String generateSyncStatementID(int statementNumber) {
+        return String.format(SYNC_STATEMENT_ID_FORMAT, new Integer(statementNumber));
+    }
+
+    /**
+     * 
+     * @param statementID
+     * @return
+     */
+    public static int getNumberFromSyncStatementID(String statementID) {
+        //TODO: SynchronizedCoverage
+        return Integer.parseInt(statementID.substring(SynchronizedStatementCoverage.ID_PREFIX.length()), 10);
+    }
 
     /**
      * Constructs a new CounterManager.
@@ -441,6 +465,7 @@ public class CounterIDManager {
         this.tryBranchCount = 0;
         this.loopCount = 0;
         this.conditionCount = 0;
+        this.syncStatementCount = 0;
     }
 
     /**
@@ -535,6 +560,16 @@ public class CounterIDManager {
         this.loopCount++;
         return String.format(LOOP_PRIMARY_ID_FORMAT,
                 new Integer(this.loopCount));
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public String nextSyncStatementID() {
+        this.syncStatementCount++;
+        return String.format(SYNC_STATEMENT_ID_FORMAT, 
+                new Integer(this.statementCount));
     }
 
     /**
