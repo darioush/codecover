@@ -104,15 +104,22 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
         //_waitCounter = _waitCounter > 3 ? 3 : _waitCounter;
         //syncs[ID * 3 + _waitCounter - 1].incrementAndGet();
         writer.write(LINE_SEPARATOR);
+        writer.write("{");
+        writer.write(LINE_SEPARATOR);
+        writer.write("  ");
         writer.write(String.format(COUNTER_INCREMENTING_LOCAL_DECLARATIONS,
                 super.getCounterIDManager().getInnerClassName(),
                 new Integer(ID - 1)));
         writer.write(LINE_SEPARATOR);
+        writer.write("  ");
         writer.write(COUNTER_INCREMENTING_COUNTER_CHECK);
         writer.write(LINE_SEPARATOR);
+        writer.write("  ");
         writer.write(String.format(COUNTER_INCREMENTING,
                 super.getCounterIDManager().getInnerClassName(),
                 new Integer((ID - 1) * 3)));
+        writer.write(LINE_SEPARATOR);
+        writer.write("}");
         writer.write(LINE_SEPARATOR);
     }
 
