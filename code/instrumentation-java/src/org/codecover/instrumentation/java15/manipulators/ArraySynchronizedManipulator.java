@@ -63,7 +63,7 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
             + "[i * 4 + 1].set(0L);";
 
     private static final String COUNTER_SERIALIZE_IF_ONE = "if ( " + ARRAY_NAME
-            + "[i * 4 + 2].get() != 0L)";
+            + "[i * 4 + 2].get() != 0L);";
 
     private static final String COUNTER_SERIALIZE_PASS_COUNTER_ONE = LOG_NAME
             + "." + CoverageCounterLog.PASS_COUNTER_METHOD_NAME + "(\""

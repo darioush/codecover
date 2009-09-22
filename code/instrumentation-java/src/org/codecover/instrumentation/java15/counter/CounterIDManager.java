@@ -569,7 +569,7 @@ public class CounterIDManager {
     public String nextSyncStatementID() {
         this.syncStatementCount++;
         return String.format(SYNC_STATEMENT_ID_FORMAT, 
-                new Integer(this.statementCount));
+                new Integer(this.syncStatementCount));
     }
 
     /**
