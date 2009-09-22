@@ -1019,14 +1019,12 @@ public class CoverageGraphView extends ViewPart {
     		}
     		class JumperToEditor implements MouseListener<java.awt.event.MouseEvent>{
 
-				@Override
 				public void mouseClicked(
 						MouseEvent<java.awt.event.MouseEvent> arg0) {
 					// TODO Auto-generated method stub
 					
 				}
 
-				@Override
 				public void mouseDoubleClicked(
 						MouseEvent<java.awt.event.MouseEvent> mouseEvent) {
 					// TODO Auto-generated method stub
@@ -1051,28 +1049,24 @@ public class CoverageGraphView extends ViewPart {
 					}
 				}
 
-				@Override
 				public void mouseEntered(
 						MouseEvent<java.awt.event.MouseEvent> mouseEvent) {
 					// TODO Auto-generated method stub
 					
 				}
 
-				@Override
 				public void mouseExited(
 						MouseEvent<java.awt.event.MouseEvent> arg0) {
 					// TODO Auto-generated method stub
 					
 				}
 
-				@Override
 				public void mousePressed(
 						MouseEvent<java.awt.event.MouseEvent> arg0) {
 					// TODO Auto-generated method stub
 					
 				}
 
-				@Override
 				public void mouseReleased(
 						MouseEvent<java.awt.event.MouseEvent> arg0) {
 					// TODO Auto-generated method stub
