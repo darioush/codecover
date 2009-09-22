@@ -30,59 +30,59 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
     //2      number of threads passed through synchronized block with waiting for one additional thread waiting
     //3      number of threads passed through synchronized block with more than one additional threads waiting 
     private static final String ARRAY_NAME = "syncs";
+    private static final String WAIT_ARRAY_NAME = "syncWaits";
 
-    private static final String COUNTER_INCREMENTING_LOCAL_DECLARATIONS = "int _waitCounter = %1$s." + ARRAY_NAME
+    private static final String COUNTER_DECLARATION = "public static java.util.concurrent.atomic.AtomicLong[] "
+        + ARRAY_NAME + " = new java.util.concurrent.atomic.AtomicLong[%1$d];";
+    private static final String WAIT_COUNTER_DECLARATION = "public static java.util.concurrent.atomic.AtomicInteger[] "
+        + WAIT_ARRAY_NAME + " = new java.util.concurrent.atomic.AtomicInteger[%1$d];";
+
+    private static final String COUNTER_INITIALIZE = ARRAY_NAME + "[i] = new java.util.concurrent.atomic.AtomicLong(0L);";
+    private static final String WAIT_COUNTER_INITIALIZE = WAIT_ARRAY_NAME + "[i] = new java.util.concurrent.atomic.AtomicInteger(0);";
+
+    private static final String COUNTER_INCREMENTING_LOCAL_DECLARATIONS = "int _waitCounter = %1$s." + WAIT_ARRAY_NAME
             + "[%2$d].incrementAndGet();";
-
     private static final String COUNTER_INCREMENTING_COUNTER_CHECK = "_waitCounter = _waitCounter > 3 ? 3 : _waitCounter;";
-    
     private static final String COUNTER_INCREMENTING = "%1$s." + ARRAY_NAME
-            + "[%2$d + _waitCounter].incrementAndGet();";
+            + "[%2$d + _waitCounter - 1].incrementAndGet();";
+    
+    //private static final String COUNTER_DECREMENTING = "%1$s." + ARRAY_NAME
+    //        + "[%2$d].decrementAndGet();";
 
-    private static final String COUNTER_DECREMENTING = "%1$s." + ARRAY_NAME
-            + "[%2$d].decrementAndGet();";
-
-    private static final String COUNTER_DECLARATION = "public static AtomicLong[] "
-            + ARRAY_NAME + " = new AtomicLong[%1$d];";
+    private static final String WAIT_COUNTER_DECREMENTING = "%1$s." + WAIT_ARRAY_NAME
+    + "[%2$d].decrementAndGet();";
 
     private static final String COUNTER_FOR_LOOP = "for (int i = 0; i <= %1$d; i++)";
 
     private static final String COUNTER_RESET = ARRAY_NAME + "[i].set(0L);";
-
-    private static final String COUNTER_RESET_WAIT_COUNTER = ARRAY_NAME + "[i * 4].set(0L);";
+    private static final String WAIT_COUNTER_RESET = WAIT_ARRAY_NAME + "[i].set(0);";
 
     private static final String COUNTER_SERIALIZE_IF_ZERO = "if ("
-            + ARRAY_NAME + "[i * 4 + 1].get() != 0L)";
-
+            + ARRAY_NAME + "[i * 3].get() != 0L)";
     private static final String COUNTER_SERIALIZE_PASS_COUNTER_ZERO = LOG_NAME
             + "." + CoverageCounterLog.PASS_COUNTER_METHOD_NAME + "(\""
             + ID_PREFIX + "\" + i + \"" + ID_SUFFIX_ZERO + "\", " + ARRAY_NAME
-            + "[i * 4 + 1].get());";
-
+            + "[i * 3].get());";
     private static final String COUNTER_RESET_ZERO = ARRAY_NAME
-            + "[i * 4 + 1].set(0L);";
+            + "[i * 3].set(0L);";
 
-    private static final String COUNTER_SERIALIZE_IF_ONE = "if ( " + ARRAY_NAME
-            + "[i * 4 + 2].get() != 0L);";
-
+    private static final String COUNTER_SERIALIZE_IF_ONE = "if (" + ARRAY_NAME
+            + "[i * 3 + 1].get() != 0L)";
     private static final String COUNTER_SERIALIZE_PASS_COUNTER_ONE = LOG_NAME
             + "." + CoverageCounterLog.PASS_COUNTER_METHOD_NAME + "(\""
             + ID_PREFIX + "\" + i + \"" + ID_SUFFIX_ONE + "\", " + ARRAY_NAME
-            + "[i * 4 + 2].get());";
-
+            + "[i * 3 + 1].get());";
     private static final String COUNTER_RESET_ONE = ARRAY_NAME
-            + "[i * 4 + 2].set(0L)";
+            + "[i * 3 + 1].set(0L);";
 
-    private static final String COUNTER_SERIALIZE_IF_ABOVE = "if ( "
-            + ARRAY_NAME + "[i * 4 + 3].get() != 0L)";
-
+    private static final String COUNTER_SERIALIZE_IF_ABOVE = "if ("
+            + ARRAY_NAME + "[i * 3 + 2].get() != 0L)";
     private static final String COUNTER_SERIALIZE_PASS_COUNTER_ABOVE = LOG_NAME
             + "." + CoverageCounterLog.PASS_COUNTER_METHOD_NAME + "(\""
             + ID_PREFIX + "\" + i + \"" + ID_SUFFIX_ABOVE + "\", "
-            + ARRAY_NAME + "[i * 4 + 3].get());";
-
+            + ARRAY_NAME + "[i * 3 + 2].get());";
     private static final String COUNTER_RESET_ABOVE = ARRAY_NAME
-            + "[i * 4 + 3].set(0L);";
+            + "[i * 3 + 2].set(0L);";
     
     private int maxSyncID;
 
@@ -100,32 +100,44 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
         int ID = getNumberFromSyncStatementID(statementID);
         this.maxSyncID = Math.max(this.maxSyncID, ID);
         
-        //int _waitCounter = syncs[ID * 4].incrementAndGet(); 
+        //int _waitCounter = syncWaits[ID].incrementAndGet(); 
         //_waitCounter = _waitCounter > 3 ? 3 : _waitCounter;
-        //syncs[ID * 4 + _waitCounter].incrementAndGet();
+        //syncs[ID * 3 + _waitCounter - 1].incrementAndGet();
         writer.write(LINE_SEPARATOR);
         writer.write(String.format(COUNTER_INCREMENTING_LOCAL_DECLARATIONS,
                 super.getCounterIDManager().getInnerClassName(),
-                new Integer(ID * 4)));
+                new Integer(ID - 1)));
         writer.write(LINE_SEPARATOR);
         writer.write(COUNTER_INCREMENTING_COUNTER_CHECK);
         writer.write(LINE_SEPARATOR);
         writer.write(String.format(COUNTER_INCREMENTING,
                 super.getCounterIDManager().getInnerClassName(),
-                new Integer(ID * 4)));
+                new Integer((ID - 1) * 3)));
         writer.write(LINE_SEPARATOR);
     }
 
-    public void manipulateInner(SynchronizedStatement n, String statementID)
+    public void manipulateInnerBefore(SynchronizedStatement n, String statementID)
+            throws IOException {
+        Writer writer = super.getWriter();
+        
+        writer.write(LINE_SEPARATOR);
+        writer.write("try {");
+    }
+
+    public void manipulateInnerAfter(SynchronizedStatement n, String statementID)
             throws IOException {
         Writer writer = super.getWriter();
         int ID = getNumberFromSyncStatementID(statementID);
         this.maxSyncID = Math.max(this.maxSyncID, ID);
-        // TODO Automatisch erstellter Methoden-Stub
         writer.write(LINE_SEPARATOR);
-        writer.write(String.format(COUNTER_DECREMENTING,
+        writer.write("} finally {");
+        writer.write(LINE_SEPARATOR);
+        writer.write("  ");
+        writer.write(String.format(WAIT_COUNTER_DECREMENTING,
                 super.getCounterIDManager().getInnerClassName(),
-                new Integer(ID * 4)));
+                new Integer(ID - 1)));
+        writer.write(LINE_SEPARATOR);
+        writer.write("}");
         writer.write(LINE_SEPARATOR);
     }
 
@@ -143,7 +155,43 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
         Writer writer = super.getWriter();
         writer.write("    ");
         writer.write(String.format(COUNTER_DECLARATION,
-                new Integer((this.maxSyncID + 1) * 4)));
+                new Integer((this.maxSyncID) * 3)));
+        writer.write(LINE_SEPARATOR);
+        writer.write("    ");
+        writer.write("static {");
+        writer.write(LINE_SEPARATOR);
+        writer.write("      ");
+        writer.write(String.format(COUNTER_FOR_LOOP,
+                new Integer(this.maxSyncID * 3 - 1)));
+        writer.write(" {");
+        writer.write(LINE_SEPARATOR);
+        writer.write("        ");
+        writer.write(COUNTER_INITIALIZE);
+        writer.write(LINE_SEPARATOR);
+        writer.write("      }");
+        writer.write(LINE_SEPARATOR);
+        writer.write("    ");
+        writer.write("}");
+        writer.write(LINE_SEPARATOR);
+        writer.write("    ");
+        writer.write(String.format(WAIT_COUNTER_DECLARATION,
+                new Integer(this.maxSyncID)));
+        writer.write(LINE_SEPARATOR);
+        writer.write("    ");
+        writer.write("static {");
+        writer.write(LINE_SEPARATOR);
+        writer.write("      ");
+        writer.write(String.format(COUNTER_FOR_LOOP,
+                new Integer(this.maxSyncID - 1)));
+        writer.write(" {");
+        writer.write(LINE_SEPARATOR);
+        writer.write("        ");
+        writer.write(WAIT_COUNTER_INITIALIZE);
+        writer.write(LINE_SEPARATOR);
+        writer.write("      }");
+        writer.write(LINE_SEPARATOR);
+        writer.write("    ");
+        writer.write("}");
         writer.write(LINE_SEPARATOR);
 
     }
@@ -153,11 +201,22 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
 
         writer.write("      ");
         writer.write(String.format(COUNTER_FOR_LOOP,
-                new Integer((this.maxSyncID + 1) * 4 - 1)));
+                new Integer(this.maxSyncID * 3 - 1)));
         writer.write(" {");
         writer.write(LINE_SEPARATOR);
         writer.write("        ");
         writer.write(COUNTER_RESET);
+        writer.write(LINE_SEPARATOR);
+        writer.write("      }");
+        writer.write(LINE_SEPARATOR);
+        
+        writer.write("      ");
+        writer.write(String.format(COUNTER_FOR_LOOP,
+                new Integer(this.maxSyncID - 1)));
+        writer.write(" {");
+        writer.write(LINE_SEPARATOR);
+        writer.write("        ");
+        writer.write(WAIT_COUNTER_RESET);
         writer.write(LINE_SEPARATOR);
         writer.write("      }");
         writer.write(LINE_SEPARATOR);
@@ -168,15 +227,15 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
 
         writer.write("      ");
         writer.write(String.format(COUNTER_FOR_LOOP, new Integer(
-                this.maxSyncID)));
+                this.maxSyncID - 1)));
         writer.write(" {");
         writer.write(LINE_SEPARATOR);
 
         writer.write("        ");
-        writer.write(COUNTER_RESET_WAIT_COUNTER);
+        writer.write(WAIT_COUNTER_RESET);
         writer.write(LINE_SEPARATOR);
 
-        // the if for zero threads -> syncs[i * 4 + 1]
+        // the if for zero threads -> syncs[i * 3]
         writer.write("        ");
         writer.write(COUNTER_SERIALIZE_IF_ZERO);
         writer.write(" {");
@@ -190,7 +249,7 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
         writer.write("        }");
         writer.write(LINE_SEPARATOR);
 
-        // the if for one thread -> syncs[i * 4 + 2]
+        // the if for one thread -> syncs[i * 3 + 1]
         writer.write("        ");
         writer.write(COUNTER_SERIALIZE_IF_ONE);
         writer.write(" {");
@@ -204,7 +263,7 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
         writer.write("        }");
         writer.write(LINE_SEPARATOR);
 
-        // the if for more than one thread -> syncs[i * 4 + 3]
+        // the if for more than one thread -> syncs[i * 3 + 2]
         writer.write("        ");
         writer.write(COUNTER_SERIALIZE_IF_ABOVE);
         writer.write(" {");

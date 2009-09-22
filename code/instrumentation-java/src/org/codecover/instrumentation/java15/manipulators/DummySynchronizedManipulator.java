@@ -20,7 +20,12 @@ public class DummySynchronizedManipulator extends AbstractDummyManipulator
 
     }
 
-    public void manipulateInner(SynchronizedStatement n, String statementID)
+    public void manipulateInnerBefore(SynchronizedStatement n, String statementID)
+            throws IOException {
+        // do nothing
+    }
+
+    public void manipulateInnerAfter(SynchronizedStatement n, String statementID)
             throws IOException {
         // do nothing
     }

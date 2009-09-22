@@ -2554,9 +2554,10 @@ public class InstrumentationVisitor extends TreeDumperWithException {
 
         // {
         n.f4.f0.accept(this);
-        this.syncStatementManipulator.manipulateInner(n, syncStatementID);
+        this.syncStatementManipulator.manipulateInnerBefore(n, syncStatementID);
         // ( BlockStatement() )*
         n.f4.f1.accept(this);
+        this.syncStatementManipulator.manipulateInnerAfter(n, syncStatementID);
         // }
         n.f4.f2.accept(this);
     }

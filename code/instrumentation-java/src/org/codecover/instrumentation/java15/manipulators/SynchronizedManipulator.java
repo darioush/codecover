@@ -26,6 +26,15 @@ public interface SynchronizedManipulator extends Manipulator {
      * @param statementID
      * @throws IOException
      */
-    public void manipulateInner(SynchronizedStatement n, String statementID)
+    public void manipulateInnerBefore(SynchronizedStatement n, String statementID)
+        throws IOException;
+
+    /**
+     * 
+     * @param n
+     * @param statementID
+     * @throws IOException
+     */
+    public void manipulateInnerAfter(SynchronizedStatement n, String statementID)
         throws IOException;
 }
