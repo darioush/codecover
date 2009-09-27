@@ -106,7 +106,13 @@ public class CodeCoverDebugListener implements IDebugEventSetListener {
                 logger.debug("Detected termination of a launch, but couldn't find associated Java Project"); //$NON-NLS-1$
             }
         } catch (CoreException e) {
-            logger.fatal("CoreException in CodeCoverDebugListener", e); //$NON-NLS-1$
+            // sometimes ant scripts in referenced projects throw an
+            // Launch configuration <name> references non-existing project <project>.
+            if (e.getMessage() != null && e.getMessage().contains("references non-existing project")) { //$NON-NLS-1$
+                logger.info("CoreException in CodeCoverDebugListener", e); //$NON-NLS-1$
+            } else {
+                logger.fatal("CoreException in CodeCoverDebugListener", e); //$NON-NLS-1$
+            }
         }
     }
     

@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -62,7 +63,8 @@ public class CodeCoverTab extends AbstractLaunchConfigurationTab {
             if (CodeCoverClasspathProvider.isRunningWithCodeCover(config)) {
                 codeCoverState.setSelection(true);
             }
-            if (!CodeCoverPlugin.isCodeCoverActivated(JavaRuntime.getJavaProject(config).getProject())) {
+            IJavaProject asJavaProject = JavaRuntime.getJavaProject(config);
+            if (asJavaProject != null && !CodeCoverPlugin.isCodeCoverActivated(asJavaProject.getProject())) {
                 codeCoverState.setEnabled(false);
             }
         } catch (CoreException e) {
