@@ -54,6 +54,7 @@ import org.codecover.model.utils.ChangeType;
 import org.codecover.model.utils.IntComparator;
 import org.codecover.model.utils.Logger;
 import org.codecover.model.utils.Pair;
+import org.codecover.model.utils.criteria.Criterion;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.ui.ISharedImages;
 import org.eclipse.jdt.ui.JavaUI;
@@ -232,7 +233,6 @@ public class CoverageView extends ViewPart
          */
 
         this.sortedCoverageMetrics = CoverageView.getCoverageMetrics();
-
     }
 
     /**
@@ -651,18 +651,23 @@ public class CoverageView extends ViewPart
             if (getVisTSC() != null && !getVisTestCases().isEmpty()) {
                 // get all metrics where are plug-ins available and that are supported
                 // by VisTSC
-                Set<Metric> metrics = MetricProvider.getAvailabeMetrics(
-                        CodeCoverPlugin.getDefault().getEclipsePluginManager().getPluginManager(),
-                        CodeCoverPlugin.getDefault().getLogger(), getVisTSC().getCriteria());
+                List<CoverageMetric> metricForCalculation = new ArrayList<CoverageMetric>(this.sortedCoverageMetrics.size());
+                Set<Criterion> providedCriteria = getVisTSC().getCriteria();
 
-                if (metrics.isEmpty()) {
+                for (CoverageMetric metric : this.sortedCoverageMetrics) {
+                    if (providedCriteria.containsAll(metric.getRequiredCriteria())) {
+                        metricForCalculation.add(metric);
+                    }
+                }
+
+                if (metricForCalculation.isEmpty()) {
                     this.logger.debug("No Available Metrics for current TSC (ID: " //$NON-NLS-1$
                             + this.getVisTSC().getId() + ")."); //$NON-NLS-1$
                     this.logger.debug("Class path: " + System.getProperty("java.class.path")); //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
                     // we have to transform the metrics into coverage metrics which they are!
-                    List<CoverageMetric> coverageMetrics = new ArrayList<CoverageMetric>(metrics.size());
-                    for (Metric metric : metrics) {
+                    List<CoverageMetric> coverageMetrics = new ArrayList<CoverageMetric>(metricForCalculation.size());
+                    for (Metric metric : metricForCalculation) {
                         if (metric instanceof CoverageMetric) {
                             coverageMetrics.add((CoverageMetric) metric);
                         }

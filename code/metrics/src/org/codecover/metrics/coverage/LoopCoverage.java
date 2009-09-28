@@ -123,14 +123,14 @@ public class LoopCoverage extends AbstractCoverageMetric {
             return note;
         }
     }
-    
+
     private static final String CACHING_KEY = "LoopCoverage";
 
     private static final String NAME = "Loop Coverage";
 
     private static final String DESCRIPTION = "";
 
-    private static LoopCoverage instance;
+    private static LoopCoverage instance = new LoopCoverage();
 
     private LoopCoverage() {
         super(CACHING_KEY);

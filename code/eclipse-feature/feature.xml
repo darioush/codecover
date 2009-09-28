@@ -3,7 +3,7 @@
 <feature
       id="codecover"
       label="CodeCover"
-      version="1.0.0.6"
+      version="1.0.0.7"
       plugin="http://update.codecover.org/">
 
    <description url="http://www.codecover.org/">
@@ -134,7 +134,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
          id="org.codecover.eclipse"
          download-size="0"
          install-size="0"
-         version="1.0.0.6"
+         version="1.0.0.7"
          unpack="false"/>
 
    <plugin
@@ -167,7 +167,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
          id="org.codecover.metrics"
          download-size="0"
          install-size="0"
-         version="1.0.0.6"
+         version="1.0.0.7"
          unpack="false"/>
 
    <plugin
