@@ -21,7 +21,7 @@ import org.codecover.model.utils.CollectionUtil;
  * ConditionalStatement and LoopingStatement. A Statement has a list of
  * RootTerms which appear in the statement and a CoverableItem which will be
  * covered when the Statement is executed.
- * 
+ *
  * @author Steffen Kieß
  * @version 1.0 ($Id$)
  */
@@ -63,14 +63,14 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
     /**
      * The {@link org.codecover.model.mast.Statement.Visitor Visitor} to be used
      * for all {@link Statement}s
-     * 
+     *
      * @author Steffen Kieß, Markus Wittlinger
      * @version 1.0 ($Id$)
      */
     public static interface Visitor {
         /**
          * Visits a {@link BasicStatement}
-         * 
+         *
          * @param statement
          *            the given {@link BasicStatement}
          */
@@ -78,7 +78,7 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
 
         /**
          * Visits a {@link ConditionalStatement}
-         * 
+         *
          * @param statement
          *            the given {@link ConditionalStatement}
          */
@@ -86,7 +86,7 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
 
         /**
          * Visits a {@link LoopingStatement}
-         * 
+         *
          * @param statement
          *            the given {@link LoopingStatement}
          */
@@ -94,7 +94,7 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
 
         /**
          * Visits a {@link StatementSequence}
-         * 
+         *
          * @param sequence
          *            the given {@link StatementSequence}
          */
@@ -102,7 +102,7 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
 
         /**
          * Visits a {@link Branch}
-         * 
+         *
          * @param branch
          *            the given {@link Branch}
          */
@@ -111,15 +111,15 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
 
     /**
      * A default, empty implementation of the
-     * {@link org.codecover.model.mast.RootTerm.Visitor Visitor}
-     * 
+     * {@link org.codecover.model.mast.Statement.Visitor Visitor}
+     *
      * @author Steffen Kieß, Markus Wittlinger
      * @version 1.0 ($Id$)
      */
     public static class DefaultVisitor implements Visitor {
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.codecover.model.mast.Statement.Visitor#visit(org.codecover.model.mast.BasicStatement)
          */
         public void visit(BasicStatement statement) {
@@ -128,7 +128,7 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
 
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.codecover.model.mast.Statement.Visitor#visit(org.codecover.model.mast.ConditionalStatement)
          */
         public void visit(ConditionalStatement statement) {
@@ -137,7 +137,7 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
 
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.codecover.model.mast.Statement.Visitor#visit(org.codecover.model.mast.LoopingStatement)
          */
         public void visit(LoopingStatement statement) {
@@ -146,7 +146,7 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
 
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.codecover.model.mast.Statement.Visitor#visit(org.codecover.model.mast.StatementSequence)
          */
         public void visit(StatementSequence sequence) {
@@ -155,7 +155,7 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
 
         /**
          * (non-Javadoc)
-         * 
+         *
          * @see org.codecover.model.mast.Statement.Visitor#visit(org.codecover.model.mast.Branch)
          */
         public void visit(Branch branch) {
@@ -167,7 +167,7 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
      * Calls the
      * {@link RootTerm#accept(org.codecover.model.mast.RootTerm.Visitor, org.codecover.model.mast.RootTerm.Visitor, org.codecover.model.mast.BooleanTerm.Visitor, org.codecover.model.mast.BooleanTerm.Visitor)}
      * for each {@link RootTerm} in this {@link Statement}
-     * 
+     *
      * @param pre
      *            the {@link Visitor} to be called before any operations are
      *            performed

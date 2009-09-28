@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +43,7 @@ import org.codecover.eclipse.utils.InverseSorterAndLabeler;
 import org.codecover.eclipse.utils.EclipseMASTLinkage.MAST;
 import org.codecover.metrics.Metric;
 import org.codecover.metrics.MetricProvider;
+import org.codecover.metrics.coverage.AbstractCoverageMetric;
 import org.codecover.metrics.coverage.CoverageMetric;
 import org.codecover.metrics.coverage.CoverageResult;
 import org.codecover.model.TestCase;
@@ -53,6 +53,7 @@ import org.codecover.model.mast.HierarchyLevel;
 import org.codecover.model.utils.ChangeType;
 import org.codecover.model.utils.IntComparator;
 import org.codecover.model.utils.Logger;
+import org.codecover.model.utils.Pair;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.ui.ISharedImages;
 import org.eclipse.jdt.ui.JavaUI;
@@ -204,6 +205,8 @@ public class CoverageView extends ViewPart
     private IMemento memento;
 
     private final Logger logger;
+
+    private Map<Pair<CoverageMetric, HierarchyLevel>, CoverageResult> coverageCache;
 
     /*
      * classes/methods to construct, initialize and create the view
@@ -385,14 +388,18 @@ public class CoverageView extends ViewPart
                  * save the expanded elements if we're going to perform a full
                  * update and the old TSC is non-null
                  */
-                if(performFullUpdate && this.getVisTSCInfo() != null) {
+                if (performFullUpdate && this.getVisTSCInfo() != null) {
                     this.saveExpandedElements(this.getVisTSCInfo());
                 }
                 this.activeTSCInfo = this.queuedActiveTSCInfo;
                 this.queuedActiveTSCInfo = null;
                 this.updatePending = false;
             }
-            if(performFullUpdate) {
+
+            // the current coverage cache is not usable anymore because the content has changed
+            this.coverageCache = null;
+
+            if (performFullUpdate) {
                 this.performFullUpdate();
             } else {
                 this.performTestCaseRefresh();
@@ -553,7 +560,7 @@ public class CoverageView extends ViewPart
         Set<Metric> allMetrics = MetricProvider.getAvailabeMetrics(CodeCoverPlugin.getDefault().
                 getEclipsePluginManager().getPluginManager(), CodeCoverPlugin.getDefault().getLogger());
         List<CoverageMetric> coverageMetrics = new ArrayList<CoverageMetric>();
-        List<CoverageMetric> unknownCovMetrics = new LinkedList<CoverageMetric>();
+        List<CoverageMetric> unknownCovMetrics = new ArrayList<CoverageMetric>();
 
         // add known metrics
         coverageMetrics.add(findCoverageMetric("Statement Coverage", allMetrics));                //$NON-NLS-1$
@@ -621,8 +628,7 @@ public class CoverageView extends ViewPart
     }
 
     /** Returns the {@link CoverageMetric} for a column index. */
-    private CoverageMetric getMetric(int columnIndex)
-    {
+    private CoverageMetric getMetric(int columnIndex) {
         Object data = this.viewer.getTree().getColumn(columnIndex).getData();
         if (data == null || !(data instanceof CoverageMetric))
         {
@@ -630,6 +636,50 @@ public class CoverageView extends ViewPart
         }
 
         return (CoverageMetric) data;
+    }
+
+    /** Retrieves the coverage cache or makes a new calculation if the cache is null. */
+    private Map<Pair<CoverageMetric, HierarchyLevel>, CoverageResult> getOrCalculateCoverage() {
+        synchronized (this.updateLock) {
+            if (this.coverageCache != null) {
+                return this.coverageCache;
+            }
+
+            this.coverageCache = Collections.emptyMap();
+
+            // we create a new cache
+            if (getVisTSC() != null && !getVisTestCases().isEmpty()) {
+                // get all metrics where are plug-ins available and that are supported
+                // by VisTSC
+                Set<Metric> metrics = MetricProvider.getAvailabeMetrics(
+                        CodeCoverPlugin.getDefault().getEclipsePluginManager().getPluginManager(),
+                        CodeCoverPlugin.getDefault().getLogger(), getVisTSC().getCriteria());
+
+                if (metrics.isEmpty()) {
+                    this.logger.debug("No Available Metrics for current TSC (ID: " //$NON-NLS-1$
+                            + this.getVisTSC().getId() + ")."); //$NON-NLS-1$
+                    this.logger.debug("Class path: " + System.getProperty("java.class.path")); //$NON-NLS-1$ //$NON-NLS-2$
+                } else {
+                    // we have to transform the metrics into coverage metrics which they are!
+                    List<CoverageMetric> coverageMetrics = new ArrayList<CoverageMetric>(metrics.size());
+                    for (Metric metric : metrics) {
+                        if (metric instanceof CoverageMetric) {
+                            coverageMetrics.add((CoverageMetric) metric);
+                        }
+                    }
+
+                    this.coverageCache = AbstractCoverageMetric.calculateCoverageForAllMetrics(coverageMetrics,
+                            this.getVisTestCases(), getVisTSC().getCode());
+                }
+            }
+
+            return this.coverageCache;
+        }
+    }
+
+    /** Gets the {@link CoverageResult} from the cache */
+    private CoverageResult calculateCoverage(CoverageMetric metric, HierarchyLevel level) {
+        return getOrCalculateCoverage().get(new Pair<CoverageMetric, HierarchyLevel>(metric, level));
     }
 
     /*
@@ -688,14 +738,16 @@ public class CoverageView extends ViewPart
 
         private List<HierarchyLevel> oldestChildrenOfType(Type rootType,
                 HierarchyLevel child) {
-            List<HierarchyLevel> children = new LinkedList<HierarchyLevel>();
-            if(Type.typeOf(child) == rootType) {
+            ArrayList<HierarchyLevel> children = new ArrayList<HierarchyLevel>(128);
+            if (Type.typeOf(child) == rootType) {
                 children.add(child);
+                children.trimToSize();
                 return children;
             }
-            for(HierarchyLevel hLev : child.getChildren()) {
+            for (HierarchyLevel hLev : child.getChildren()) {
                 children.addAll(oldestChildrenOfType(rootType, hLev));
             }
+            children.trimToSize();
             return children;
         }
 
@@ -707,7 +759,7 @@ public class CoverageView extends ViewPart
         public Object getParent(Object child) {
             TestSessionContainer tsc = CoverageView.this.getVisTSC();
             HierarchyLevel parent;
-            if(child instanceof TestSessionContainer) {
+            if (child instanceof TestSessionContainer) {
                 // this case is handled by getElements
                 return null;
             } else if(child instanceof HierarchyLevel) {
@@ -755,7 +807,7 @@ public class CoverageView extends ViewPart
          * @see org.eclipse.jface.viewers.ITreeContentProvider#getChildren(java.lang.Object)
          */
         public Object[] getChildren(Object parent) {
-            if(parent instanceof HierarchyLevel) {
+            if (parent instanceof HierarchyLevel) {
                 return ((HierarchyLevel) parent).getChildren().toArray();
             } else {
                 CoverageView.this.logger.error(
@@ -797,29 +849,6 @@ public class CoverageView extends ViewPart
             coverage = ((float) result.getCoveredItems() / result.getTotalItems());
         }
         return coverage;
-    }
-
-    private CoverageResult calculateCoverage(CoverageMetric metric, HierarchyLevel hLev) {
-        CoverageResult coverageResult = null;
-        if (this.getVisTSC() != null && !this.getVisTestCases().isEmpty()) {
-            Set<Metric> metrics = MetricProvider.getAvailabeMetrics(
-                    CodeCoverPlugin.getDefault().getEclipsePluginManager().getPluginManager(),
-                    CodeCoverPlugin.getDefault().getLogger(), this.getVisTSC().getCriteria());
-
-            if (metrics.isEmpty()) {
-                this.logger.debug("No Available Metrics for current TSC (ID: " //$NON-NLS-1$
-                        + this.getVisTSC().getId() + ")."); //$NON-NLS-1$
-                this.logger.debug("Class path: " + System.getProperty("java.class.path")); //$NON-NLS-1$ //$NON-NLS-2$
-            }
-
-            if (metric != null) {
-                // Only calculate, if the tsc contained said metrics
-                if (metrics.contains(metric)) {
-                    coverageResult = metric.getCoverage(new ArrayList<TestCase>(this.getVisTestCases()), hLev);
-                }
-            }
-        }
-        return coverageResult;
     }
 
     private class ViewLabelProvider extends LabelProvider
@@ -1718,7 +1747,7 @@ public class CoverageView extends ViewPart
              * Constructor.
              */
             public FetchMethodsVisitor() {
-                this.methods = new LinkedList<HierarchyLevel>();
+                this.methods = new ArrayList<HierarchyLevel>();
             }
 
             /**

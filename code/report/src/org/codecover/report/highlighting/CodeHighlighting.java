@@ -11,48 +11,73 @@
 
 package org.codecover.report.highlighting;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
-import org.codecover.metrics.coverage.*;
-import org.codecover.metrics.coverage.CoverageMetric.*;
-import org.codecover.model.*;
-import org.codecover.model.mast.*;
-import org.codecover.model.utils.*;
-import org.codecover.report.highlighting.annotation.*;
+import org.codecover.metrics.coverage.CoverageMetric;
+import org.codecover.metrics.coverage.CoverageResult;
+import org.codecover.metrics.coverage.StatementCoverage;
+import org.codecover.metrics.coverage.CoverageMetric.Hint;
+import org.codecover.model.MASTBuilder;
+import org.codecover.model.TestCase;
+import org.codecover.model.mast.BasicBooleanTerm;
+import org.codecover.model.mast.BasicStatement;
+import org.codecover.model.mast.Branch;
+import org.codecover.model.mast.ConditionalStatement;
+import org.codecover.model.mast.HierarchyLevel;
+import org.codecover.model.mast.Location;
+import org.codecover.model.mast.LoopingStatement;
+import org.codecover.model.mast.OperatorTerm;
+import org.codecover.model.mast.RootTerm;
+import org.codecover.model.mast.SourceFile;
+import org.codecover.model.mast.StatementSequence;
+import org.codecover.model.utils.Logger;
+import org.codecover.report.highlighting.annotation.AnchorAnnotation;
+import org.codecover.report.highlighting.annotation.CoverageAnnotation;
+import org.codecover.report.highlighting.annotation.DefaultAnchorAnnotation;
+import org.codecover.report.highlighting.annotation.DefaultCoverageAnnotation;
+import org.codecover.report.highlighting.annotation.DefaultLineExecutionAnnotation;
+import org.codecover.report.highlighting.annotation.LineExecutionAnnotation;
 
 /**
  * Highlights the code according to coverage which was achieved in given test
  * cases. A presentation independent format is generated based on
  * {@link org.codecover.report.highlighting.annotation.Annotation}.
- * 
+ *
  * @author Robert Hanussek, Michael Starzmann, Johannes Langauf
  * @version 1.0 ($Id$)
  */
 public class CodeHighlighting {
-    
+
     /**
      * The logger.
      */
     private Logger logger;
-    
- 
+
+
     /**
      * Constructor set's the logger used for log messages.
-     *  
+     *
      * @param logger the logger to use
      */
     public CodeHighlighting(Logger logger) {
         if (logger == null) {
             throw new NullPointerException("logger == null");
         }
-        
+
         this.logger = logger;
     }
- 
+
     protected Logger getLogger() {
-        return logger;
+        return this.logger;
     }
-    
+
     // not every level has a location. A package, e.g. has none. In such a case,
     // we take the locations of every child, that would be classes, which have
     // locations
@@ -67,8 +92,8 @@ public class CodeHighlighting {
             return level.getLocation().getLocations();
         }
     }
-    
-    
+
+
     protected static List<AnchorAnnotation> childrenToAnchors (HierarchyLevel level, HashMap<HierarchyLevel, String> namedAnchors) {
         List<AnchorAnnotation> result = new Vector<AnchorAnnotation>();
         if (namedAnchors != null) {
@@ -79,23 +104,23 @@ public class CodeHighlighting {
                 }
                 for (HierarchyLevel child : level.getChildren()) {
                     result.addAll(childrenToAnchors(child, namedAnchors));
-                }    
+                }
         }
         return result;
-    } 
+    }
 
     /*
      * Methods to generate line by line coverage.
      */
-    
+
     /**
      * Generate a List with execution counters for all lines of file.
      * <p>Line i can be found at position i - 1 in the returned List.
-     * 
+     *
      * @param executionInformation
      * annotations in file which include all the execution counters. Must be
      * sorted by start offset.
-     * @param code 
+     * @param code
      * the file to split into lines
      * @return
      * the list of lines, in order, not <code>null</code>
@@ -105,7 +130,7 @@ public class CodeHighlighting {
             final String code) {
         Vector<LineExecutionAnnotation> result;
         result = new Vector<LineExecutionAnnotation>(100);
-        
+
         int lineNumber = 1; //number of first line
         int position = 0; //offset of first character
         long maxExecutions = 0; //to be returned
@@ -113,19 +138,19 @@ public class CodeHighlighting {
         openedAnnotations = new Vector<CoverageAnnotation>(30);
 
         /* sort input by start offset */
-        Iterator<CoverageAnnotation> annoationIterator = executionInformation.iterator(); 
+        Iterator<CoverageAnnotation> annoationIterator = executionInformation.iterator();
         CoverageAnnotation nextExecutionInformation;
         if (annoationIterator.hasNext()) {
             nextExecutionInformation = annoationIterator.next();
         } else {
             nextExecutionInformation = null;
         }
-        
+
         do {
 
             long executions = -1; /* execution count of this line */
             int lineStart = position;
-            
+
             /* keep only opened annotations in openedAnnotations */
             List<CoverageAnnotation> nextOpenedAnnotations = null;
             if (!openedAnnotations.isEmpty()) {
@@ -141,18 +166,18 @@ public class CodeHighlighting {
                 }
                 openedAnnotations = nextOpenedAnnotations;
             }
-            
+
             /* HOOK: got opened Annotation at line start now */
-            
+
             /* move position to the offset after the last character of this line */
             position = nextLinebreak(code, position);
-            
+
             /* add new annotations up to position */
             while (nextExecutionInformation != null
                    && nextExecutionInformation.getStartOffset() < position) {
                 /*HOOK: new annotation added */
                 if (executions < nextExecutionInformation.getExecutions()) {
-                        executions = nextExecutionInformation.getExecutions(); 
+                        executions = nextExecutionInformation.getExecutions();
                 }
                 openedAnnotations.add(nextExecutionInformation);
                 if (annoationIterator.hasNext()) {
@@ -161,9 +186,9 @@ public class CodeHighlighting {
                     nextExecutionInformation = null;
                 }
             }
-            
+
             /* all annotations of this the line before position are in openedAnnotations */
-            
+
             /* HOOK: information about this line is complete */
             if (maxExecutions < executions) {
                 maxExecutions = executions;
@@ -171,27 +196,27 @@ public class CodeHighlighting {
 
             LineExecutionAnnotation lea = new DefaultLineExecutionAnnotation(code, lineStart,
                     position, lineNumber, executions);
-            
+
             /* assertion:
             for (ICoverageAnnotation a : openedAnnotations) {
                 if (!a.intersects(lea)) {
                     //may not reach this
                 }
             }*/
-            
+
             result.add(lea);
 
             /* step to start of next line */
             position = skipLineBreak(code, position);
             lineNumber++;
         } while (position != -1);
-        
+
         return new HighlightedSnippet("", result, maxExecutions);
     }
-    
+
 
     /**
-     * Step forward to the next line break in a String. 
+     * Step forward to the next line break in a String.
      * @param s
      * the String
      * @param base
@@ -201,13 +226,13 @@ public class CodeHighlighting {
      */
     private static int nextLinebreak(final String s, final int base) {
         int pos = base;
-        
+
         /*if (base < s.length()) {
             pos = base + 1; //the next line can't be at the first character
         } else {
             return base;
         }*/
-        
+
         while (pos < s.length()) {
             //TODO: check performance
             if (s.charAt(pos) == '\r' || s.charAt(pos) == '\n') {
@@ -215,12 +240,12 @@ public class CodeHighlighting {
             }
             pos++;
         }
-        
+
         return pos;
     }
-    
+
     /**
-     * Step one line break forward in a String. 
+     * Step one line break forward in a String.
      * @param s
      * the String
      * @param base
@@ -230,7 +255,7 @@ public class CodeHighlighting {
      */
     private static int skipLineBreak(final String s, final int base) {
         int pos = base;
-        
+
         if (pos < s.length()) {
             if (s.charAt(pos) == '\r') {
                 pos++;
@@ -247,7 +272,7 @@ public class CodeHighlighting {
         }
         return -1;
     }
-    
+
     /*
      * Methods to generate Coverage Annotations from Hierarchy Levels
      */
@@ -266,9 +291,9 @@ public class CodeHighlighting {
         if (metrics == null) {
             throw new NullPointerException("metrics == null");
         }
-        
+
         final List<DefaultCoverageAnnotation> highlights = new ArrayList<DefaultCoverageAnnotation>();
-        
+
         Map<SourceFile,List<CoverageAnnotation>> result;
         result = annotateCoverage(level, testCases, metrics);
 
@@ -279,19 +304,19 @@ public class CodeHighlighting {
                     highlights.add((DefaultCoverageAnnotation)annotation);
                 }
             } catch (ClassCastException e) {
-                logger.error("CodeHighlighting.getHighlightsOfHierarchyLevel() is broken and returned too little annotations. ask a developer to remove it cleanly."); //
+                this.logger.error("CodeHighlighting.getHighlightsOfHierarchyLevel() is broken and returned too little annotations. ask a developer to remove it cleanly."); //
                 return highlights;
             }
         }
-        
+
         return highlights;
     }
 
     /**
      * Produce a file oriented model of the coverage information. All local
      * coverage information found in the node and it's descendants is
-     * converted into coverage annotations. 
-     * 
+     * converted into coverage annotations.
+     *
      * @param node
      * the node to create annotations for
      * @param testCases
@@ -320,17 +345,17 @@ public class CodeHighlighting {
         if (file == null) {
             throw new NullPointerException("file == null");
         }
-        
-        MASTBuilder builder = new MASTBuilder(logger);
+
+        MASTBuilder builder = new MASTBuilder(this.logger);
         Location location;
         location = builder.createLocation(file, 0, file.getContent().length());
         List<Location> filter;
         filter = Collections.singletonList(location);
         Map<SourceFile,List<CoverageAnnotation>> result;
         result = annotateCoverage(node, testCases, metrics, filter, true);
-        
-        
-        
+
+
+
         return result.get(file);
     }
 
@@ -338,8 +363,8 @@ public class CodeHighlighting {
     /**
      * Produce a file oriented model of the coverage information. All local
      * coverage information found in the node and it's descendants is
-     * converted into coverage annotations. 
-     * 
+     * converted into coverage annotations.
+     *
      * @param node
      * the node to create annotations for
      * @param testCases
@@ -355,26 +380,24 @@ public class CodeHighlighting {
             List<CoverageMetric> metrics) {
         return annotateCoverage(node, testCases, metrics, null, false);
     }
-    
+
     /**
-     * Produce a file oriented model of the coverage information. All local
-     * coverage information found in the node and it's descendants is
-     * converted into coverage annotations. 
-     * 
+     * Produce a file oriented model of the coverage information. All local coverage information found in the
+     * node and it's descendants is converted into coverage annotations.
+     *
      * @param node
-     * the node to create annotations for
+     *            the node to create annotations for
      * @param testCases
-     * the testCases, logically merged into one, to create annotations from
+     *            the testCases, logically merged into one, to create annotations from
      * @param metrics
-     * the metrics to create annotations for
+     *            the metrics to create annotations for
      * @param filter
-     * list of Locations surrounding all annotations, if filterOn
+     *            list of Locations surrounding all annotations, if filterOn
      * @param filterOn
-     * true to enable given filter
-     * @return
-     * the annotations separated by SourceFile
+     *            true to enable given filter
+     * @return the annotations separated by SourceFile
      */
-    public Map<SourceFile,List<CoverageAnnotation>> annotateCoverage(
+    public Map<SourceFile, List<CoverageAnnotation>> annotateCoverage(
             HierarchyLevel node,
             List<TestCase> testCases,
             List<CoverageMetric> metrics,
@@ -394,14 +417,14 @@ public class CodeHighlighting {
                 throw new NullPointerException("filter == null, but filter is on");
             }
         }
-        
-        
-        final Map<SourceFile,List<CoverageAnnotation>> annotatedFiles;
+
+
+        final Map<SourceFile, List<CoverageAnnotation>> annotatedFiles;
         annotatedFiles = new HashMap<SourceFile, List<CoverageAnnotation>>();
-                
+
         for (final CoverageMetric metric : metrics) {
-            metric.accept(testCases, node, new CoverageMetric.Visitor() {
-                    
+            metric.accept(testCases, node, new CoverageMetric.DefaultPreMetricVisitor(),
+                new CoverageMetric.PostMetricVisitor() {
                     private void process(List<Location> locations, CoverageResult result, Set<Hint> hints) {
 
                         // calculate coverage status for Annotation
@@ -411,7 +434,7 @@ public class CodeHighlighting {
                             // add coverage that is wrapped inside a Hint to
                             // show this element as an annotation (they need a
                             // measured coverage)
-                            
+
                             for (final Hint hint : hints) {
                                 if (hint instanceof CoverageMetric.CoverageWrapper) {
                                     // unwrap status for ConditionalStatement
@@ -422,8 +445,8 @@ public class CodeHighlighting {
                                     break;
                                 }
                             }
-                        }                        
-                        
+                        }
+
                         long executions = -1;
                         for (final Hint hint : hints) {
                             if (hint instanceof StatementCoverage.ExecutionsHint) {
@@ -434,7 +457,7 @@ public class CodeHighlighting {
 
                         if (status != CoverageStatus.NONE) {
                             // prepared all attributes for coverage annotation
-                            
+
                             for (final Location location : locations) {
                                 if (location != null) {
                                     // got something to annotate
@@ -467,7 +490,7 @@ public class CodeHighlighting {
                                     + "for code at:" + locations);
                         }
                     }
-                    
+
                     public void visit(HierarchyLevel level, CoverageResult result, Set<Hint> hints) {
                         process(level.getHeader().getLocations(), result, hints);
                     }
@@ -505,7 +528,7 @@ public class CodeHighlighting {
                     }
             });
         }
-        
+
         return annotatedFiles;
     }
 
@@ -523,12 +546,12 @@ public class CodeHighlighting {
             highlights = new ArrayList<CoverageAnnotation>();
             target.put(location.getFile(), highlights);
         }
-        
+
         CoverageAnnotation a =  createCoverageAnnotation(location, result, status,
                 metric, hints, executions);
         highlights.add(a);
     }
-    
+
     /**
      * Hook to create annotations. All CoverageAnnotations are created in
      * {@link CodeHighlighting} created with this method.
@@ -544,11 +567,11 @@ public class CodeHighlighting {
             ) {
         return new DefaultCoverageAnnotation(location, status, metric, hints, executions);
     }
-    
+
     protected static int countLines(String text) {
         int counter = 1;
         char[] chars = text.toCharArray();
-        
+
         for (int i = 0; i < chars.length; i++) {
             if (chars[i] == '\r') {
                 counter++;
@@ -562,7 +585,7 @@ public class CodeHighlighting {
                 counter++;
             }
         }
-        
+
         return counter;
     }
 }

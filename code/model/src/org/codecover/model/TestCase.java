@@ -11,10 +11,24 @@
 
 package org.codecover.model;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
 import org.codecover.model.exceptions.NameAlreadyUsedException;
-import org.codecover.model.mast.*;
-import org.codecover.model.utils.*;
+import org.codecover.model.mast.BooleanAssignment;
+import org.codecover.model.mast.BooleanAssignmentMap;
+import org.codecover.model.mast.CoverableItem;
+import org.codecover.model.mast.Internal;
+import org.codecover.model.mast.MetaDataObject;
+import org.codecover.model.mast.RootTerm;
+import org.codecover.model.utils.ChangeType;
+import org.codecover.model.utils.CollectionUtil;
+import org.codecover.model.utils.IntComparator;
 
 /**
  * TestCase represents a test case. It contains a name, a comment, the date when
@@ -23,7 +37,7 @@ import org.codecover.model.utils.*;
  * coverage data for an AST element. The methods setObjectMetaData(...) and
  * getObjectMetaData(...) can set and get meta data for specific AST elements
  * for this test case. This meta data might be e.g. cached coverage metrics.
- * 
+ *
  * @author Markus Wittlinger, Tilmann Scheller
  * @version 1.0 ($Id$)
  */
@@ -45,18 +59,18 @@ public class TestCase extends AbstractMetaDataProvider {
 
     private Map<RootTerm, Map<BooleanAssignment, Boolean>> cachedAssignments = new HashMap<RootTerm, Map<BooleanAssignment, Boolean>>();
 
-    private double StatementRedundancy;
-    private double BranchRedundancy;
-    private double CondRedundancy;
-    private double LoopRedundancy;
-    private double TotalRedundancy;
-    
-    private int StatementCoveredItem;
-    private int BranchCoveredItem;
-    private int CondCoveredItem;
-    private int LoopCoveredItem;
-    private int TotalCoveredItem;
-    
+    private double statementRedundancy;
+    private double branchRedundancy;
+    private double condRedundancy;
+    private double loopRedundancy;
+    private double totalRedundancy;
+
+    private int statementCoveredItem;
+    private int branchCoveredItem;
+    private int condCoveredItem;
+    private int loopCoveredItem;
+    private int totalCoveredItem;
+
     /**
      * Is true iff delete() has been called successfully.
      */
@@ -86,7 +100,7 @@ public class TestCase extends AbstractMetaDataProvider {
 
     /**
      * Contructor
-     * 
+     *
      * @param testSession
      *            the test session containing this instance
      * @param date
@@ -178,7 +192,7 @@ public class TestCase extends AbstractMetaDataProvider {
     /**
      * Returns the measured coverage of the given coverable item during the run
      * of this testcase.
-     * 
+     *
      * @param item
      *            the coverable item, whose coverage is sought.
      * @return the number of times the given coverable item was covered.
@@ -201,7 +215,7 @@ public class TestCase extends AbstractMetaDataProvider {
     /**
      * Associates a given object as metadata with a given {@link MetaDataObject}
      * under a given key
-     * 
+     *
      * @param name
      *            the key used in storing the object
      * @param metaDataObject
@@ -237,7 +251,7 @@ public class TestCase extends AbstractMetaDataProvider {
     /**
      * Associates a given object as metadata with a given {@link MetaDataObject}
      * under a given key
-     * 
+     *
      * @param name
      *            the key used to retrieve the object
      * @param metaDataObject
@@ -314,7 +328,7 @@ public class TestCase extends AbstractMetaDataProvider {
         if (comment == null) {
             throw new NullPointerException("comment == null");
         }
-        
+
         assertNotDeleting();
 
         synchronized (this.lock) {
@@ -336,152 +350,152 @@ public class TestCase extends AbstractMetaDataProvider {
      * @return the Statement Redundancy
      */
     public Double getSatementRedundancy() {
-        return this.StatementRedundancy;
+        return this.statementRedundancy;
     }
-    
+
     /**
      * @return the Branch Redundancy
      */
     public Double getBranchRedundancy() {
-    	return this.BranchRedundancy;
+    	return this.branchRedundancy;
     }
-    
+
     /**
      * @return the Condition Redundancy
      */
     public Double getCondRedundancy() {
-    	return this.CondRedundancy;
+    	return this.condRedundancy;
     }
-    
+
     /**
      * @return the Loop Redundancy
      */
     public Double getLoopRedundancy() {
-    	return this.LoopRedundancy;
+    	return this.loopRedundancy;
     }
-    
+
     /**
      * @return the Total Redundancy
      */
     public Double getTotalRedundancy() {
-    	return this.TotalRedundancy;
+    	return this.totalRedundancy;
     }
-    
+
     /**
      * @return the Statement Covered Item
      */
     public Integer getStatementCoveredItem() {
-    	return this.StatementCoveredItem;
+    	return this.statementCoveredItem;
     }
-    
+
     /**
      * @return the Branch Covered Item
      */
     public Integer getBranchCoveredItem() {
-    	return this.BranchCoveredItem;
+    	return this.branchCoveredItem;
     }
-    
+
     /**
      * @return the Condition Covered Item
      */
     public Integer getCondCoveredItem() {
-    	return this.CondCoveredItem;
+    	return this.condCoveredItem;
     }
-    
+
     /**
      * @return the Loop Covered Item
      */
     public Integer getLoopCoveredItem() {
-    	return this.LoopCoveredItem;
+    	return this.loopCoveredItem;
     }
-    
+
     /**
      * @return the Total Covered Item
      */
     public Integer getTotalCoveredItem() {
-    	return this.TotalCoveredItem;
+    	return this.totalCoveredItem;
     }
-    
+
     /**
      * @param d
      *            the StatementRedundancy to set
      */
     public void setSatementRedundancy(Double d) {
-        this.StatementRedundancy = d;
+        this.statementRedundancy = d;
     }
-    
+
     /**
      * @param d
      *            the BranchRedundancy to set
      */
     public void setBranchRedundancy(Double d) {
-    	this.BranchRedundancy = d;
+    	this.branchRedundancy = d;
     }
-    
+
     /**
      * @param d
      *            the CondRedundancy to set
      */
     public void setCondRedundancy(Double d) {
-    	this.CondRedundancy = d;
+    	this.condRedundancy = d;
     }
-    
+
     /**
      * @param d
      *            the LoopRedundancy to set
      */
     public void setLoopRedundancy(Double d) {
-    	this.LoopRedundancy = d;
+    	this.loopRedundancy = d;
     }
-    
+
     /**
      * @param d
      *            the TotalRedundancy to set
      */
     public void setTotalRedundancy(Double d) {
-    	this.TotalRedundancy = d;
+    	this.totalRedundancy = d;
     }
-    
+
     /**
      * @param i
      *            the StatementCoveredItem to set
      */
     public void setSatementCoveredItem(Integer i) {
-    	this.StatementCoveredItem = i;
+    	this.statementCoveredItem = i;
     }
-    
+
     /**
      * @param i
      *            the BranchCoveredItem to set
      */
     public void setBranchCoveredItem(Integer i) {
-    	this.BranchCoveredItem = i;
+    	this.branchCoveredItem = i;
     }
-    
+
     /**
      * @param i
      *            the CondCoveredItem to set
      */
     public void setCondCoveredItem(Integer i) {
-    	this.CondCoveredItem = i;
+    	this.condCoveredItem = i;
     }
-    
+
     /**
      * @param i
      *            the LoopCoveredItem to set
      */
     public void setLoopCoveredItem(Integer i) {
-    	this.LoopCoveredItem = i;
+    	this.loopCoveredItem = i;
     }
-    
+
     /**
      * @param i
      *            the TotalCoveredItem to set
      */
     public void setTotalCoveredItem(Integer i) {
-    	this.TotalCoveredItem = i;
+    	this.totalCoveredItem = i;
     }
-    
+
     /**
      * @return the name
      */
@@ -537,7 +551,7 @@ public class TestCase extends AbstractMetaDataProvider {
     /**
      * Returns the assignments of the given term which occured during the run of
      * this testcase and the number of times, they were found.
-     * 
+     *
      * @param term
      *            the RootTerm of whom to get the assignments
      * @return a Map containing all the assignments as well as the number of
@@ -568,7 +582,7 @@ public class TestCase extends AbstractMetaDataProvider {
     /**
      * Returns the assignments of the given term which occured during the run of
      * this testcase and the result of the expression under each assignment.
-     * 
+     *
      * @param term
      *            the RootTerm of whom to get the assignments
      * @return a Map containing all the assignments as well as the resulting
@@ -595,7 +609,7 @@ public class TestCase extends AbstractMetaDataProvider {
 
                 if (assignmentResult == null) {
                     // This should not happen. This means that there is an
-                    // assignment in the map which cannot occour (according
+                    // assignment in the map which cannot occur (according
                     // to the static data.)
                     // TODO: Check this on the TestCase construction
                     throw new RuntimeException("Illegal assignment in map");
@@ -606,7 +620,7 @@ public class TestCase extends AbstractMetaDataProvider {
             result = Collections.unmodifiableMap(result);
             synchronized (this.cachedAssignments) {
                 // Note: Two threads might compute the results for the same
-                // term seperatly, but we don't care (the second put will
+                // term separately, but we don't care (the second put will
                 // override the first result)
                 this.cachedAssignments.put(term, result);
             }
@@ -626,9 +640,9 @@ public class TestCase extends AbstractMetaDataProvider {
 
     /**
      * Gets the map of {@link CoverableItem}s and {@link Long}s
-     * 
+     *
      * @return the map holding the {@link CoverableItem}s with their number of
-     *         occurences
+     *         occurrences
      */
     public Map<CoverableItem, Long> getCoverageData() {
         //assertNotDeleted();
@@ -638,7 +652,7 @@ public class TestCase extends AbstractMetaDataProvider {
 
     /**
      * Gets the map of {@link CoverableItem}s and {@link BooleanAssignmentMap}s
-     * 
+     *
      * @return the map holding the {@link BooleanAssignment}s per
      *         {@link CoverableItem} with their number of occurences
      */
@@ -647,4 +661,13 @@ public class TestCase extends AbstractMetaDataProvider {
 
         return this.assignments;
     }
+
+    /** A comparator that sorts test cases after decreasing coverable item count. */
+    public static Comparator<TestCase> TEST_CASE_BY_COVERAGE_COMPARATOR = new Comparator<TestCase>() {
+        public int compare(TestCase o1, TestCase o2) {
+            // we mix o1 and o2 in order to achieve decreased sorting
+            return IntComparator.compare(o2.coverageData.size() + o2.assignments.size(),
+                    o1.coverageData.size() + o1.assignments.size());
+        }
+    };
 }

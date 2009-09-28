@@ -25,28 +25,28 @@ import java.util.Comparator;
  */
 public class IntComparator
 {
-  public static int compare(byte p_first, byte p_second)
+  public static int compare(byte first, byte second)
   {
-    return p_first < p_second ? -1 : (p_first == p_second ? 0 : 1);
+    return first < second ? -1 : (first == second ? 0 : 1);
   }
 
-  public static int compare(short p_first, short p_second)
+  public static int compare(short first, short second)
   {
-    return p_first < p_second ? -1 : (p_first == p_second ? 0 : 1);
+    return first < second ? -1 : (first == second ? 0 : 1);
   }
 
-  public static int compare(char p_first, char p_second)
+  public static int compare(char first, char second)
   {
-    return p_first < p_second ? -1 : (p_first == p_second ? 0 : 1);
+    return first < second ? -1 : (first == second ? 0 : 1);
   }
 
-  public static int compare(int p_first, int p_second)
+  public static int compare(int first, int second)
   {
-    return p_first < p_second ? -1 : (p_first == p_second ? 0 : 1);
+    return first < second ? -1 : (first == second ? 0 : 1);
   }
 
-  public static int compare(long p_first, long p_second)
+  public static int compare(long first, long second)
   {
-    return p_first < p_second ? -1 : (p_first == p_second ? 0 : 1);
+    return first < second ? -1 : (first == second ? 0 : 1);
   }
 }

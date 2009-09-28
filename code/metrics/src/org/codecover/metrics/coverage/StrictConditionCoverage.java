@@ -11,15 +11,29 @@
 
 package org.codecover.metrics.coverage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.codecover.model.TestCase;
-import org.codecover.model.mast.*;
-import org.codecover.model.utils.criteria.*;
+import org.codecover.model.mast.BasicBooleanTerm;
+import org.codecover.model.mast.BooleanAssignment;
+import org.codecover.model.mast.BooleanResult;
+import org.codecover.model.mast.Branch;
+import org.codecover.model.mast.HierarchyLevel;
+import org.codecover.model.mast.RootTerm;
+import org.codecover.model.mast.Statement;
+import org.codecover.model.mast.StatementSequence;
+import org.codecover.model.utils.criteria.ConditionCoverage;
+import org.codecover.model.utils.criteria.Criterion;
 
 /**
  * This class would need to override getCoverage(testCases, term).
- * 
+ *
  * @author Markus Wittlinger, Tilmann Scheller
  * @version 1.0 ($Id$)
  */
@@ -38,7 +52,7 @@ public class StrictConditionCoverage extends AbstractCoverageMetric {
 
     /**
      * This method returns an instance of StrictConditionCoverage.
-     * 
+     *
      * @return instance of StrictConditionCoverage.
      */
     public static StrictConditionCoverage getInstance() {
@@ -47,7 +61,7 @@ public class StrictConditionCoverage extends AbstractCoverageMetric {
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.metrics.Metric#getDescription()
      */
     public String getDescription() {
@@ -56,7 +70,7 @@ public class StrictConditionCoverage extends AbstractCoverageMetric {
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.metrics.Metric#getName()
      */
     public String getName() {
@@ -65,7 +79,7 @@ public class StrictConditionCoverage extends AbstractCoverageMetric {
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.metrics.Metric#getRequiredCriteria()
      */
     public Set<Criterion> getRequiredCriteria() {
@@ -75,13 +89,13 @@ public class StrictConditionCoverage extends AbstractCoverageMetric {
 
     /**
      * Calculates the {@link ConditionCoverage}
-     * 
+     *
      * @see org.codecover.metrics.coverage.AbstractCoverageMetric#getCoverage(java.util.List,
      *      org.codecover.model.mast.RootTerm)
      */
-    public CoverageResult getCoverageLocal(List<TestCase> testCases,
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
             RootTerm term) {
-        // The real work is done in the accept(List<TestCase> testCases, final
+        // The real work is done in the accept(Collection<TestCase> testCases, final
         // RootTerm term, final Visitor post) method
         return CoverageResult.NULL;
     }
@@ -89,7 +103,7 @@ public class StrictConditionCoverage extends AbstractCoverageMetric {
     /**
      * Calculates the set of {@link BooleanAssignment} for a specific
      * {@link BasicBooleanTerm} which contribute to its coverage.
-     * 
+     *
      * @param testCases
      *            the test cases containing the coverage data
      * @param term
@@ -101,7 +115,7 @@ public class StrictConditionCoverage extends AbstractCoverageMetric {
      *         given test cases
      */
     // TODO: try to replace this with a more elegant solution
-    public Set<BooleanAssignment> getCoverage(List<TestCase> testCases,
+    public Set<BooleanAssignment> getCoverage(Collection<TestCase> testCases,
             RootTerm term, BasicBooleanTerm basicTerm) {
         Map<BooleanAssignment, Boolean> assignmentsMap = new HashMap<BooleanAssignment, Boolean>();
 
@@ -192,8 +206,8 @@ public class StrictConditionCoverage extends AbstractCoverageMetric {
     private static final CoverageResult oneOneResult = new CoverageResult(1, 1);
 
     @Override
-    public void accept(List<TestCase> testCases, final RootTerm term,
-            final Visitor post) {
+    public void accept(Collection<TestCase> testCases, final RootTerm term,
+            final PostMetricVisitor post) {
         Map<BooleanAssignment, Boolean> assignmentsMap = new HashMap<BooleanAssignment, Boolean>();
 
         // merge assignments of all the test cases
@@ -278,45 +292,45 @@ public class StrictConditionCoverage extends AbstractCoverageMetric {
         super.accept(testCases, term, post);
     }
 
-    public CoverageResult getCoverageLocal(List<TestCase> testCases,
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
             Statement statement) {
         return CoverageResult.NULL;
     }
 
-    public CoverageResult getCoverageLocal(List<TestCase> testCases,
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
             StatementSequence statements) {
         return CoverageResult.NULL;
     }
 
-    public CoverageResult getCoverageLocal(List<TestCase> testCases,
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
             HierarchyLevel level) {
         return CoverageResult.NULL;
     }
 
-    public CoverageResult getCoverageLocal(List<TestCase> testCases,
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
             Branch branch) {
         return CoverageResult.NULL;
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases,
+    public Set<Hint> getHints(Collection<TestCase> testCases,
                               Statement statement) {
         return noHints;
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases,
+    public Set<Hint> getHints(Collection<TestCase> testCases,
                               RootTerm term) {
         return noHints;
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases, StatementSequence statements) {
+    public Set<Hint> getHints(Collection<TestCase> testCases, StatementSequence statements) {
         return noHints;
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases, HierarchyLevel level) {
+    public Set<Hint> getHints(Collection<TestCase> testCases, HierarchyLevel level) {
         return noHints;
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases, Branch branch) {
+    public Set<Hint> getHints(Collection<TestCase> testCases, Branch branch) {
         return noHints;
     }
 }

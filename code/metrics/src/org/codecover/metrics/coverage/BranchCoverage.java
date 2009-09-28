@@ -11,17 +11,29 @@
 
 package org.codecover.metrics.coverage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-import org.codecover.model.*;
-import org.codecover.model.mast.*;
-import org.codecover.model.utils.*;
+import org.codecover.model.TestCase;
+import org.codecover.model.mast.BasicStatement;
+import org.codecover.model.mast.Branch;
+import org.codecover.model.mast.ConditionalStatement;
+import org.codecover.model.mast.HierarchyLevel;
+import org.codecover.model.mast.Location;
+import org.codecover.model.mast.LoopingStatement;
+import org.codecover.model.mast.RootTerm;
+import org.codecover.model.mast.Statement;
+import org.codecover.model.mast.StatementSequence;
+import org.codecover.model.utils.CollectionUtil;
 import org.codecover.model.utils.criteria.Criterion;
 
 /**
  * This class implements branch coverage, by overwriting getCoverageLocal and
  * get coverageHint methods.
- * 
+ *
  * @author Markus Wittlinger, Tilmann Scheller
  * @version 1.0 ($Id$)
  */
@@ -29,7 +41,7 @@ public class BranchCoverage extends AbstractCoverageMetric {
 
     /**
      * A coverage hint for branch coverage with wrapped coverage status.
-     * 
+     *
      * @author Steffen Kieß
      * @version 1.0 ($Id$)
      * @see CoverageMetric.EnglishTextHint
@@ -38,14 +50,14 @@ public class BranchCoverage extends AbstractCoverageMetric {
     public static interface BranchHint extends EnglishTextHint, CoverageWrapper {
         /**
          * Gets the {@link ConditionalStatement}.
-         * 
+         *
          * @return the {@link ConditionalStatement}.
          */
         public ConditionalStatement getStatement();
 
         /**
          * Gets whether or not the given {@link Branch} is covered
-         * 
+         *
          * @param branch
          *            the given {@link Branch}
          * @return true iff {@link Branch} is covered.
@@ -62,7 +74,7 @@ public class BranchCoverage extends AbstractCoverageMetric {
 
         /**
          * Constructor
-         * 
+         *
          * @param result
          *            the {@link CoverageResult}
          * @param statement
@@ -116,11 +128,11 @@ public class BranchCoverage extends AbstractCoverageMetric {
                                 note += " " + location.getContent();
                             }
                         }
-                        
+
                         if (wroteLocation) {
                             /* got no decision keyword */
                             //TODO: would be nice if model had some id to distinguish between branches and show to user
-                            
+
                             if (branch.isImplicit()) {
                                 note += "implicit (omitted) branch,  ";
                             } else {
@@ -155,7 +167,7 @@ public class BranchCoverage extends AbstractCoverageMetric {
 
     /**
      * This method returns an instance of BranchCoverage.
-     * 
+     *
      * @return instance of BranchCoverage.
      */
     public static BranchCoverage getInstance() {
@@ -164,7 +176,7 @@ public class BranchCoverage extends AbstractCoverageMetric {
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.metrics.Metric#getDescription()
      */
     public String getDescription() {
@@ -173,7 +185,7 @@ public class BranchCoverage extends AbstractCoverageMetric {
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.metrics.Metric#getName()
      */
     public String getName() {
@@ -182,7 +194,7 @@ public class BranchCoverage extends AbstractCoverageMetric {
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.metrics.Metric#getRequiredCriteria()
      */
     public Set<Criterion> getRequiredCriteria() {
@@ -193,11 +205,11 @@ public class BranchCoverage extends AbstractCoverageMetric {
 
     /**
      * Calculates the {@link org.codecover.model.utils.criteria.BranchCoverage}
-     * 
+     *
      * @see org.codecover.metrics.coverage.AbstractCoverageMetric#getCoverage(java.util.List,
      *      org.codecover.model.mast.Branch)
      */
-    public CoverageResult getCoverageLocal(List<TestCase> testCases,
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
             Branch branch) {
         int coveredItems = 0;
         int totalItems = 0;
@@ -214,27 +226,27 @@ public class BranchCoverage extends AbstractCoverageMetric {
         return new CoverageResult(coveredItems, totalItems);
     }
 
-    public CoverageResult getCoverageLocal(List<TestCase> testCases,
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
             Statement statement) {
         return CoverageResult.NULL;
     }
 
-    public CoverageResult getCoverageLocal(List<TestCase> testCases,
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
             RootTerm term) {
         return CoverageResult.NULL;
     }
 
-    public CoverageResult getCoverageLocal(List<TestCase> testCases,
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
             StatementSequence statements) {
         return CoverageResult.NULL;
     }
 
-    public CoverageResult getCoverageLocal(List<TestCase> testCases,
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
             HierarchyLevel level) {
         return CoverageResult.NULL;
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases, Statement statement) {
+    public Set<Hint> getHints(Collection<TestCase> testCases, Statement statement) {
         if (statement instanceof ConditionalStatement) {
             final ConditionalStatement cStatement = (ConditionalStatement) statement;
 
@@ -263,20 +275,20 @@ public class BranchCoverage extends AbstractCoverageMetric {
         }
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases, RootTerm term) {
+    public Set<Hint> getHints(Collection<TestCase> testCases, RootTerm term) {
         return noHints;
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases,
+    public Set<Hint> getHints(Collection<TestCase> testCases,
             StatementSequence statements) {
         return noHints;
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases, HierarchyLevel level) {
+    public Set<Hint> getHints(Collection<TestCase> testCases, HierarchyLevel level) {
         return noHints;
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases, Branch branch) {
+    public Set<Hint> getHints(Collection<TestCase> testCases, Branch branch) {
         return noHints;
     }
 

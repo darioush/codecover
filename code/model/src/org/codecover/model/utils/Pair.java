@@ -13,8 +13,8 @@
 package org.codecover.model.utils;
 
 /**
- * A immutable pair of values.
- * 
+ * An immutable pair of non <code>null</code> values.
+ *
  * @author Steffen Kieß
  * @version 1.0 ($Id$)
  * @param <S>
@@ -35,7 +35,7 @@ public final class Pair<S, T> {
 
     /**
      * Creates a {@link Pair} with the given elements.
-     * 
+     *
      * @param first
      *            the first element of the pair.
      * @param second
@@ -59,12 +59,12 @@ public final class Pair<S, T> {
 
     @Override
     public int hashCode() {
-        return this.first.hashCode() + this.second.hashCode();
+        return 17 * this.first.hashCode() + 31 * this.second.hashCode();
     }
 
     /**
      * Creates a new pair with the given elements and element types.
-     * 
+     *
      * @param <S>
      *            the type of the first element
      * @param <T>

@@ -16,11 +16,11 @@ import java.io.Serializable;
 /**
  * This class is used to store the results calculated during the analysis of
  * coverable items.
- * 
+ *
  * @author Markus Wittlinger, Tilmann Scheller
  * @version 1.0 ($Id$)
  */
-public final class CoverageResult implements Serializable {
+public class CoverageResult implements Serializable {
 
     /**
      * Represents a {@link CoverageResult} with <code>0</code> in both fields
@@ -29,14 +29,18 @@ public final class CoverageResult implements Serializable {
 
     private static final long serialVersionUID = 1086417719942544939L;
 
-    private final int totalItems;
+    protected int totalItems;
 
-    private final int coveredItems;
+    protected int coveredItems;
+
+    protected CoverageResult() {
+        // only for child classes
+    }
 
     /**
      * Constructor, with the two values, so no uninitialized CoverageResults
      * exist.
-     * 
+     *
      * @param coveredItems
      *            The number of covered coverable items examined during the
      *            computation of the coverage. Is always smaller or equal to the
@@ -47,7 +51,7 @@ public final class CoverageResult implements Serializable {
      */
     public CoverageResult(int coveredItems, int totalItems) {
         if (coveredItems > totalItems || coveredItems < 0 || totalItems < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(coveredItems + " | " + totalItems);
         }
 
         this.coveredItems = coveredItems;
@@ -73,9 +77,9 @@ public final class CoverageResult implements Serializable {
      * @return true, iff this result has no coverable items
      */
     public boolean isNull() {
-        return getTotalItems() == 0;
+        return this.totalItems == 0;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         final CoverageResult co;
@@ -83,12 +87,12 @@ public final class CoverageResult implements Serializable {
             return false;
         }
         co = (CoverageResult)o;
-        return this.getCoveredItems() == co.getCoveredItems()
-            && this.getTotalItems()   == co.getTotalItems();
+        return this.coveredItems == co.coveredItems
+            && this.totalItems   == co.totalItems;
     }
-    
+
     @Override
     public int hashCode() {
-        return this.getCoveredItems() ^ this.getTotalItems();
+        return this.coveredItems ^ this.totalItems;
     }
 }

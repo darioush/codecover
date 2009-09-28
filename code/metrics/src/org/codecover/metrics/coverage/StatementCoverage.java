@@ -11,17 +11,24 @@
 
 package org.codecover.metrics.coverage;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 import org.codecover.model.TestCase;
-import org.codecover.model.mast.*;
+import org.codecover.model.mast.BasicStatement;
+import org.codecover.model.mast.Branch;
+import org.codecover.model.mast.ConditionalStatement;
+import org.codecover.model.mast.HierarchyLevel;
+import org.codecover.model.mast.LoopingStatement;
+import org.codecover.model.mast.RootTerm;
+import org.codecover.model.mast.Statement;
+import org.codecover.model.mast.StatementSequence;
 import org.codecover.model.utils.criteria.Criterion;
 
 /**
  * This class would need to override getCoverage(testCases, statement).
- * 
+ *
  * @author Markus Wittlinger, Tilmann Scheller
  * @version 1.0 ($Id$)
  */
@@ -38,13 +45,13 @@ public class StatementCoverage extends AbstractCoverageMetric {
          */
         public long getNumberOfExecutions();
     }
-    
+
     private static final class ExecutionsHintImpl implements ExecutionsHint {
         private long numberOfExecutions;
 
         /**
          * Constructor.
-         * 
+         *
          * @param numberOfExecutions
          *            the number of executions.
          */
@@ -52,7 +59,7 @@ public class StatementCoverage extends AbstractCoverageMetric {
             if (numberOfExecutions < 0) {
                 throw new IllegalArgumentException("numberOfExecutions < 0");
             }
-            
+
             this.numberOfExecutions = numberOfExecutions;
         }
 
@@ -71,14 +78,11 @@ public class StatementCoverage extends AbstractCoverageMetric {
 
     private StatementCoverage() {
         super(CACHING_KEY);
-        if (instance != null) {
-            throw new RuntimeException("This should not happen.");
-        }
     }
 
     /**
      * This method returns an instance of StatementCoverage.
-     * 
+     *
      * @return instance of StatementCoverage.
      */
     public static StatementCoverage getInstance() {
@@ -87,7 +91,7 @@ public class StatementCoverage extends AbstractCoverageMetric {
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.metrics.Metric#getDescription()
      */
     public String getDescription() {
@@ -96,7 +100,7 @@ public class StatementCoverage extends AbstractCoverageMetric {
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.metrics.Metric#getName()
      */
     public String getName() {
@@ -105,14 +109,14 @@ public class StatementCoverage extends AbstractCoverageMetric {
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.codecover.metrics.Metric#getRequiredCriteria()
      */
     public Set<Criterion> getRequiredCriteria() {
         return Collections.<Criterion>singleton(
             org.codecover.model.utils.criteria.StatementCoverage.getInstance());
     }
-    
+
     /**
      * A static {@link CoverageResult} representing zero of one covered items.
      */
@@ -121,15 +125,15 @@ public class StatementCoverage extends AbstractCoverageMetric {
      * A static {@link CoverageResult} representing one of one covered items.
      */
     public static final CoverageResult oneOneResult = new CoverageResult(1, 1);
-    
+
     /**
      * Calculates the
      * {@link org.codecover.model.utils.criteria.StatementCoverage}
-     * 
+     *
      * @see org.codecover.metrics.coverage.AbstractCoverageMetric#getCoverage(java.util.List,
      *      org.codecover.model.mast.Statement)
      */
-    public CoverageResult getCoverageLocal(List<TestCase> testCases,
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
             Statement statement) {
         if (statement instanceof BasicStatement) {
             // check whether the item has been covered in one of the test cases
@@ -144,25 +148,25 @@ public class StatementCoverage extends AbstractCoverageMetric {
         }
     }
 
-    public CoverageResult getCoverageLocal(List<TestCase> testCases, RootTerm term) {
-        return CoverageResult.NULL;
-    }
-    
-    public CoverageResult getCoverageLocal(List<TestCase> testCases,
-                                           StatementSequence statements) {
-        return CoverageResult.NULL;
-    }
-    
-    public CoverageResult getCoverageLocal(List<TestCase> testCases,
-                                           HierarchyLevel level) {
-        return CoverageResult.NULL;
-    }
-    
-    public CoverageResult getCoverageLocal(List<TestCase> testCases, Branch branch) {
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases, RootTerm term) {
         return CoverageResult.NULL;
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases,
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
+                                           StatementSequence statements) {
+        return CoverageResult.NULL;
+    }
+
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
+                                           HierarchyLevel level) {
+        return CoverageResult.NULL;
+    }
+
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases, Branch branch) {
+        return CoverageResult.NULL;
+    }
+
+    public Set<Hint> getHints(Collection<TestCase> testCases,
                               Statement statement) {
         if (statement instanceof ConditionalStatement) {
             return noHints;
@@ -170,11 +174,11 @@ public class StatementCoverage extends AbstractCoverageMetric {
             return noHints;
         } else if (statement instanceof BasicStatement) {
             long executions = 0;
-            
+
             for (final TestCase testCase : testCases) {
                 executions += testCase.getCoverageCount(statement.getCoverableItem());
             }
-            
+
             final Hint hint = new ExecutionsHintImpl(executions);
             return Collections.singleton(hint);
         } else {
@@ -182,20 +186,20 @@ public class StatementCoverage extends AbstractCoverageMetric {
         }
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases,
+    public Set<Hint> getHints(Collection<TestCase> testCases,
                               RootTerm term) {
         return noHints;
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases, StatementSequence statements) {
+    public Set<Hint> getHints(Collection<TestCase> testCases, StatementSequence statements) {
         return noHints;
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases, HierarchyLevel level) {
+    public Set<Hint> getHints(Collection<TestCase> testCases, HierarchyLevel level) {
         return noHints;
     }
 
-    public Set<Hint> getHints(List<TestCase> testCases, Branch branch) {
+    public Set<Hint> getHints(Collection<TestCase> testCases, Branch branch) {
         return noHints;
     }
 }
