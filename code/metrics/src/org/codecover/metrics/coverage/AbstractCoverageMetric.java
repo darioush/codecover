@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import org.codecover.model.TestCase;
 import org.codecover.model.mast.BasicBooleanTerm;
@@ -32,7 +33,6 @@ import org.codecover.model.mast.OperatorTerm;
 import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.Statement;
 import org.codecover.model.mast.StatementSequence;
-import org.codecover.model.utils.Pair;
 
 /**
  * This abstract class implements the CoverageMetric. It provides a default
@@ -47,8 +47,8 @@ import org.codecover.model.utils.Pair;
  * and return the true coverage. But for the traversal of the AST one can call
  * super.getCoverage(testCases, statement).
  *
- * @author Markus Wittlinger, Tilmann Scheller
- * @version 1.0 ($Id$)
+ * @author Markus Wittlinger, Tilmann Scheller, Christoph Müller
+ * @version 1.1 ($Id$)
  */
 public abstract class AbstractCoverageMetric implements CoverageMetric {
 
@@ -144,66 +144,86 @@ public abstract class AbstractCoverageMetric implements CoverageMetric {
 
     private static class SumWithParentVisitor implements PrePostMetricVisitor {
 
-        private Map<Pair<CoverageMetric, HierarchyLevel>, CoverageResult> coverageResultMap;
-        private final CoverageMetric metric;
+        private Map<HierarchyLevel, CoverageResult> coverageResultMap;
 
-        public SumWithParentVisitor(Map<Pair<CoverageMetric, HierarchyLevel>, CoverageResult> coverageResultMap,
-                CoverageMetric metric) {
+        public SumWithParentVisitor(Map<HierarchyLevel, CoverageResult> coverageResultMap) {
             this.coverageResultMap = coverageResultMap;
-            this.metric = metric;
         }
 
-        private CoverageResultWithParent currentCoverageResult;
+        /** we use int[], because CoverageResult is immutable. */
+        private Stack<int[]> intermediateResultsStack = new Stack<int[]>();
+
+        private int[] currentIntermediateResult;
+
+        private void incrementIntermediate(CoverageResult coverageResult) {
+            this.currentIntermediateResult[0] += coverageResult.getCoveredItems();
+            this.currentIntermediateResult[1] += coverageResult.getTotalItems();
+        }
 
         /** Pre visit! */
         public void visit(HierarchyLevel level) {
-            this.currentCoverageResult = new CoverageResultWithParent(this.currentCoverageResult);
-            this.coverageResultMap.put(
-                    new Pair<CoverageMetric, HierarchyLevel>(this.metric, level), this.currentCoverageResult);
+            // push a new int[]
+            this.currentIntermediateResult = new int[2];
+            this.intermediateResultsStack.push(this.currentIntermediateResult);
         }
 
-        public void visit(HierarchyLevel statement, CoverageResult result, Set<Hint> hints) {
-            this.currentCoverageResult.increment(result);
-            this.currentCoverageResult = this.currentCoverageResult.getParent();
+        /** Post visit. */
+        public void visit(HierarchyLevel level, CoverageResult result, Set<Hint> hints) {
+            // local coverage
+            incrementIntermediate(result);
+
+            // we are at the end of the hierarchy level
+            CoverageResult itsOverAllCoverageResult = new CoverageResult(this.currentIntermediateResult[0],
+                    this.currentIntermediateResult[1]);
+            this.coverageResultMap.put(level, itsOverAllCoverageResult);
+
+            // pop the stack
+            this.intermediateResultsStack.pop();
+            if (!this.intermediateResultsStack.isEmpty()) {
+                this.currentIntermediateResult = this.intermediateResultsStack.peek();
+                incrementIntermediate(itsOverAllCoverageResult);
+            } else {
+                this.currentIntermediateResult = null;
+            }
         }
 
         public void visit(BasicStatement statement, CoverageResult result,
                 Set<Hint> hints) {
-            this.currentCoverageResult.increment(result);
+            incrementIntermediate(result);
         }
 
         public void visit(ConditionalStatement statement,
                 CoverageResult result, Set<Hint> hints) {
-            this.currentCoverageResult.increment(result);
+            incrementIntermediate(result);
         }
 
         public void visit(LoopingStatement statement, CoverageResult result,
                 Set<Hint> hints) {
-            this.currentCoverageResult.increment(result);
+            incrementIntermediate(result);
         }
 
         public void visit(StatementSequence statement, CoverageResult result,
                 Set<Hint> hints) {
-            this.currentCoverageResult.increment(result);
+            incrementIntermediate(result);
         }
 
         public void visit(Branch statement, CoverageResult result,
                 Set<Hint> hints) {
-            this.currentCoverageResult.increment(result);
+            incrementIntermediate(result);
         }
 
         public void visit(RootTerm term, CoverageResult result, Set<Hint> hints) {
-            this.currentCoverageResult.increment(result);
+            incrementIntermediate(result);
         }
 
         public void visit(BasicBooleanTerm term, RootTerm rootTerm,
                 CoverageResult result, Set<Hint> hints) {
-            this.currentCoverageResult.increment(result);
+            incrementIntermediate(result);
         }
 
         public void visit(OperatorTerm term, RootTerm rootTerm,
                 CoverageResult result, Set<Hint> hints) {
-            this.currentCoverageResult.increment(result);
+            incrementIntermediate(result);
         }
     };
 
@@ -403,10 +423,9 @@ public abstract class AbstractCoverageMetric implements CoverageMetric {
         // delegate local coverage measurement to subclass
         CoverageResult result = getCoverageLocal(testCases, level);
         Set<Hint> hints = getHints(testCases, level);
-        if (isCoverage(result, hints)) {
-            //we have local coverage information, send it
-            post.visit(level, result, hints);
-        }
+
+        // we tell about the coverage even if its empty
+        post.visit(level, result, hints);
     }
 
     public void accept(Collection<TestCase> testCases, Branch branch, PostMetricVisitor post) {
@@ -414,10 +433,9 @@ public abstract class AbstractCoverageMetric implements CoverageMetric {
         // delegate local coverage measurement to subclass
         CoverageResult result = getCoverageLocal(testCases, branch);
         Set<Hint> hints = getHints(testCases, branch);
-        if (isCoverage(result, hints)) {
-            //we have local coverage information, send it
-            post.visit(branch, result, hints);
-        }
+
+        // we tell about the coverage even if its empty
+        post.visit(branch, result, hints);
     }
 
     public void accept(Collection<TestCase> testCases, StatementSequence statements,
@@ -428,10 +446,9 @@ public abstract class AbstractCoverageMetric implements CoverageMetric {
         // delegate local coverage measurement to subclass
         CoverageResult result = getCoverageLocal(testCases, statements);
         Set<Hint> hints = getHints(testCases, statements);
-        if (isCoverage(result, hints)) {
-            //we have local coverage information, send it
-            post.visit(statements, result, hints);
-        }
+
+        // we tell about the coverage even if its empty
+        post.visit(statements, result, hints);
     }
 
     public void accept(Collection<TestCase> testCases, Statement statement,
@@ -451,29 +468,26 @@ public abstract class AbstractCoverageMetric implements CoverageMetric {
             // delegate local coverage measurement to subclass
             CoverageResult result = getCoverageLocal(testCases, statement);
             Set<Hint> hints = getHints(testCases, statement);
-            if (isCoverage(result, hints)) {
-                //we have local coverage information, send it
-                post.visit((ConditionalStatement) statement, result, hints);
-            }
+
+            // we tell about the coverage even if its empty
+            post.visit((ConditionalStatement) statement, result, hints);
         } else if (statement instanceof LoopingStatement) {
             accept(testCases, ((LoopingStatement) statement).getBody(), post);
 
             // delegate local coverage measurement to subclass
             CoverageResult result = getCoverageLocal(testCases, statement);
             Set<Hint> hints = getHints(testCases, statement);
-            if (isCoverage(result, hints)) {
-                //we have local coverage information, send it
-                post.visit((LoopingStatement) statement, result, hints);
-            }
+
+            // we tell about the coverage even if its empty
+            post.visit((LoopingStatement) statement, result, hints);
         } else if (statement instanceof BasicStatement) {
 
             // delegate local coverage measurement to subclass
             CoverageResult result = getCoverageLocal(testCases, statement);
             Set<Hint> hints = getHints(testCases, statement);
-            if (isCoverage(result, hints)) {
-                //we have local coverage information, send it
-                post.visit((BasicStatement) statement, result, hints);
-            }
+
+            // we tell about the coverage even if its empty
+            post.visit((BasicStatement) statement, result, hints);
         } else {
             throw new RuntimeException();
         }
@@ -486,30 +500,20 @@ public abstract class AbstractCoverageMetric implements CoverageMetric {
         // delegate local coverage measurement to subclass
         CoverageResult result = getCoverageLocal(testCases, term);
         Set<Hint> hints = getHints(testCases, term);
-        if (isCoverage(result, hints)) {
-            //we have local coverage information, send it
-            post.visit(term, result, hints);
-        }
+
+        // we tell about the coverage even if its empty
+        post.visit(term, result, hints);
     }
 
     /**
-     * @return true iff the hints and result contain coverage information
-     */
-    private static boolean isCoverage(final CoverageResult result,
-            final Set<Hint> hints) {
-        //check for WrappedCoverage in hints is omitted for performance reasons
-        return result.getTotalItems() > 0 || ! hints.isEmpty();
-    }
-
-    /**
-     * This helper method efficiently gets all {@link CoverageResult} mapped by {@link CoverageMetric} and
-     * {@link HierarchyLevel} for a {@link Set} of {@link CoverageMetric}s and {@link TestCase}.
+     * This helper method efficiently gets all {@link CoverageResult} mapped by {@link HierarchyLevel} for a
+     * {@link CoverageMetric} and a set of {@link TestCase}.
      * <p>
      * Instead of getting these entries using multiple {@link #getCoverage(Collection, HierarchyLevel)} calls
-     * this method uses parent aware {@link CoverageResult}, that delegate local results to their parent.
+     * this method uses a stack of {@link CoverageResult} to propagate coverage to the parent too.
      */
-    public static Map<Pair<CoverageMetric, HierarchyLevel>, CoverageResult> calculateCoverageForAllMetrics(
-            Collection<CoverageMetric> coverageMetrics, Collection<TestCase> testCases, HierarchyLevel level) {
+    public static Map<HierarchyLevel, CoverageResult> calculateCoverageForAllLevels(
+            CoverageMetric coverageMetric, Collection<TestCase> testCases, HierarchyLevel level) {
 
         // we sort the test cases by decreasing coverage count in order that the first test case has the
         // most coverage
@@ -518,14 +522,11 @@ public abstract class AbstractCoverageMetric implements CoverageMetric {
         List<TestCase> sortedTestCases = new ArrayList<TestCase>(testCases);
         Collections.sort(sortedTestCases, TEST_CASE_BY_COVERAGE_COMPARATOR);
 
-        final Map<Pair<CoverageMetric, HierarchyLevel>, CoverageResult> coverageResultMap =
-            new HashMap<Pair<CoverageMetric, HierarchyLevel>, CoverageResult>();
+        Map<HierarchyLevel, CoverageResult> coverageResultMap = new HashMap<HierarchyLevel, CoverageResult>();
 
-        for (CoverageMetric coverageMetric : coverageMetrics) {
-            SumWithParentVisitor sumWithParentVisitor = new SumWithParentVisitor(coverageResultMap, coverageMetric);
+        SumWithParentVisitor sumWithParentVisitor = new SumWithParentVisitor(coverageResultMap);
 
-            coverageMetric.accept(sortedTestCases, level, sumWithParentVisitor, sumWithParentVisitor);
-        }
+        coverageMetric.accept(sortedTestCases, level, sumWithParentVisitor, sumWithParentVisitor);
 
         return coverageResultMap;
     }

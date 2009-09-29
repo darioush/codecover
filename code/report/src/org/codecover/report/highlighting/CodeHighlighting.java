@@ -426,6 +426,9 @@ public class CodeHighlighting {
             metric.accept(testCases, node, new CoverageMetric.DefaultPreMetricVisitor(),
                 new CoverageMetric.PostMetricVisitor() {
                     private void process(List<Location> locations, CoverageResult result, Set<Hint> hints) {
+                        if (result.isNull() && hints.isEmpty()) {
+                            return;
+                        }
 
                         // calculate coverage status for Annotation
                         CoverageStatus status = CoverageStatus.calcCoverageStatus(result);

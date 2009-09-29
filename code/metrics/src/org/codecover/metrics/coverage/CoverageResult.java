@@ -16,11 +16,11 @@ import java.io.Serializable;
 /**
  * This class is used to store the results calculated during the analysis of
  * coverable items.
- *
+ * 
  * @author Markus Wittlinger, Tilmann Scheller
  * @version 1.0 ($Id$)
  */
-public class CoverageResult implements Serializable {
+public final class CoverageResult implements Serializable {
 
     /**
      * Represents a {@link CoverageResult} with <code>0</code> in both fields
@@ -29,18 +29,14 @@ public class CoverageResult implements Serializable {
 
     private static final long serialVersionUID = 1086417719942544939L;
 
-    protected int totalItems;
+    private final int totalItems;
 
-    protected int coveredItems;
-
-    protected CoverageResult() {
-        // only for child classes
-    }
+    private final int coveredItems;
 
     /**
      * Constructor, with the two values, so no uninitialized CoverageResults
      * exist.
-     *
+     * 
      * @param coveredItems
      *            The number of covered coverable items examined during the
      *            computation of the coverage. Is always smaller or equal to the

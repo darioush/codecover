@@ -53,7 +53,6 @@ import org.codecover.model.mast.HierarchyLevel;
 import org.codecover.model.utils.ChangeType;
 import org.codecover.model.utils.IntComparator;
 import org.codecover.model.utils.Logger;
-import org.codecover.model.utils.Pair;
 import org.codecover.model.utils.criteria.Criterion;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.ui.ISharedImages;
@@ -112,9 +111,6 @@ import org.eclipse.ui.texteditor.ITextEditor;
  */
 public class CoverageView extends ViewPart
         implements TSContainerManagerListener {
-
-    private static final String NAME_FILTER_LABEL = Messages
-            .getString("CoverageView.NAME_FILTER_LABEL"); //$NON-NLS-1$
 
     private static final String DIALOG_ERROR_NO_CODE_MSG = Messages
             .getString("CoverageView.DIALOG_ERROR_NO_CODE_MSG"); //$NON-NLS-1$
@@ -192,11 +188,6 @@ public class CoverageView extends ViewPart
     private Text txtCovFilterPercent;
     private Label lblCovFilterPercent;
 
-    // filter and controls for name filtering
-    private ViewerNameFilter viewerNameFilter;
-    private Button bttNameFilterToggle;
-    private Text txtNameFilter;
-
     /**
      * The IDs of the expanded HierarchyLevels of the associated
      * <code>TSContainerInfo</code>-representation of a test session container.
@@ -207,7 +198,8 @@ public class CoverageView extends ViewPart
 
     private final Logger logger;
 
-    private Map<Pair<CoverageMetric, HierarchyLevel>, CoverageResult> coverageCache;
+    /** this cache contains coverage results mapped by {@link HierarchyLevel} in the order of the metrics. */
+    private Map<HierarchyLevel, CoverageResult>[] coverageCache;
 
     /*
      * classes/methods to construct, initialize and create the view
@@ -316,7 +308,7 @@ public class CoverageView extends ViewPart
         this.viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL
                 | SWT.V_SCROLL | SWT.BORDER);
         // setup columns of the tree viewer
-        this.createTableColumns(this.sortedCoverageMetrics);
+        this.createTableColumns();
         // set content and label providers and the sorter
         this.viewer.setContentProvider(new ViewContentProvider());
         this.viewer.setLabelProvider(new ViewLabelProvider());
@@ -510,7 +502,7 @@ public class CoverageView extends ViewPart
         }
     }
 
-    private void createTableColumns(List<CoverageMetric> metrics) {
+    private void createTableColumns() {
         Tree tree = this.viewer.getTree();
         tree.setRedraw(false);
         tree.setHeaderVisible(true);
@@ -520,11 +512,12 @@ public class CoverageView extends ViewPart
         column.setData(CodeCoverSorter.COMPARATOR_KEY, nameColumnSorterAndLabeler);
         column.setWidth(220);
 
-        for (CoverageMetric metric : metrics) {
+        for (int i = 0; i < this.sortedCoverageMetrics.size(); i++) {
+            CoverageMetric metric = this.sortedCoverageMetrics.get(i);
             column = new TreeColumn(tree, SWT.LEFT);
             column.setWidth(160);
             column.setData(metric);
-            IColumnSorterAndLabeler<?> metricColumnSorterAndLabeler = makeCoverageSorterAndLabeler(metric);
+            IColumnSorterAndLabeler<?> metricColumnSorterAndLabeler = makeCoverageSorterAndLabeler(metric, i);
             column.setText(metricColumnSorterAndLabeler.getColumnName());
             column.setData(CodeCoverSorter.COMPARATOR_KEY, metricColumnSorterAndLabeler);
             column.pack();
@@ -627,64 +620,57 @@ public class CoverageView extends ViewPart
         }
     }
 
-    /** Returns the {@link CoverageMetric} for a column index. */
-    private CoverageMetric getMetric(int columnIndex) {
-        Object data = this.viewer.getTree().getColumn(columnIndex).getData();
-        if (data == null || !(data instanceof CoverageMetric))
-        {
-            return null;
-        }
-
-        return (CoverageMetric) data;
-    }
-
-    /** Retrieves the coverage cache or makes a new calculation if the cache is null. */
-    private Map<Pair<CoverageMetric, HierarchyLevel>, CoverageResult> getOrCalculateCoverage() {
+    /**
+     * Retrieves the coverage cache or makes a new calculation if the cache is null and returns the
+     * {@link CoverageResult} for a {@link HierarchyLevel}.
+     */
+    @SuppressWarnings("unchecked")
+    private CoverageResult calculatedCoverage(int metricIndex, HierarchyLevel level) {
         synchronized (this.updateLock) {
-            if (this.coverageCache != null) {
-                return this.coverageCache;
-            }
+            if (this.coverageCache == null) {
+                this.coverageCache = new Map[0];
 
-            this.coverageCache = Collections.emptyMap();
+                // we create a new cache
+                if (getVisTSC() != null && !getVisTestCases().isEmpty()) {
+                    // get all metrics where are plug-ins available and that are supported
+                    // by VisTSC
+                    Set<CoverageMetric> metricForCalculation = new HashSet<CoverageMetric>();
+                    Set<Criterion> providedCriteria = getVisTSC().getCriteria();
 
-            // we create a new cache
-            if (getVisTSC() != null && !getVisTestCases().isEmpty()) {
-                // get all metrics where are plug-ins available and that are supported
-                // by VisTSC
-                List<CoverageMetric> metricForCalculation = new ArrayList<CoverageMetric>(this.sortedCoverageMetrics.size());
-                Set<Criterion> providedCriteria = getVisTSC().getCriteria();
-
-                for (CoverageMetric metric : this.sortedCoverageMetrics) {
-                    if (providedCriteria.containsAll(metric.getRequiredCriteria())) {
-                        metricForCalculation.add(metric);
-                    }
-                }
-
-                if (metricForCalculation.isEmpty()) {
-                    this.logger.debug("No Available Metrics for current TSC (ID: " //$NON-NLS-1$
-                            + this.getVisTSC().getId() + ")."); //$NON-NLS-1$
-                    this.logger.debug("Class path: " + System.getProperty("java.class.path")); //$NON-NLS-1$ //$NON-NLS-2$
-                } else {
-                    // we have to transform the metrics into coverage metrics which they are!
-                    List<CoverageMetric> coverageMetrics = new ArrayList<CoverageMetric>(metricForCalculation.size());
-                    for (Metric metric : metricForCalculation) {
-                        if (metric instanceof CoverageMetric) {
-                            coverageMetrics.add((CoverageMetric) metric);
+                    for (CoverageMetric metric : this.sortedCoverageMetrics) {
+                        if (providedCriteria.containsAll(metric.getRequiredCriteria())) {
+                            metricForCalculation.add(metric);
                         }
                     }
 
-                    this.coverageCache = AbstractCoverageMetric.calculateCoverageForAllMetrics(coverageMetrics,
-                            this.getVisTestCases(), getVisTSC().getCode());
+                    if (metricForCalculation.isEmpty()) {
+                        this.logger.debug("No Available Metrics for current TSC (ID: " //$NON-NLS-1$
+                                + this.getVisTSC().getId() + ")."); //$NON-NLS-1$
+                        this.logger.debug("Class path: " + System.getProperty("java.class.path")); //$NON-NLS-1$ //$NON-NLS-2$
+                    } else {
+                        // we calculate the coverage for each metric that is supported by the criteria
+                        this.coverageCache = new Map[this.sortedCoverageMetrics.size()];
+
+                        int index = 0;
+                        for (CoverageMetric metric : this.sortedCoverageMetrics) {
+                            if (metricForCalculation.contains(metric)) {
+                                // the metric is supported
+                                this.coverageCache[index] = AbstractCoverageMetric.calculateCoverageForAllLevels(metric,
+                                        this.getVisTestCases(), getVisTSC().getCode());
+                            }
+                            index++;
+                        }
+
+                    }
                 }
             }
 
-            return this.coverageCache;
+            // we can get the result from the cache
+            if (metricIndex < 0 || metricIndex >= this.coverageCache.length || this.coverageCache[metricIndex] == null) {
+                return null;
+            }
+            return this.coverageCache[metricIndex].get(level);
         }
-    }
-
-    /** Gets the {@link CoverageResult} from the cache */
-    private CoverageResult calculateCoverage(CoverageMetric metric, HierarchyLevel level) {
-        return getOrCalculateCoverage().get(new Pair<CoverageMetric, HierarchyLevel>(metric, level));
     }
 
     /*
@@ -885,11 +871,15 @@ public class CoverageView extends ViewPart
         }
     }
 
-    /** Creates an instance of {@link IColumnSorterAndLabeler} for the {@link #COL_NAME}. */
+    /**
+     * Creates an instance of {@link IColumnSorterAndLabeler} for the {@link #COL_NAME}.
+     *
+     * @param metricIndex The index of the metric in {@link #sortedCoverageMetrics}.
+     */
     @SuppressWarnings("unchecked")
-    private IColumnSorterAndLabeler <HierarchyLevel> makeCoverageSorterAndLabeler(CoverageMetric metric) {
+    private IColumnSorterAndLabeler <HierarchyLevel> makeCoverageSorterAndLabeler(CoverageMetric metric, int metricIndex) {
         // 1) we have an percentage sorter
-        ISorterAndLabeler<HierarchyLevel> percentageSorter = new CoverageResultSorterAndLabeler(metric) {
+        ISorterAndLabeler<HierarchyLevel> percentageSorter = new CoverageResultSorterAndLabeler(metric, metricIndex) {
             @Override
             public int compare(CoverageResult o1, CoverageResult o2) {
                 return Float.compare(evaluateCoverageResult(o1), evaluateCoverageResult(o2));
@@ -909,7 +899,7 @@ public class CoverageView extends ViewPart
         ISorterAndLabeler<HierarchyLevel> invPercentageSorter = new InverseSorterAndLabeler<HierarchyLevel>(percentageSorter);
 
         // 3) we have an absolute sorter
-        ISorterAndLabeler<HierarchyLevel> absoluteSorter = new CoverageResultSorterAndLabeler(metric) {
+        ISorterAndLabeler<HierarchyLevel> absoluteSorter = new CoverageResultSorterAndLabeler(metric, metricIndex) {
             @Override
             public int compare(CoverageResult o1, CoverageResult o2) {
                 return IntComparator.compare(o1.getCoveredItems(), o2.getCoveredItems());
@@ -931,7 +921,7 @@ public class CoverageView extends ViewPart
         ISorterAndLabeler<HierarchyLevel> invAbsoluteSorter = new InverseSorterAndLabeler<HierarchyLevel>(absoluteSorter);
 
         // 5) we have an absolute remaining items sorter
-        ISorterAndLabeler<HierarchyLevel> remainingSorter = new CoverageResultSorterAndLabeler(metric) {
+        ISorterAndLabeler<HierarchyLevel> remainingSorter = new CoverageResultSorterAndLabeler(metric, metricIndex) {
             @Override
             public int compare(CoverageResult o1, CoverageResult o2) {
                 return IntComparator.compare(o1.getTotalItems() - o1.getCoveredItems(), o2.getTotalItems() - o2.getCoveredItems());
@@ -959,9 +949,14 @@ public class CoverageView extends ViewPart
     private abstract class CoverageResultSorterAndLabeler implements ISorterAndLabeler<HierarchyLevel> {
 
         private final CoverageMetric metric;
+        private final int metricIndex;
 
-        public CoverageResultSorterAndLabeler(CoverageMetric metric) {
+        /**
+         * @param metricIndex The index of the metric in {@link #sortedCoverageMetrics}.
+         */
+        public CoverageResultSorterAndLabeler(CoverageMetric metric, int metricIndex) {
             this.metric = metric;
+            this.metricIndex = metricIndex;
         }
 
         public int compare(HierarchyLevel hLev1, HierarchyLevel hLev2) {
@@ -1019,7 +1014,7 @@ public class CoverageView extends ViewPart
 
         private CoverageResult calculateResult(HierarchyLevel hLev)
         {
-            return calculateCoverage(this.metric, hLev);
+            return calculatedCoverage(this.metricIndex, hLev);
         }
     }
 
@@ -1409,9 +1404,7 @@ public class CoverageView extends ViewPart
         final CovFilterCompareOperator initialCompOp = CovFilterCompareOperator.SMALLEREQUAL;
         final float initialCompareWith = 0.905f;
 
-        this.viewerCovFilter
-                = new ViewerCoverageFilter(initialMetricIndex, initialCompOp,
-                        initialCompareWith);
+        this.viewerCovFilter = new ViewerCoverageFilter(initialMetricIndex, initialCompOp, initialCompareWith);
 
         this.bttCovFilterToggle = new Button(parent, SWT.CHECK);
         this.bttCovFilterToggle.setText(Messages.getString("CoverageView.0")); //$NON-NLS-1$
@@ -1709,16 +1702,13 @@ public class CoverageView extends ViewPart
          *          set, and <code>false</code> if excluded
          */
         private boolean filterByCoverageResult(HierarchyLevel hLev) {
-            final CoverageMetric metric = getMetric(this.metricIndex + 1);
-            final CoverageResult result = CoverageView.this.calculateCoverage(metric, hLev);
+            final CoverageResult result = CoverageView.this.calculatedCoverage(this.metricIndex, hLev);
 
             float coverage;
             if(result == null) {
                 return true;
             }
-            coverage = ((float) Math.round(CoverageView
-                    .evaluateCoverageResult(result)
-                    * this.precision))
+            coverage = ((float) Math.round(CoverageView.evaluateCoverageResult(result) * this.precision))
                     / ((float) this.precision);
 
             if(       (this.compareOp == CovFilterCompareOperator.EQUAL
@@ -1770,149 +1760,6 @@ public class CoverageView extends ViewPart
             }
         }
 
-    }
-
-    /*
-     * methods and class for name filtering
-     *
-     * Since the implementation of name filtering runs much too slow, it was
-     * commented out in method createPartControl. It wasn't deleted since an
-     * enhanced version (e.g., by using caching) could be used in future
-     * releases.
-     */
-
-    private void createNameFilterControls(Composite parent) {
-        this.viewerNameFilter = new ViewerNameFilter();
-
-        this.bttNameFilterToggle = new Button(parent, SWT.CHECK);
-        this.bttNameFilterToggle.setText(NAME_FILTER_LABEL);
-        this.bttNameFilterToggle.setSelection(false);
-        this.bttNameFilterToggle.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                if(CoverageView.this.bttNameFilterToggle.getSelection()) {
-                    CoverageView.this.viewer.addFilter(
-                            CoverageView.this.viewerNameFilter);
-                } else {
-                    CoverageView.this.viewer.removeFilter(
-                            CoverageView.this.viewerNameFilter);
-                }
-            }
-        });
-
-        this.txtNameFilter = new Text(parent, SWT.SINGLE | SWT.BORDER);
-        this.txtNameFilter.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent event) {
-                CoverageView.this.viewerNameFilter.setPrefix(
-                        CoverageView.this.txtNameFilter.getText());
-                List<ViewerFilter> filters = Arrays.asList(
-                        CoverageView.this.viewer.getFilters());
-                if(filters.contains(CoverageView.this.viewerNameFilter)) {
-                    CoverageView.this.viewer.refresh();
-                    CoverageView.this.viewer.expandAll();
-                }
-            }
-        });
-
-    }
-
-    private void layoutNameFilterControls() {
-        FormData formData = new FormData();
-        formData.top = new FormAttachment(this.cmbCovFilterMetric, 0, SWT.CENTER);
-        formData.right = new FormAttachment(this.viewer.getControl(), 0,
-                SWT.RIGHT);
-        this.txtNameFilter.setLayoutData(formData);
-
-        formData = new FormData();
-        formData.top = new FormAttachment(this.cmbCovFilterMetric, 0, SWT.CENTER);
-        formData.right = new FormAttachment(this.txtNameFilter, -5, SWT.LEFT);
-        this.bttNameFilterToggle.setLayoutData(formData);
-    }
-
-    private class ViewerNameFilter extends ViewerFilter {
-
-        /**
-         * The (name-)prefix to search for.
-         */
-        private String prefix = ""; //$NON-NLS-1$
-
-        /**
-         * Sets the prefix.
-         *
-         * @param prefix
-         *            the given prefix.
-         */
-        public void setPrefix(String prefix) {
-            if(prefix == null) {
-                throw new NullPointerException("prefix mustn't be null"); //$NON-NLS-1$
-            }
-            this.prefix = prefix;
-        }
-
-        @Override
-        public boolean select(Viewer viewer, Object parentElement,
-                Object element) {
-            if(element instanceof HierarchyLevel) {
-                return this.containsChild((HierarchyLevel)element);
-            } else {
-                return false;
-            }
-        }
-
-        /**
-         * Checks if the beginning of the name of the given
-         * <code>HierarchyLevel</code> or of one of its children matches the
-         * prefix this filter filters for.
-         *
-         * @param parent    the <code>HierarchyLevel</code> to check
-         *
-         * @return  <code>true</code> if the beginning of the name of the given
-         *          <code>HierarchyLevel</code> or of one of its children
-         *          matches the prefix this filter filters for.
-         */
-        private boolean containsChild(HierarchyLevel parent) {
-            ContainsChildVisitor visitor;
-            if(parent.getName().startsWith(this.prefix)) {
-                return true;
-            } else {
-                visitor = new ContainsChildVisitor(this.prefix);
-                parent.accept(visitor, null, null, null, null, null, null,null);
-                return visitor.containsChild();
-            }
-        }
-
-        private class ContainsChildVisitor implements HierarchyLevel.Visitor {
-            private final String prefix;
-            private boolean containsChild;
-            /**
-             * Constructor
-             *
-             * @param prefix
-             *            the prefix, with which the {@link HierarchyLevel} must
-             *            begin.
-             */
-            public ContainsChildVisitor(String prefix) {
-                this.prefix = prefix;
-                this.containsChild = false;
-            }
-            /**
-             * Indicates if a {@link HierarchyLevel} began with the given
-             * prefix.
-             *
-             * @return true &rarr; a {@link HierarchyLevel} began with the given
-             *         prefix <br>
-             *         false &rarr; no {@link HierarchyLevel} began with the
-             *         given prefix
-             */
-            public boolean containsChild() {
-                return this.containsChild;
-            }
-            public void visit(HierarchyLevel hierarchyLevel) {
-                if(hierarchyLevel.getName().startsWith(this.prefix)) {
-                    this.containsChild = true;
-                }
-            }
-        }
     }
 
     /*
