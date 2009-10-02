@@ -11,14 +11,16 @@
 
 package org.codecover.model;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
+import java.util.Map.Entry;
 
+import org.codecover.model.exceptions.MergeException;
 import org.codecover.model.exceptions.NameAlreadyUsedException;
 import org.codecover.model.mast.BooleanAssignment;
 import org.codecover.model.mast.BooleanAssignmentMap;
@@ -29,6 +31,7 @@ import org.codecover.model.mast.RootTerm;
 import org.codecover.model.utils.ChangeType;
 import org.codecover.model.utils.CollectionUtil;
 import org.codecover.model.utils.IntComparator;
+import org.codecover.model.utils.Pair;
 
 /**
  * TestCase represents a test case. It contains a name, a comment, the date when
@@ -53,7 +56,7 @@ public class TestCase extends AbstractMetaDataProvider {
 
     private final Map<CoverableItem, Long> coverageData;
 
-    private final Map<String, Map<Long, Object>> objectMetaData = new TreeMap<String, Map<Long, Object>>();
+    private final Map<String, Map<Long, Object>> objectMetaData = new HashMap<String, Map<Long, Object>>();
 
     private final Map<CoverableItem, BooleanAssignmentMap> assignments;
 
@@ -241,7 +244,7 @@ public class TestCase extends AbstractMetaDataProvider {
         synchronized (this.objectMetaData) {
             Map<Long, Object> map = this.objectMetaData.get(name);
             if (map == null) {
-                map = new TreeMap<Long, Object>();
+                map = new HashMap<Long, Object>();
                 this.objectMetaData.put(name, map);
             }
             map.put(id, value);
@@ -660,6 +663,85 @@ public class TestCase extends AbstractMetaDataProvider {
         //assertNotDeleted();
 
         return this.assignments;
+    }
+
+    /**
+     * Merges the coverage of a number of {@link TestCase}s into a single temporary test case that
+     * is not persisted in this model.
+     * <p>
+     * The temporary test case can be used to represent the coverage of a collection of test cases and
+     * intended to be thrown away afterwards.
+     *
+     * @param testCases
+     *            the given collection of test cases to be merged. This collection may not be empty.
+     * @return the merged test case
+     * @throws MergeException
+     */
+    public static TestCase mergeCoverageToTemporaryTestCase(Collection<TestCase> testCases) throws MergeException {
+        Pair<Map<CoverableItem, Long>, Map<CoverableItem, BooleanAssignmentMap>> mergedCoverage =
+            TestCase.mergeTestCasesCoverage(testCases);
+
+        return new TestCase(testCases.iterator().next().testSession, new Date(), mergedCoverage.first,
+                mergedCoverage.second, "Temporary Test Case", "Temporary test case only!");
+    }
+
+    /**
+     * Merges the coverage of a number of {@link TestCase}s into a single coverage.
+     * <p>
+     *
+     * @param testCases
+     *            the given collection of test cases to be merged. This collection may not be empty.
+     * @return the merged coverage
+     * @throws MergeException
+     */
+    public static Pair<Map<CoverableItem, Long>, Map<CoverableItem, BooleanAssignmentMap>>
+            mergeTestCasesCoverage(Collection<TestCase> testCases) throws MergeException {
+        if (testCases == null) {
+            throw new NullPointerException("testCases == null");
+        }
+
+        if (testCases.isEmpty()) {
+            throw new IllegalArgumentException("testCases.isEmpty()");
+        }
+
+        Map<CoverableItem, Long> coverageData = new HashMap<CoverableItem, Long>();
+        Map<CoverableItem, BooleanAssignmentMap> assignments = new HashMap<CoverableItem, BooleanAssignmentMap>();
+
+        for (TestCase testCase : testCases) {
+            // Unify the coverage data of the given test cases
+            for (Entry<CoverableItem, Long> entry : testCase.getCoverageData().entrySet()) {
+                final Long existingValue = coverageData.get(entry.getKey());
+                // Check if the key points already to a number of executions, if
+                // so add the new number to old one and then put the value in
+                // the map.
+
+                if (existingValue == null) {
+                    coverageData.put(entry.getKey(), entry.getValue());
+                } else {
+                    // There was already something mapped, so the already
+                    // existing and the current value must be unified.
+                    coverageData.put(entry.getKey(), existingValue + entry.getValue());
+                }
+            }
+
+            // Unify the assignment data of the given test cases
+            for (Entry<CoverableItem, BooleanAssignmentMap> entry : testCase.getAssignmentsMap().entrySet()) {
+                final BooleanAssignmentMap existingValue = assignments.get(entry.getKey());
+                // If no value was saved under the current key, just put the new
+                // value in.
+                if (existingValue == null) {
+                    assignments.put(entry.getKey(), entry.getValue());
+                } else {
+                    // There was already something mapped, so the already
+                    // existing and the current value must be unified.
+                    assignments.put(entry.getKey(), BooleanAssignmentMap.merge(
+                            existingValue, entry.getValue()));
+                }
+            }
+        }
+
+        return new Pair<Map<CoverableItem,Long>, Map<CoverableItem,BooleanAssignmentMap>>(
+                coverageData, assignments);
     }
 
     /** A comparator that sorts test cases after decreasing coverable item count. */

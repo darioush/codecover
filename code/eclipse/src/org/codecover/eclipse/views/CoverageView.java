@@ -49,6 +49,7 @@ import org.codecover.metrics.coverage.CoverageResult;
 import org.codecover.model.TestCase;
 import org.codecover.model.TestSession;
 import org.codecover.model.TestSessionContainer;
+import org.codecover.model.exceptions.MergeException;
 import org.codecover.model.mast.HierarchyLevel;
 import org.codecover.model.utils.ChangeType;
 import org.codecover.model.utils.IntComparator;
@@ -630,12 +631,15 @@ public class CoverageView extends ViewPart
             if (this.coverageCache == null) {
                 this.coverageCache = new Map[0];
 
+                TestSessionContainer tsc = getVisTSC();
+                Set<TestCase> testCases = getVisTestCases();
+
                 // we create a new cache
-                if (getVisTSC() != null && !getVisTestCases().isEmpty()) {
+                if (tsc != null && !testCases.isEmpty()) {
                     // get all metrics where are plug-ins available and that are supported
                     // by VisTSC
                     Set<CoverageMetric> metricForCalculation = new HashSet<CoverageMetric>();
-                    Set<Criterion> providedCriteria = getVisTSC().getCriteria();
+                    Set<Criterion> providedCriteria = tsc.getCriteria();
 
                     for (CoverageMetric metric : this.sortedCoverageMetrics) {
                         if (providedCriteria.containsAll(metric.getRequiredCriteria())) {
@@ -645,32 +649,47 @@ public class CoverageView extends ViewPart
 
                     if (metricForCalculation.isEmpty()) {
                         this.logger.debug("No Available Metrics for current TSC (ID: " //$NON-NLS-1$
-                                + this.getVisTSC().getId() + ")."); //$NON-NLS-1$
+                                + tsc.getId() + ")."); //$NON-NLS-1$
                         this.logger.debug("Class path: " + System.getProperty("java.class.path")); //$NON-NLS-1$ //$NON-NLS-2$
                     } else {
+                        // we try to merge the coverage into a single test case to allow more performant
+                        // calculation within the coverage metric calculation
+                        Set<TestCase> testCasesToUse = testCases;
+                        try {
+                            TestCase mergedCoverageTestCase = TestCase.mergeCoverageToTemporaryTestCase(testCases);
+                            testCasesToUse = Collections.singleton(mergedCoverageTestCase);
+                        } catch (MergeException e) {
+                            // ignore
+                        }
+
                         // we calculate the coverage for each metric that is supported by the criteria
                         this.coverageCache = new Map[this.sortedCoverageMetrics.size()];
 
+                        long tsBefore = System.currentTimeMillis();
                         int index = 0;
+                        long totalCoverableItems = 0;
                         for (CoverageMetric metric : this.sortedCoverageMetrics) {
                             if (metricForCalculation.contains(metric)) {
                                 // the metric is supported
                                 this.coverageCache[index] = AbstractCoverageMetric.calculateCoverageForAllLevels(metric,
-                                        this.getVisTestCases(), getVisTSC().getCode());
+                                        testCasesToUse, tsc.getCode());
+                                totalCoverableItems += this.coverageCache[index].get(tsc.getCode()).getTotalItems();
                             }
                             index++;
                         }
-
+                        long duration = System.currentTimeMillis() - tsBefore;
+                        this.logger.info("Calculated coverage for " + index + " metrics, " + testCases.size() //$NON-NLS-1$ //$NON-NLS-2$
+                                + " test cases and " + totalCoverableItems + " coverable items in " + duration + " ms"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     }
                 }
             }
-
-            // we can get the result from the cache
-            if (metricIndex < 0 || metricIndex >= this.coverageCache.length || this.coverageCache[metricIndex] == null) {
-                return null;
-            }
-            return this.coverageCache[metricIndex].get(level);
         }
+
+        // we can get the result from the cache
+        if (metricIndex < 0 || metricIndex >= this.coverageCache.length || this.coverageCache[metricIndex] == null) {
+            return null;
+        }
+        return this.coverageCache[metricIndex].get(level);
     }
 
     /*

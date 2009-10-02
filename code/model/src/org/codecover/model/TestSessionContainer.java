@@ -11,17 +11,49 @@
 
 package org.codecover.model;
 
-import java.io.*;
-import java.util.*;
-import java.util.Map.Entry;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.Vector;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.codecover.model.exceptions.*;
-import org.codecover.model.extensions.*;
-import org.codecover.model.mast.*;
-import org.codecover.model.utils.*;
+import org.codecover.model.exceptions.FileLoadException;
+import org.codecover.model.exceptions.FileLoadIOException;
+import org.codecover.model.exceptions.FileLoadParseException;
+import org.codecover.model.exceptions.FileSaveException;
+import org.codecover.model.exceptions.FileSaveIOException;
+import org.codecover.model.exceptions.MergeException;
+import org.codecover.model.extensions.PluginManager;
+import org.codecover.model.mast.BasicStatement;
+import org.codecover.model.mast.BooleanAssignmentMap;
+import org.codecover.model.mast.Branch;
+import org.codecover.model.mast.ConditionalStatement;
+import org.codecover.model.mast.CoverableItem;
+import org.codecover.model.mast.HierarchyLevel;
+import org.codecover.model.mast.LoopingStatement;
+import org.codecover.model.mast.RootTerm;
+import org.codecover.model.mast.SourceFile;
+import org.codecover.model.mast.Statement;
+import org.codecover.model.utils.ChangeEvent;
+import org.codecover.model.utils.ChangeListener;
+import org.codecover.model.utils.ChangeType;
+import org.codecover.model.utils.CollectionUtil;
+import org.codecover.model.utils.ListenerHandle;
+import org.codecover.model.utils.Logger;
+import org.codecover.model.utils.NameReoccurenceHelper;
+import org.codecover.model.utils.Pair;
 import org.codecover.model.utils.criteria.Criterion;
 import org.xml.sax.SAXException;
 
@@ -30,7 +62,7 @@ import org.xml.sax.SAXException;
  * original sourcefiles, the criteria, with which the original sourcefiles were
  * instrumented and the {@link TestSession}s and {@link TestCase}s, which
  * contain the measured coverage during a run of the instrumented system.
- * 
+ *
  * @author Markus Wittlinger
  * @version 1.0 ($Id$)
  */
@@ -69,7 +101,7 @@ public class TestSessionContainer {
 
     /**
      * Constructor
-     * 
+     *
      * @param code
      *            the top hierarchy level of the code
      * @param files
@@ -110,7 +142,7 @@ public class TestSessionContainer {
         this.criteria = CollectionUtil.copy(criteria);
         this.files = CollectionUtil.copy(files);
 
-        final Map<CoverableItem, RootTerm> terms = new TreeMap<CoverableItem, RootTerm>();
+        final Map<CoverableItem, RootTerm> terms = new HashMap<CoverableItem, RootTerm>();
         if (code != null) {
             code.accept(null, null, null, null, new RootTerm.DefaultVisitor() {
                 @Override
@@ -160,7 +192,7 @@ public class TestSessionContainer {
     /**
      * Loads a file with the given name and creates a
      * {@link TestSessionContainer} with the data it contains
-     * 
+     *
      * @param logger
      *            the logger to be used
      * @param builder
@@ -183,7 +215,7 @@ public class TestSessionContainer {
     /**
      * Loads a given file and creates a {@link TestSessionContainer} with the
      * data it contains
-     * 
+     *
      * @param logger
      *            the logger to be used
      * @param builder
@@ -272,7 +304,7 @@ public class TestSessionContainer {
      * <p>
      * This method is intended to be used for scenarios in which the mast is not
      * required.
-     * 
+     *
      * @param logger
      *            the logger to be used
      * @param builder
@@ -314,7 +346,7 @@ public class TestSessionContainer {
      * <p>
      * This method is intended to be used for scenarios in which the mast is not
      * required.
-     * 
+     *
      * @param logger
      *            the logger to be used
      * @param builder
@@ -363,7 +395,7 @@ public class TestSessionContainer {
      * Note: Will throw a NullPointerException, if the
      * {@link TestSessionContainer} was not saved before, or was loaded using a
      * {@link InputStream}.
-     * 
+     *
      * @throws FileSaveException
      */
     public void save() throws FileSaveException {
@@ -383,7 +415,7 @@ public class TestSessionContainer {
     /**
      * Saves this {@link TestSessionContainer} to the location specified by the
      * filename
-     * 
+     *
      * @param filename
      *            the name of the target file
      * @throws FileSaveException
@@ -394,7 +426,7 @@ public class TestSessionContainer {
 
     /**
      * Saves this {@link TestSessionContainer} to the specified file
-     * 
+     *
      * @param file
      *            the target file
      * @throws FileSaveException
@@ -476,7 +508,7 @@ public class TestSessionContainer {
 
     /**
      * Adds a ChangeListener for this {@link TestSessionContainer}.
-     * 
+     *
      * @param listener
      *            the given listener
      * @return an instance of a ListenerHandle, which removes the listener from
@@ -490,7 +522,7 @@ public class TestSessionContainer {
     /**
      * Adds a ChangeListener for the test sessions in this
      * {@link TestSessionContainer}.
-     * 
+     *
      * @param listener
      *            the given listener
      * @return an instance of a ListenerHandle, which removes the listener from
@@ -504,7 +536,7 @@ public class TestSessionContainer {
     /**
      * Adds a ChangeListener for the test cases in this
      * {@link TestSessionContainer}.
-     * 
+     *
      * @param listener
      *            the given listener
      * @return an instance of a ListenerHandle, which removes the listener from
@@ -516,7 +548,7 @@ public class TestSessionContainer {
 
     /**
      * Creates a testsession and adds it to this {@link TestSessionContainer}.
-     * 
+     *
      * @param name
      *            the name of the test session
      * @param comment
@@ -568,7 +600,7 @@ public class TestSessionContainer {
 
     /**
      * Gets the {@link Logger} associated with this {@link TestSessionContainer}
-     * 
+     *
      * @return the {@link Logger}
      */
 
@@ -578,7 +610,7 @@ public class TestSessionContainer {
 
     /**
      * Gets the id of the {@link TestSessionContainer}
-     * 
+     *
      * @return the id of the {@link TestSessionContainer}
      */
     public String getId() {
@@ -609,7 +641,7 @@ public class TestSessionContainer {
     /**
      * Gets an unmodifiable list of all the {@link TestSession}s associated
      * with this {@link TestSessionContainer}
-     * 
+     *
      * @return the list of {@link TestSession}s
      */
     public List<TestSession> getTestSessions() {
@@ -620,7 +652,7 @@ public class TestSessionContainer {
 
     /**
      * Gets the {@link TestSession} with the given name.
-     * 
+     *
      * @param name
      *            the name of the {@link TestSession}
      * @return the {@link TestSession} or <code>null</code>, if no such
@@ -649,7 +681,7 @@ public class TestSessionContainer {
     /**
      * Gets a list of the names of all {@link TestSession}s in this
      * {@link TestSessionContainer}
-     * 
+     *
      * @return the list of {@link TestSession} names
      */
     public List<String> getTestSessionNames() {
@@ -667,7 +699,7 @@ public class TestSessionContainer {
     /**
      * Gets whether or not this {@link TestSessionContainer} contains a
      * {@link TestSession} with the given name
-     * 
+     *
      * @param name
      *            the name of the {@link TestSession}
      * @return <code>true</code>, if the {@link TestSessionContainer}
@@ -683,37 +715,26 @@ public class TestSessionContainer {
     }
 
     /**
-     * Merges a list of {@link TestCase}s into one single {@link TestCase} with
-     * a given new name and new comment. All coverage data and assignment data
-     * the test cases contained is combined. The original {@link TestCase}s
-     * remain untouched.
+     * Merges a collection of {@link TestCase}s into one single {@link TestCase} with a given new name and new
+     * comment. All coverage data and assignment data the test cases contained is combined. The original
+     * {@link TestCase}s remain untouched.
      * <p>
-     * All the test cases must have the same test session. The resulting test
-     * case will be in this test session.
+     * All the test cases must have the same test session. The resulting test case will be in this test
+     * session.
      * <p>
-     * No metadata will carried over into the new test case.
-     * 
+     * No meta data will carried over into the new test case.
+     *
      * @param testCases
-     *            the given list of test cases to be merged. This list may not
-     *            be emtpy.
+     *            the given collection of test cases to be merged. This collection may not be empty.
      * @param newName
      *            the name of the merged test case
      * @param newComment
      *            the comment of the merged test case
-     * @return the merged {@link TestCase} or null, if the list of
-     *         {@link TestCase}s was empty
+     * @return the merged {@link TestCase}
      * @throws MergeException
      */
-    public TestCase mergeTestCases(List<TestCase> testCases, String newName,
-            String newComment) throws MergeException {
-        if (testCases == null) {
-            throw new NullPointerException("testCases == null");
-        }
-
-        if (testCases.size() == 0) {
-            throw new IllegalArgumentException("testCases.size() == 0");
-        }
-
+    public TestCase mergeTestCases(Collection<TestCase> testCases, String newName, String newComment)
+            throws MergeException {
         if (newName == null) {
             throw new NullPointerException("newName == null");
         }
@@ -723,58 +744,20 @@ public class TestSessionContainer {
         }
 
         // Check, if all the test cases share the same test session.
-        for (int i = 0; i < testCases.size() - 1; i++) {
-            if (!testCases.get(i).getTestSession().equals(
-                    testCases.get(i + 1).getTestSession())) {
-                throw new MergeException("testsessions do not match");
-            }
-        }
-
-        TestSession testSession = testCases.get(0).getTestSession();
-
-        Map<CoverableItem, Long> coverageData = new TreeMap<CoverableItem, Long>();
-        Map<CoverableItem, BooleanAssignmentMap> assignments = new TreeMap<CoverableItem, BooleanAssignmentMap>();
-
+        TestSession testSessionOfFirst = testCases.iterator().next().getTestSession();
         for (TestCase testCase : testCases) {
-            // Unify the coverage data of the given test cases
-            for (Entry<CoverableItem, Long> entry : testCase.getCoverageData()
-                    .entrySet()) {
-                final Long existingValue = coverageData.get(entry.getKey());
-                // Check if the key points already to a number of executions, if
-                // so add the new number to old one and then put the value in
-                // the map.
-
-                if (existingValue == null) {
-                    coverageData.put(entry.getKey(), entry.getValue());
-                } else {
-                    // There was already something mapped, so the already
-                    // exisiting and the current value must be unified.
-                    coverageData.put(entry.getKey(), existingValue
-                            + entry.getValue());
-                }
-            }
-
-            // Unify the assignment data of the given test cases
-            for (Entry<CoverableItem, BooleanAssignmentMap> entry : testCase
-                    .getAssignmentsMap().entrySet()) {
-                final BooleanAssignmentMap existingValue = assignments
-                        .get(entry.getKey());
-                // If no value was saved under the current key, just put the new
-                // value in.
-                if (existingValue == null) {
-                    assignments.put(entry.getKey(), entry.getValue());
-                } else {
-                    // There was already something mapped, so the already
-                    // exisiting and the current value must be unified.
-                    assignments.put(entry.getKey(), BooleanAssignmentMap.merge(
-                            existingValue, entry.getValue()));
-                }
+            if (!testCase.getTestSession().equals(testSessionOfFirst)) {
+                throw new MergeException("test sessions do not match: " + testCase.getTestSession() + " vs. "
+                        + testSessionOfFirst);
             }
         }
+
+        Pair<Map<CoverableItem, Long>, Map<CoverableItem, BooleanAssignmentMap>> mergedCoverage =
+            TestCase.mergeTestCasesCoverage(testCases);
 
         // Create the test case with the merged data and the current date.
-        TestCase newTestCase = testSession.createTestCase(newName, newComment,
-                new Date(), coverageData, assignments);
+        TestCase newTestCase = testSessionOfFirst.createTestCase(newName, newComment,
+                new Date(), mergedCoverage.first, mergedCoverage.second);
 
         return newTestCase;
     }
@@ -799,7 +782,7 @@ public class TestSessionContainer {
      * i.e. calling
      * {@link TestSession#getTestSessionContainer() getTestSessionContainer()}
      * will return the TestSessionContainer you call this method on.
-     * 
+     *
      * @param testSessions
      *            the given list of {@link TestSession}s to be merged. This
      *            list may not be emtpy.
@@ -894,7 +877,7 @@ public class TestSessionContainer {
     /**
      * Adds the name of the test session to the name of the given test case and
      * returns it. The test case is not modified.
-     * 
+     *
      * @param testCase
      *            the given testcase.
      * @return the replacement name in the form of
@@ -909,7 +892,7 @@ public class TestSessionContainer {
     /**
      * Removes the given test session from this {@link TestSessionContainer}
      * This method should only be called by the {\link TestSession} class.
-     * 
+     *
      * @param testSession
      *            the to be removed test session
      * @return true, if this {@link TestSessionContainer} contained the test
@@ -925,7 +908,7 @@ public class TestSessionContainer {
 
     /**
      * Compares the ids of the testSessionContainer
-     * 
+     *
      * @param testSessionContainer
      *            the {@link TestSessionContainer} to be compared
      * @return <code>true</code>, if the ids of the
@@ -943,7 +926,7 @@ public class TestSessionContainer {
     /**
      * Gets the parent of the given {@link HierarchyLevel} <br>
      * FIXME: What should be returned, when the topLevel is given?
-     * 
+     *
      * @param hierarchyLevel
      *            the {@link HierarchyLevel}, whose parent is desired
      * @return the parent of the {@link HierarchyLevel}

@@ -230,9 +230,8 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
      */
     public CodeCoverPlugin() {
         plugin = this;
-        this.loglevel = LogLevel.WARNING;
-        this.logger = new EclipseLogger(this.getLog(), this.getLogLevel(),
-                PLUGIN_ID);
+        this.loglevel = LogLevel.INFO;
+        this.logger = new EclipseLogger(this.getLog(), this.getLogLevel(), PLUGIN_ID);
         this.initTSCManagerLock = new Object();
         this.creatingTSCManager = false;
         this.doneCreatingTSCManager = false;
@@ -244,18 +243,18 @@ public class CodeCoverPlugin extends AbstractUIPlugin {
      * This still has race conditon(s):
      * - This might deadlock if Eclipse messes things up.
      * - When plugin is != null we don't know it is initialized.
-     * - Even if the constructor was executed we don't know out thread will
+     * - Even if the constructor was executed we don't know our thread will
      *   see the changes.
      * It is also bad for other reasons:
      * - It causes a delay of about 50 ms
      * - It is (more or less) busy waiting, causing unnecessary load.
     /**
-     * Returns the shared instance of the plugin.
+     * Returns the shared instance of the plug-in.
      *
-     * @return the shared instance of the plugin
+     * @return the shared instance of the plug-in
      */
     public static CodeCoverPlugin getDefault() {
-        // block until plugin has been initialized
+        // block until plug-in has been initialized
         while (plugin == null) {
             try {
                 Thread.sleep(100);

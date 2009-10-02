@@ -11,18 +11,24 @@
 
 package org.codecover.model;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 import org.codecover.model.exceptions.NameAlreadyUsedException;
-import org.codecover.model.mast.*;
-import org.codecover.model.utils.*;
+import org.codecover.model.mast.BooleanAssignmentMap;
+import org.codecover.model.mast.CoverableItem;
+import org.codecover.model.utils.ChangeType;
+import org.codecover.model.utils.CollectionUtil;
+import org.codecover.model.utils.NameReoccurenceHelper;
 
 /**
  * TestSession represents a test session. It contains a name, a comment, the
  * date when the test session was created and the TestCases belonging to this
  * TestSession. The method delete() can be used to delete the TestSession. The
  * method createTestCase(...) can be used to create a new TestCase.
- * 
+ *
  * @author Markus Wittlinger
  * @version 1.0 ($Id$)
  */
@@ -106,7 +112,7 @@ public class TestSession extends AbstractMetaDataProvider {
 
     /**
      * Constructor
-     * 
+     *
      * @param testSessionContainer
      *            the {@link TestSessionContainer} containing this instance
      * @param date
@@ -118,7 +124,7 @@ public class TestSession extends AbstractMetaDataProvider {
 
     /**
      * Constructor
-     * 
+     *
      * @param testSessionContainer
      *            the {@link TestSessionContainer} containing this instance
      * @param date
@@ -142,7 +148,7 @@ public class TestSession extends AbstractMetaDataProvider {
         if (date == null) {
             throw new NullPointerException("date == null");
         }
-        
+
         this.testSessionContainer = testSessionContainer;
         this.date = (Date) date.clone();
         this.name = name;
@@ -152,7 +158,7 @@ public class TestSession extends AbstractMetaDataProvider {
     /**
      * Gets an unmodifiable list of all the {@link TestCase}s associated with
      * this {@link TestSession}
-     * 
+     *
      * @return the list of {@link TestCase}s
      */
     public List<TestCase> getTestCases() {
@@ -165,7 +171,7 @@ public class TestSession extends AbstractMetaDataProvider {
 
     /**
      * Gets the {@link TestCase} with the given name.
-     * 
+     *
      * @param name
      *            the name of the {@link TestCase}
      * @return the {@link TestCase} or <code>null</code>, if no such
@@ -193,7 +199,7 @@ public class TestSession extends AbstractMetaDataProvider {
     /**
      * Gets a list of the names of all {@link TestCase}s in this
      * {@link TestSession}
-     * 
+     *
      * @return the list of {@link TestCase} names
      */
     public List<String> getTestCaseNames() {
@@ -215,7 +221,7 @@ public class TestSession extends AbstractMetaDataProvider {
     /**
      * Gets whether or not this {@link TestSession} contains a {@link TestCase}
      * with the given name
-     * 
+     *
      * @param name
      *            the name of the {@link TestCase}
      * @return <code>true</code>, if the {@link TestSession} contains a
@@ -228,7 +234,7 @@ public class TestSession extends AbstractMetaDataProvider {
     /**
      * Copys the given {@link TestCase} into this {@link TestSession}, if is
      * not already present.
-     * 
+     *
      * @param testCase
      *            the given {@link TestCase}
      * @see TestSession#copyTestCaseIntoTestSession(TestCase, String)
@@ -247,7 +253,7 @@ public class TestSession extends AbstractMetaDataProvider {
      * Copys the given {@link TestCase} into this {@link TestSession}, if is
      * not already present. The {@link TestCase} will receive the given new
      * name.
-     * 
+     *
      * @param testCase
      *            the given {@link TestCase}
      * @param newTestCaseName
@@ -268,7 +274,7 @@ public class TestSession extends AbstractMetaDataProvider {
 
     /**
      * Creates a test case and adds it to this test session.
-     * 
+     *
      * @param name
      *            the name of the test case
      * @param comment
@@ -403,7 +409,7 @@ public class TestSession extends AbstractMetaDataProvider {
 
     /**
      * Gets the {@link TestSessionContainer}
-     * 
+     *
      * @return the {@link TestSessionContainer}
      */
     public TestSessionContainer getTestSessionContainer() {
@@ -415,7 +421,7 @@ public class TestSession extends AbstractMetaDataProvider {
     /**
      * Removes the given test case from this test session This method should
      * only be called by the {\link TestCase} class.
-     * 
+     *
      * @param testCase
      *            the to be removed test case
      * @return true, if this test session contained the test case
