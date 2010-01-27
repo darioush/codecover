@@ -373,7 +373,7 @@ public class HierarchicalHTMLReportGenerator implements ReportGenerator {
                         nphlt.incNumber();
                     }
                 }
-            }, null, null, null, null, null, null, null);
+            }, null, null, null, null, null, null, null, null);
         
         //parse the template DOM
         extractVelocityTemplates(templateNode);

@@ -34,9 +34,12 @@ import org.codecover.model.mast.HierarchyLevel;
 import org.codecover.model.mast.Location;
 import org.codecover.model.mast.LoopingStatement;
 import org.codecover.model.mast.OperatorTerm;
+import org.codecover.model.mast.QuestionMarkOperator;
+import org.codecover.model.mast.QuestionMarkOperatorExpression;
 import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.SourceFile;
 import org.codecover.model.mast.StatementSequence;
+import org.codecover.model.mast.SynchronizedStatement;
 import org.codecover.model.utils.Logger;
 import org.codecover.report.highlighting.annotation.AnchorAnnotation;
 import org.codecover.report.highlighting.annotation.CoverageAnnotation;
@@ -529,6 +532,25 @@ public class CodeHighlighting {
                     public void visit(OperatorTerm term, RootTerm rootTerm, CoverageResult result, Set<Hint> hints) {
                         process(term.getLocation().getLocations(), result, hints);
                     }
+
+					public void visit(QuestionMarkOperator qmo,
+							CoverageResult result, Set<Hint> hints) {
+                        process(qmo.getLocation().getLocations(), result, hints);
+						
+					}
+
+					public void visit(QuestionMarkOperatorExpression qmoe,
+							CoverageResult result, Set<Hint> hints) {
+                        process(qmoe.getLocation().getLocations(), result, hints);
+						
+					}
+
+					public void visit(
+							SynchronizedStatement synchronizedStatement,
+							CoverageResult result, Set<Hint> hints) {
+                        process(synchronizedStatement.getLocation().getLocations(), result, hints);
+						
+					}
             });
         }
 

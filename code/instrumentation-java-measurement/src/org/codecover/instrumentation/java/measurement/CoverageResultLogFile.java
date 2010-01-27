@@ -239,6 +239,8 @@ CoverageResultLog {
     }
 
     public void passCounter(String counterID, long counterValue) {
+        
+        counterValue = counterValue > 0 ? counterValue : 0; // RS, 21.01.10: remove possibly negative values
         try {
             this.writer.write(counterID);
             this.writer.write(" ");

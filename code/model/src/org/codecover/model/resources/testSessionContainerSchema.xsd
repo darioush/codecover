@@ -140,6 +140,7 @@ This schema can be used to validate the 1.0 test session container xml format.
 				<xsd:element ref="CondStmnt"/>
 				<xsd:element ref="BasicStmnt"/>
 				<xsd:element ref="LoopStmnt"/>
+				<xsd:element ref="SyncStmnt"/>
 			</xsd:choice>
 			<xsd:attribute name="Intrnl_Id" type="xsd:string" use="required"/>
 		</xsd:complexType>
@@ -151,6 +152,7 @@ This schema can be used to validate the 1.0 test session container xml format.
 				<xsd:element ref="Keyword"/>
 				<xsd:element ref="LocList"/>
 				<xsd:element ref="RootTerm"/>
+				<xsd:element ref="QMO"/>
 			</xsd:choice>
 			<xsd:attribute name="CovItemId" type="xsd:string" use="required"/>
 			<xsd:attribute name="CovItemPrefix" type="xsd:string" use="required"/>
@@ -181,6 +183,7 @@ This schema can be used to validate the 1.0 test session container xml format.
 		<xsd:complexType>
 			<xsd:choice maxOccurs="unbounded" minOccurs="0">
 				<xsd:element ref="LocList"/>
+				<xsd:element ref="QMO"/>
 			</xsd:choice>
 			<xsd:attribute name="CovItemId" type="xsd:string" use="required"/>
 			<xsd:attribute name="CovItemPrefix" type="xsd:string" use="required"/>
@@ -205,6 +208,30 @@ This schema can be used to validate the 1.0 test session container xml format.
 			<xsd:attribute name="Intrnl_Id" type="xsd:string" use="required"/>
 		</xsd:complexType>
 	</xsd:element>
+
+	<xsd:element name="QMO">
+		<xsd:complexType>
+			<xsd:choice maxOccurs="unbounded" minOccurs="0">
+				<xsd:element ref="LocList"/>
+				<xsd:element ref="QMO_E"/>
+			</xsd:choice>
+			<xsd:attribute name="CovItemId" type="xsd:string" use="required"/>
+			<xsd:attribute name="CovItemPrefix" type="xsd:string" use="required"/>
+			<xsd:attribute name="Intrnl_Id" type="xsd:string" use="required"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="QMO_E">
+		<xsd:complexType>
+			<xsd:choice maxOccurs="unbounded" minOccurs="0">
+				<xsd:element ref="LocList"/>
+			</xsd:choice>
+			<xsd:attribute name="CovItemId" type="xsd:string" use="required"/>
+			<xsd:attribute name="CovItemPrefix" type="xsd:string" use="required"/>
+			<xsd:attribute name="Intrnl_Id" type="xsd:string" use="required"/>
+		</xsd:complexType>
+	</xsd:element>
+
 	<xsd:element name="OpTerm">
 		<xsd:complexType>
 			<xsd:choice maxOccurs="unbounded" minOccurs="0">
@@ -231,6 +258,7 @@ This schema can be used to validate the 1.0 test session container xml format.
 				<xsd:element ref="Keyword"/>
 				<xsd:element ref="LocList"/>
 				<xsd:element ref="RootTerm"/>
+				<xsd:element ref="QMO"/>
 			</xsd:choice>
 			<xsd:attribute name="CovItemId" type="xsd:string" use="required"/>
 			<xsd:attribute name="CovItemPrefix" type="xsd:string" use="required"/>
@@ -244,6 +272,25 @@ This schema can be used to validate the 1.0 test session container xml format.
 			<xsd:attribute name="OptBodyExec" type="xsd:string" use="required"/>
 		</xsd:complexType>
 	</xsd:element>
+	
+	<xsd:element name="SyncStmnt">
+		<xsd:complexType>
+			<xsd:choice maxOccurs="unbounded" minOccurs="0">
+				<xsd:element ref="Keyword"/>
+				<xsd:element ref="LocList"/>
+				<xsd:element ref="QMO"/>
+			</xsd:choice>
+			<xsd:attribute name="CovItemId" type="xsd:string" use="required"/>
+			<xsd:attribute name="CovItemPrefix" type="xsd:string" use="required"/>
+			<xsd:attribute name="Intrnl_Id" type="xsd:string" use="required"/>
+
+			<xsd:attribute name="SyncStmnt0" type="xsd:string" use="required"/>
+			<xsd:attribute name="SyncStmnt1" type="xsd:string" use="required"/>
+			<xsd:attribute name="SyncStmnt2" type="xsd:string" use="required"/>
+		</xsd:complexType>
+	</xsd:element>
+	
+	
 	<xsd:element name="TestSession">
 		<xsd:complexType>
 			<xsd:choice maxOccurs="unbounded" minOccurs="0">

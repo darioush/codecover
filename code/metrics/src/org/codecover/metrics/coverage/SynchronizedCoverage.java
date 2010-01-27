@@ -21,24 +21,27 @@ import org.codecover.model.mast.Branch;
 import org.codecover.model.mast.ConditionalStatement;
 import org.codecover.model.mast.HierarchyLevel;
 import org.codecover.model.mast.LoopingStatement;
+import org.codecover.model.mast.QuestionMarkOperator;
+import org.codecover.model.mast.QuestionMarkOperatorExpression;
 import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.Statement;
 import org.codecover.model.mast.StatementSequence;
+import org.codecover.model.mast.SynchronizedStatement;
 import org.codecover.model.utils.criteria.Criterion;
 
 /**
  * This class would need to override getCoverage(testCases, statement).
  *
- * @author Markus Wittlinger, Tilmann Scheller
- * @version 1.0 ($Id$)
+ * @author RS
+ * @version 1.0 ($Id: StatementCoverage.java 64 2009-09-28 15:11:11Z ahija $)
  */
-public class StatementCoverage extends AbstractCoverageMetric {
+public class SynchronizedCoverage extends AbstractCoverageMetric {
 
     /**
-     * @author Steffen Kieß
-     * @version 1.0 ($Id$)
+     * @author RS
+     * @version 1.0 ($Id: StatementCoverage.java 64 2009-09-28 15:11:11Z ahija $)
      */
-    public static interface ExecutionsHint extends Hint {
+    public static interface SynchronizedHint extends Hint {
         /**
          * Gets the number of executions
          * @return the number of executions
@@ -46,7 +49,7 @@ public class StatementCoverage extends AbstractCoverageMetric {
         public long getNumberOfExecutions();
     }
 
-    private static final class ExecutionsHintImpl implements ExecutionsHint {
+    private static final class SynchronizedHintImpl implements SynchronizedHint {
         private long numberOfExecutions;
 
         /**
@@ -55,7 +58,7 @@ public class StatementCoverage extends AbstractCoverageMetric {
          * @param numberOfExecutions
          *            the number of executions.
          */
-        public ExecutionsHintImpl(long numberOfExecutions) {
+        public SynchronizedHintImpl(long numberOfExecutions) {
             if (numberOfExecutions < 0) {
                 throw new IllegalArgumentException("numberOfExecutions < 0");
             }
@@ -68,15 +71,15 @@ public class StatementCoverage extends AbstractCoverageMetric {
         }
     }
 
-    private static final String CACHING_KEY = "StatementCoverage";
+    private static final String CACHING_KEY = "SynchronizedCoverage";
 
     private static final String DESCRIPTION = "";
 
-    private static final String NAME = "Statement Coverage";
+    private static final String NAME = "Synchronized Coverage";
 
-    private static StatementCoverage instance = new StatementCoverage();
+    private static SynchronizedCoverage instance = new SynchronizedCoverage();
 
-    private StatementCoverage() {
+    private SynchronizedCoverage() {
         super(CACHING_KEY);
     }
 
@@ -85,7 +88,7 @@ public class StatementCoverage extends AbstractCoverageMetric {
      *
      * @return instance of StatementCoverage.
      */
-    public static StatementCoverage getInstance() {
+    public static SynchronizedCoverage getInstance() {
         return instance;
     }
 
@@ -114,56 +117,55 @@ public class StatementCoverage extends AbstractCoverageMetric {
      */
     public Set<Criterion> getRequiredCriteria() {
         return Collections.<Criterion>singleton(
-            org.codecover.model.utils.criteria.StatementCoverage.getInstance());
+            org.codecover.model.utils.criteria.SynchronizedStatementCoverage.getInstance());
     }
 
-    /**
-     * A static {@link CoverageResult} representing zero of one covered items.
-     */
-    public static final CoverageResult zeroOneResult = new CoverageResult(0, 1);
-    /**
-     * A static {@link CoverageResult} representing one of one covered items.
-     */
-    public static final CoverageResult oneOneResult = new CoverageResult(1, 1);
 
     /**
      * Calculates the
-     * {@link org.codecover.model.utils.criteria.StatementCoverage}
+     * {@link org.codecover.model.utils.criteria.SynchronizedStatementCoverage}
      *
-     * @see org.codecover.metrics.coverage.AbstractCoverageMetric#getCoverage(java.util.List,
-     *      org.codecover.model.mast.Statement)
-     */
-    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
-            Statement statement) {
-        if (statement instanceof BasicStatement) {
-            // check whether the item has been covered in one of the test cases
-            for (TestCase testCase : testCases) {
-                if ((testCase.getCoverageCount(statement.getCoverableItem())) > 0) {
-                    return oneOneResult;
-                }
+    */
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases, Statement statement) {
+    	    	
+    	if(!(statement instanceof SynchronizedStatement)) return  CoverageResult.NULL;
+    		
+    	SynchronizedStatement synchronizedStatement = (SynchronizedStatement)statement;
+    	
+    	int synchronized0 = 0;
+    	int synchronized1 = 0;
+    	int synchronized2 = 0;
+    	
+    	// a QuestionMarkOperator is covered, when both Expressions are covered
+        for (TestCase testCase : testCases) {
+            if (testCase.getCoverageCount(synchronizedStatement.getCoverableItem(0)) > 0) {
+            	synchronized0 = 1;
             }
-            return zeroOneResult;
-        } else {
-            return CoverageResult.NULL;
-        }
-    }
-
- 
-    public Set<Hint> getHints(Collection<TestCase> testCases,
-    		Statement statement) {
-    	if(statement instanceof BasicStatement) {
-            long executions = 0;
-
-            for (final TestCase testCase : testCases) {
-                executions += testCase.getCoverageCount(statement.getCoverableItem());
+            if (testCase.getCoverageCount(synchronizedStatement.getCoverableItem(1)) > 0) {
+            	synchronized1 = 1;
             }
 
-            final Hint hint = new ExecutionsHintImpl(executions);
-            return Collections.singleton(hint);
+            if (testCase.getCoverageCount(synchronizedStatement.getCoverableItem(2)) > 0) {
+            	synchronized2 = 1;
+            }
+            
+            if(synchronized0 == 1 && synchronized1 == 1 && synchronized2 == 1) break;
         }
-    	
-    	
-        return noHints; 
+
+        return new CoverageResult(synchronized0 + synchronized1 + synchronized2, 3);
     }
 
- }
+
+    public Set<Hint> getHints(Collection<TestCase> testCases, SynchronizedStatement synchronizedStatement) {
+  
+    	int executions = 0;
+        for (final TestCase testCase : testCases) {
+            executions += testCase.getCoverageCount(synchronizedStatement.getCoverableItem());
+        }
+
+        final Hint hint = new SynchronizedHintImpl(executions);
+        return Collections.singleton(hint);
+    }
+
+
+}

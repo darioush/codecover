@@ -198,7 +198,7 @@ public class CSVReportGenerator implements ReportGenerator {
             public void visit(HierarchyLevel hierarchyLevel) {
                 i.counter++;
             }
-        }, null, null, null, null, null, null, null);
+        }, null, null, null, null, null, null, null, null);
         return i.counter;
     }
     
@@ -223,7 +223,7 @@ public class CSVReportGenerator implements ReportGenerator {
                     progress.counter = progress.counter + 0.01f;
                     progressHandler.setProgress(progress.counter);
                 }
-            }, null, null, null, null, null, null, null);
+            }, null, null, null, null, null, null, null, null);
         } else {
           //now, 32x3% are left. currentProgressStep counts 1/32 of totalLines
             progress.counter = 0.03f;
@@ -238,7 +238,7 @@ public class CSVReportGenerator implements ReportGenerator {
                         progressHandler.setProgress(progress.counter);
                     }
                 }
-            }, null, null, null, null, null, null, null);
+            }, null, null, null, null, null, null, null, null);
         }
     }
     

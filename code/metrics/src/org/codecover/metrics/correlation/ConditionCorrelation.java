@@ -77,7 +77,7 @@ public class ConditionCorrelation extends AbstractCorrelationMetric {
                     public void visit(RootTerm term) {
                         add(term.getCoverableItem());
                     }
-                }, null, null, null);
+                }, null, null, null, null);
 
         return super.calculateCorrelationWithAssignments(coverableItemSet,
                 testCases);

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.codecover.metrics.coverage.CoverageMetric.Hint;
 import org.codecover.model.TestCase;
 import org.codecover.model.mast.BasicBooleanTerm;
 import org.codecover.model.mast.BasicStatement;
@@ -30,9 +31,12 @@ import org.codecover.model.mast.ConditionalStatement;
 import org.codecover.model.mast.HierarchyLevel;
 import org.codecover.model.mast.LoopingStatement;
 import org.codecover.model.mast.OperatorTerm;
+import org.codecover.model.mast.QuestionMarkOperator;
+import org.codecover.model.mast.QuestionMarkOperatorExpression;
 import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.Statement;
 import org.codecover.model.mast.StatementSequence;
+import org.codecover.model.mast.SynchronizedStatement;
 
 /**
  * This abstract class implements the CoverageMetric. It provides a default
@@ -140,6 +144,21 @@ public abstract class AbstractCoverageMetric implements CoverageMetric {
                 CoverageResult result, Set<Hint> hints) {
             add(result);
         }
+
+		public void visit(QuestionMarkOperator qmo, CoverageResult result,
+				Set<Hint> hints) {
+            add(result);			
+		}
+
+		public void visit(SynchronizedStatement synchronizedStatement,
+				CoverageResult result, Set<Hint> hints) {
+            add(result);						
+		}
+
+		public void visit(QuestionMarkOperatorExpression qmoe,
+				CoverageResult result, Set<Hint> hints) {
+            add(result);									
+		}
     }
 
     private static class SumWithParentVisitor implements PrePostMetricVisitor {
@@ -225,6 +244,22 @@ public abstract class AbstractCoverageMetric implements CoverageMetric {
                 CoverageResult result, Set<Hint> hints) {
             incrementIntermediate(result);
         }
+
+		public void visit(QuestionMarkOperator qmo, CoverageResult result,
+				Set<Hint> hints) {
+            incrementIntermediate(result);			
+		}
+
+		public void visit(SynchronizedStatement synchronizedStatement,
+				CoverageResult result, Set<Hint> hints) {
+            incrementIntermediate(result);						
+		}
+
+		public void visit(QuestionMarkOperatorExpression qmoe,
+				CoverageResult result, Set<Hint> hints) {
+            incrementIntermediate(result);						
+			
+		}
     };
 
 
@@ -438,6 +473,32 @@ public abstract class AbstractCoverageMetric implements CoverageMetric {
         post.visit(branch, result, hints);
     }
 
+    
+    public void accept(Collection<TestCase> testCases, QuestionMarkOperator qmo, PostMetricVisitor post) {
+        // delegate local coverage measurement to subclass
+        CoverageResult result = getCoverageLocal(testCases, qmo);
+        Set<Hint> hints = getHints(testCases, qmo);  
+
+
+        // we tell about the coverage even if its empty
+        post.visit(qmo, result, hints);
+        
+        post.visit(qmo.getQuestionMarkOperatorExpression1(), getCoverageLocal(testCases, qmo.getQuestionMarkOperatorExpression1()), hints);
+        post.visit(qmo.getQuestionMarkOperatorExpression2(), getCoverageLocal(testCases, qmo.getQuestionMarkOperatorExpression2()), hints);
+        
+    }
+    
+    
+    public void accept(Collection<TestCase> testCases, SynchronizedStatement synchronizedStatement, PostMetricVisitor post) {
+        // delegate local coverage measurement to subclass
+        CoverageResult result = getCoverageLocal(testCases, synchronizedStatement);
+        Set<Hint> hints = getHints(testCases, synchronizedStatement);  
+
+
+        // we tell about the coverage even if its empty
+        post.visit(synchronizedStatement, result, hints);
+    }
+    
     public void accept(Collection<TestCase> testCases, StatementSequence statements,
             PostMetricVisitor post) {
         for (Statement statement : statements.getStatements()) {
@@ -455,6 +516,10 @@ public abstract class AbstractCoverageMetric implements CoverageMetric {
             PostMetricVisitor post) {
         for (RootTerm term : statement.getTerms()) {
             accept(testCases, term, post);
+        }
+
+        for (QuestionMarkOperator qmo : statement.getQuestionMarkOperators()) {
+            accept(testCases, qmo, post);
         }
 
         if (statement instanceof ConditionalStatement) {
@@ -488,6 +553,14 @@ public abstract class AbstractCoverageMetric implements CoverageMetric {
 
             // we tell about the coverage even if its empty
             post.visit((BasicStatement) statement, result, hints);
+        } else if (statement instanceof SynchronizedStatement) {
+
+            // delegate local coverage measurement to subclass
+            CoverageResult result = getCoverageLocal(testCases, statement);
+            Set<Hint> hints = getHints(testCases, statement);
+
+            // we tell about the coverage even if its empty
+            post.visit((SynchronizedStatement) statement, result, hints);
         } else {
             throw new RuntimeException();
         }
@@ -530,4 +603,68 @@ public abstract class AbstractCoverageMetric implements CoverageMetric {
 
         return coverageResultMap;
     }
+    
+    
+    /**
+     * Dummy implementations; 
+     */
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases, RootTerm term) {
+        return CoverageResult.NULL;
+    }
+
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
+                                           StatementSequence statements) {
+        return CoverageResult.NULL;
+    }
+
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
+                                           HierarchyLevel level) {
+        return CoverageResult.NULL;
+    }
+
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases, Branch branch) {
+        return CoverageResult.NULL;
+    }
+
+    
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
+            Statement statement) {
+        return CoverageResult.NULL;
+    }
+
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
+    		QuestionMarkOperator qmo) {
+    	return CoverageResult.NULL;
+    }
+
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
+    		QuestionMarkOperatorExpression qmo) {
+    	return CoverageResult.NULL;
+    }
+
+    
+    public Set<Hint> getHints(Collection<TestCase> testCases,
+                              Statement statement) {
+        return noHints;
+    }
+
+    public Set<Hint> getHints(Collection<TestCase> testCases,
+                              RootTerm term) {
+        return noHints;
+    }
+
+    public Set<Hint> getHints(Collection<TestCase> testCases, StatementSequence statements) {
+        return noHints;
+    }
+
+    public Set<Hint> getHints(Collection<TestCase> testCases, HierarchyLevel level) {
+        return noHints;
+    }
+
+    public Set<Hint> getHints(Collection<TestCase> testCases, Branch branch) {
+        return noHints;
+    }    
+    public Set<Hint> getHints(Collection<TestCase> testCases, QuestionMarkOperator qmo) {
+        return noHints;
+    }    
 }

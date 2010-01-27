@@ -27,7 +27,8 @@ package org.codecover.instrumentation.java15.syntaxtree;
  */
 @SuppressWarnings("all")
 public class SynchronizedStatement implements Node {
-   private Node parent;
+    public String syncID = null;
+  private Node parent;
    public NodeToken f0;
    public NodeToken f1;
    public Expression f2;

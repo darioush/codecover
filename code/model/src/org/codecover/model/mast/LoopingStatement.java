@@ -13,6 +13,8 @@ package org.codecover.model.mast;
 
 import java.util.*;
 
+import org.codecover.model.mast.Statement.Visitor;
+
 /**
  * A LoopingStatement is a statement which has a body which can be executed a
  * number of times not known at compile time. It has a StatementSequence
@@ -38,8 +40,8 @@ public final class LoopingStatement extends ComplexStatement {
     LoopingStatement(LocationList location, CoverableItem coverableItem,
             Set<RootTerm> terms, StatementSequence body, Location keyword,
             CoverableItem neverExecutedItem, CoverableItem onceExecutedItem,
-            CoverableItem multipleExecutedItem, boolean optionalBodyExecution) {
-        super(location, keyword, coverableItem, terms);
+            CoverableItem multipleExecutedItem, boolean optionalBodyExecution, Set<QuestionMarkOperator> questionMarkOperators) {
+        super(location, keyword, coverableItem, terms, questionMarkOperators);
 
         if (body == null) {
             throw new NullPointerException("body == null");
@@ -129,13 +131,13 @@ public final class LoopingStatement extends ComplexStatement {
     @Override
     public void accept(Visitor pre, Visitor post, RootTerm.Visitor rootTermPre,
             RootTerm.Visitor rootTermPost, BooleanTerm.Visitor termPre,
-            BooleanTerm.Visitor termPost) {
+            BooleanTerm.Visitor termPost, QuestionMarkOperator.Visitor qmoVisitor) {
         if (pre != null) {
             pre.visit(this);
         }
-        super.accept(pre, post, rootTermPre, rootTermPost, termPre, termPost);
+        super.accept(pre, post, rootTermPre, rootTermPost, termPre, termPost, null);
         this.body.accept(pre, post, rootTermPre, rootTermPost, termPre,
-                termPost);
+                termPost, qmoVisitor);
         if (post != null) {
             post.visit(this);
         }

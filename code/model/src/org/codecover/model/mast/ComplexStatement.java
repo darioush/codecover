@@ -24,8 +24,8 @@ public abstract class ComplexStatement extends Statement {
     private final Location keyword;
 
     protected ComplexStatement(LocationList location, Location keyword,
-            CoverableItem coverableItem, Set<RootTerm> terms) {
-        super(location, coverableItem, terms);
+            CoverableItem coverableItem, Set<RootTerm> terms, Set<QuestionMarkOperator> questionMarkOperators) {
+        super(location, coverableItem, terms, questionMarkOperators);
 
         if (keyword == null) {
             throw new NullPointerException("keyword == null");

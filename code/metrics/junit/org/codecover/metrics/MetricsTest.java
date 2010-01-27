@@ -85,13 +85,13 @@ public class MetricsTest extends junit.framework.TestCase {
                 sourceFile, 176, 180);
         BasicStatement incrementIStatement = builder.createBasicStatement(
                 incrementILocationList, builder.createCoverableItem("TestClass", ++counter
-                                + ""), new HashSet<RootTerm>());
+                                + ""), new HashSet<RootTerm>(), new HashSet<QuestionMarkOperator>());
 
         LocationList incrementJLocationList = this.createLocationList(builder,
                 sourceFile, 187, 191);
         incrementJStatement = builder.createBasicStatement(
                 incrementJLocationList, builder.createCoverableItem("TestClass", ++counter
-                                + ""), new HashSet<RootTerm>());
+                                + ""), new HashSet<RootTerm>(), new HashSet<QuestionMarkOperator>());
 
         statementList = new Vector<Statement>();
         statementList.addElement(incrementIStatement);
@@ -137,7 +137,7 @@ public class MetricsTest extends junit.framework.TestCase {
                         ++counter + ""), terms, whileBody, whileKeywordLocation,
                 builder.createCoverableItem("TestClass", ++counter + ""),
                 builder.createCoverableItem("TestClass", ++counter + ""),
-                builder.createCoverableItem("TestClass", ++counter + ""), true);
+                builder.createCoverableItem("TestClass", ++counter + ""), true, new HashSet<QuestionMarkOperator>());
         // while
 
         // if
@@ -146,7 +146,7 @@ public class MetricsTest extends junit.framework.TestCase {
                 builder, sourceFile, 105, 111);
         BasicStatement fooStatement = builder.createBasicStatement(
                 fooStatementLocationList, builder.createCoverableItem("TestClass", ++counter
-                                + ""), new HashSet<RootTerm>());
+                                + ""), new HashSet<RootTerm>(), new HashSet<QuestionMarkOperator>());
 
         statementList = new Vector<Statement>();
         statementList.addElement(fooStatement);
@@ -171,7 +171,7 @@ public class MetricsTest extends junit.framework.TestCase {
                 builder, sourceFile, 131, 137);
         BasicStatement barStatement = builder.createBasicStatement(
                 barStatementLocationList, builder.createCoverableItem("TestClass", ++counter
-                                + ""), new HashSet<RootTerm>());
+                                + ""), new HashSet<RootTerm>(), new HashSet<QuestionMarkOperator>());
 
         statementList = new Vector<Statement>();
         statementList.addElement(barStatement);
@@ -231,10 +231,12 @@ public class MetricsTest extends junit.framework.TestCase {
         Location ifStatementKeywordLocation = builder.createLocation(
                 sourceFile, 71, 73);
 
+        Set<QuestionMarkOperator> questionMarkOperators = new HashSet<QuestionMarkOperator>();
+        
         ConditionalStatement ifStatement = builder.createConditionalStatement(
                 ifStatementLocationList, builder.createCoverableItem("TestClass", ++counter
                                 + ""), terms, branches,
-                ifStatementKeywordLocation);
+                ifStatementKeywordLocation, questionMarkOperators);
         // if
 
         statementList = new Vector<Statement>();
@@ -555,13 +557,13 @@ public class MetricsTest extends junit.framework.TestCase {
                 sourceFile, 176, 180);
         BasicStatement incrementIStatement = builder.createBasicStatement(
                 incrementILocationList, builder.createCoverableItem("TestClass", ++counter
-                                + ""), new HashSet<RootTerm>());
+                                + ""), new HashSet<RootTerm>(), new HashSet<QuestionMarkOperator>());
 
         LocationList incrementJLocationList = this.createLocationList(builder,
                 sourceFile, 187, 191);
         BasicStatement incrementJStatement = builder.createBasicStatement(
                 incrementJLocationList, builder.createCoverableItem("TestClass", ++counter
-                                + ""), new HashSet<RootTerm>());
+                                + ""), new HashSet<RootTerm>(), new HashSet<QuestionMarkOperator>());
 
         statementList = new Vector<Statement>();
         statementList.addElement(incrementIStatement);
@@ -607,7 +609,7 @@ public class MetricsTest extends junit.framework.TestCase {
                         ++counter + ""), terms, whileBody, whileKeywordLocation,
                 builder.createCoverableItem("TestClass", ++counter + ""),
                 builder.createCoverableItem("TestClass", ++counter + ""),
-                builder.createCoverableItem("TestClass", ++counter + ""), true);
+                builder.createCoverableItem("TestClass", ++counter + ""), true, new HashSet<QuestionMarkOperator>());
         // while
 
         // if
@@ -616,7 +618,7 @@ public class MetricsTest extends junit.framework.TestCase {
                 builder, sourceFile, 105, 111);
         BasicStatement fooStatement = builder.createBasicStatement(
                 fooStatementLocationList, builder.createCoverableItem("TestClass", ++counter
-                                + ""), new HashSet<RootTerm>());
+                                + ""), new HashSet<RootTerm>(), new HashSet<QuestionMarkOperator>());
 
         statementList = new Vector<Statement>();
         statementList.addElement(fooStatement);
@@ -641,7 +643,7 @@ public class MetricsTest extends junit.framework.TestCase {
                 builder, sourceFile, 131, 137);
         BasicStatement barStatement = builder.createBasicStatement(
                 barStatementLocationList, builder.createCoverableItem("TestClass", ++counter
-                                + ""), new HashSet<RootTerm>());
+                                + ""), new HashSet<RootTerm>(), new HashSet<QuestionMarkOperator>());
 
         statementList = new Vector<Statement>();
         statementList.addElement(barStatement);
@@ -713,10 +715,12 @@ public class MetricsTest extends junit.framework.TestCase {
         Location ifStatementKeywordLocation = builder.createLocation(
                 sourceFile, 71, 73);
 
+        Set<QuestionMarkOperator> questionMarkOperators = new HashSet<QuestionMarkOperator>();
+        
         ConditionalStatement ifStatement = builder.createConditionalStatement(
                 ifStatementLocationList, builder.createCoverableItem("TestClass", ++counter
                                 + ""), terms, branches,
-                ifStatementKeywordLocation);
+                ifStatementKeywordLocation, questionMarkOperators);
         // if
 
         statementList = new Vector<Statement>();

@@ -86,7 +86,7 @@ public class StatementCorrelation extends AbstractCorrelationMetric {
             public void visit(LoopingStatement statement) {
                 add(statement.getCoverableItem());
             }
-        }, null, null, null, null, null);
+        }, null, null, null, null, null, null);
 
         return super.calculateCorrelation(coverableItemSet, testCases);
     }

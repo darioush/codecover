@@ -134,7 +134,7 @@ public final class Branch extends AbstractLocatableMetaDataObject {
         }
 
         getSequence().accept(pre, post, rootTermPre, rootTermPost, termPre,
-                termPost);
+                termPost, null);
 
         if (post != null) {
             post.visit(this);

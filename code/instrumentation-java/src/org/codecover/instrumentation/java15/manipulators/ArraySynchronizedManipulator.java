@@ -109,7 +109,7 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
         writer.write("  ");
         writer.write(String.format(COUNTER_INCREMENTING_LOCAL_DECLARATIONS,
                 super.getCounterIDManager().getInnerClassName(),
-                new Integer(ID - 1)));
+                new Integer(ID)));
         writer.write(LINE_SEPARATOR);
         writer.write("  ");
         writer.write(COUNTER_INCREMENTING_COUNTER_CHECK);
@@ -117,7 +117,7 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
         writer.write("  ");
         writer.write(String.format(COUNTER_INCREMENTING,
                 super.getCounterIDManager().getInnerClassName(),
-                new Integer((ID - 1) * 3)));
+                new Integer(ID * 3)));
         writer.write(LINE_SEPARATOR);
         writer.write("}");
         writer.write(LINE_SEPARATOR);
@@ -142,7 +142,7 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
         writer.write("  ");
         writer.write(String.format(WAIT_COUNTER_DECREMENTING,
                 super.getCounterIDManager().getInnerClassName(),
-                new Integer(ID - 1)));
+                new Integer(ID)));
         writer.write(LINE_SEPARATOR);
         writer.write("}");
         writer.write(LINE_SEPARATOR);
@@ -162,14 +162,15 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
         Writer writer = super.getWriter();
         writer.write("    ");
         writer.write(String.format(COUNTER_DECLARATION,
-                new Integer((this.maxSyncID) * 3)));
+                new Integer((this.maxSyncID + 1) * 3))); // public static java.util.concurrent.atomic.AtomicInteger[] syncWaits = new java.util.concurrent.atomic.AtomicInteger[2];
+
         writer.write(LINE_SEPARATOR);
         writer.write("    ");
         writer.write("static {");
         writer.write(LINE_SEPARATOR);
         writer.write("      ");
         writer.write(String.format(COUNTER_FOR_LOOP,
-                new Integer(this.maxSyncID * 3 - 1)));
+                new Integer((this.maxSyncID + 1) * 3 - 1))); // <=, so - 1
         writer.write(" {");
         writer.write(LINE_SEPARATOR);
         writer.write("        ");
@@ -182,14 +183,14 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
         writer.write(LINE_SEPARATOR);
         writer.write("    ");
         writer.write(String.format(WAIT_COUNTER_DECLARATION,
-                new Integer(this.maxSyncID)));
+                new Integer(this.maxSyncID + 1)));
         writer.write(LINE_SEPARATOR);
         writer.write("    ");
         writer.write("static {");
         writer.write(LINE_SEPARATOR);
         writer.write("      ");
         writer.write(String.format(COUNTER_FOR_LOOP,
-                new Integer(this.maxSyncID - 1)));
+                new Integer(this.maxSyncID))); // <=, so not + 1
         writer.write(" {");
         writer.write(LINE_SEPARATOR);
         writer.write("        ");
@@ -208,7 +209,7 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
 
         writer.write("      ");
         writer.write(String.format(COUNTER_FOR_LOOP,
-                new Integer(this.maxSyncID * 3 - 1)));
+                new Integer((this.maxSyncID + 1) * 3 - 1)));
         writer.write(" {");
         writer.write(LINE_SEPARATOR);
         writer.write("        ");
@@ -217,9 +218,10 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
         writer.write("      }");
         writer.write(LINE_SEPARATOR);
         
+        /* --> 19.01.10, RS: decrementing is done in the finally
         writer.write("      ");
         writer.write(String.format(COUNTER_FOR_LOOP,
-                new Integer(this.maxSyncID - 1)));
+                new Integer(this.maxSyncID)));
         writer.write(" {");
         writer.write(LINE_SEPARATOR);
         writer.write("        ");
@@ -227,6 +229,7 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
         writer.write(LINE_SEPARATOR);
         writer.write("      }");
         writer.write(LINE_SEPARATOR);
+        */
     }
 
     public void writeSerialzeAndReset() throws IOException {
@@ -234,12 +237,12 @@ public class ArraySynchronizedManipulator extends AbstractDefaultManipulator
 
         writer.write("      ");
         writer.write(String.format(COUNTER_FOR_LOOP, new Integer(
-                this.maxSyncID - 1)));
+                (this.maxSyncID))));
         writer.write(" {");
-        writer.write(LINE_SEPARATOR);
+        // writer.write(LINE_SEPARATOR);
 
-        writer.write("        ");
-        writer.write(WAIT_COUNTER_RESET);
+        // writer.write("        ");
+        // writer.write(WAIT_COUNTER_RESET);
         writer.write(LINE_SEPARATOR);
 
         // the if for zero threads -> syncs[i * 3]

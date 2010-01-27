@@ -27,6 +27,7 @@ import org.codecover.model.mast.LoopingStatement;
 import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.Statement;
 import org.codecover.model.mast.StatementSequence;
+import org.codecover.model.mast.SynchronizedStatement;
 import org.codecover.model.utils.CollectionUtil;
 import org.codecover.model.utils.criteria.Criterion;
 
@@ -226,26 +227,6 @@ public class BranchCoverage extends AbstractCoverageMetric {
         return new CoverageResult(coveredItems, totalItems);
     }
 
-    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
-            Statement statement) {
-        return CoverageResult.NULL;
-    }
-
-    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
-            RootTerm term) {
-        return CoverageResult.NULL;
-    }
-
-    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
-            StatementSequence statements) {
-        return CoverageResult.NULL;
-    }
-
-    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
-            HierarchyLevel level) {
-        return CoverageResult.NULL;
-    }
-
     public Set<Hint> getHints(Collection<TestCase> testCases, Statement statement) {
         if (statement instanceof ConditionalStatement) {
             final ConditionalStatement cStatement = (ConditionalStatement) statement;
@@ -270,26 +251,12 @@ public class BranchCoverage extends AbstractCoverageMetric {
             return noHints;
         } else if (statement instanceof BasicStatement) {
             return noHints;
+        } else if (statement instanceof SynchronizedStatement) {
+            return noHints;
         } else {
             throw new RuntimeException();
         }
     }
 
-    public Set<Hint> getHints(Collection<TestCase> testCases, RootTerm term) {
-        return noHints;
-    }
-
-    public Set<Hint> getHints(Collection<TestCase> testCases,
-            StatementSequence statements) {
-        return noHints;
-    }
-
-    public Set<Hint> getHints(Collection<TestCase> testCases, HierarchyLevel level) {
-        return noHints;
-    }
-
-    public Set<Hint> getHints(Collection<TestCase> testCases, Branch branch) {
-        return noHints;
-    }
-
+ 
 }

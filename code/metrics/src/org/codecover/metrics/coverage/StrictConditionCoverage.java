@@ -292,45 +292,5 @@ public class StrictConditionCoverage extends AbstractCoverageMetric {
         super.accept(testCases, term, post);
     }
 
-    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
-            Statement statement) {
-        return CoverageResult.NULL;
-    }
-
-    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
-            StatementSequence statements) {
-        return CoverageResult.NULL;
-    }
-
-    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
-            HierarchyLevel level) {
-        return CoverageResult.NULL;
-    }
-
-    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
-            Branch branch) {
-        return CoverageResult.NULL;
-    }
-
-    public Set<Hint> getHints(Collection<TestCase> testCases,
-                              Statement statement) {
-        return noHints;
-    }
-
-    public Set<Hint> getHints(Collection<TestCase> testCases,
-                              RootTerm term) {
-        return noHints;
-    }
-
-    public Set<Hint> getHints(Collection<TestCase> testCases, StatementSequence statements) {
-        return noHints;
-    }
-
-    public Set<Hint> getHints(Collection<TestCase> testCases, HierarchyLevel level) {
-        return noHints;
-    }
-
-    public Set<Hint> getHints(Collection<TestCase> testCases, Branch branch) {
-        return noHints;
-    }
+ 
 }

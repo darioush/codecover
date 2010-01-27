@@ -25,6 +25,7 @@ import org.codecover.model.utils.criteria.ConditionCoverage;
 import org.codecover.model.utils.criteria.LoopCoverage;
 import org.codecover.model.utils.criteria.StatementCoverage;
 import org.codecover.model.utils.criteria.SynchronizedStatementCoverage;
+import org.codecover.model.utils.criteria.QMOCoverage;
 import org.codecover.model.utils.file.FileTool;
 
 /**
@@ -79,6 +80,7 @@ org.codecover.instrumentation.InstrumenterDescriptor {
         super.addSupportedCriteria(ConditionCoverage.getInstance());
         super.addSupportedCriteria(LoopCoverage.getInstance());
         super.addSupportedCriteria(SynchronizedStatementCoverage.getInstance());
+        super.addSupportedCriteria(QMOCoverage.getInstance());
 
         super.registerDirective(CoverageLogPathDirective.INSTANCE);
         super.registerDirective(Java14Compatibility.INSTANCE);

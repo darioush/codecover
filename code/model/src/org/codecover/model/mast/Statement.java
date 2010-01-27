@@ -11,6 +11,8 @@
 
 package org.codecover.model.mast;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.codecover.model.utils.CollectionUtil;
@@ -29,21 +31,22 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
     private final CoverableItem coverableItem;
 
     private final Set<RootTerm> terms;
+    private final Set<QuestionMarkOperator> questionMarkOperators;
 
     Statement(LocationList location, CoverableItem coverableItem,
-            Set<RootTerm> terms) {
+            Set<RootTerm> terms, Set<QuestionMarkOperator> questionMarkOperators) {
         super(location);
-
+        
         if (coverableItem == null) {
             throw new NullPointerException("coverableItem == null");
         }
-
-        if (terms == null) {
-            throw new NullPointerException("terms == null");
-        }
-
+        
         this.coverableItem = coverableItem;
-        this.terms = CollectionUtil.copy(terms);
+        this.terms = terms == null ? new HashSet<RootTerm>() : CollectionUtil.copy(terms);
+        this.questionMarkOperators = questionMarkOperators == null ? new HashSet<QuestionMarkOperator>() : CollectionUtil.copy(questionMarkOperators);
+        
+        // the QMO are copied, now clean the QMO
+        questionMarkOperators.clear();
     }
 
     /**
@@ -58,6 +61,13 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
      */
     public Set<RootTerm> getTerms() {
         return this.terms;
+    }
+
+    /**
+     * @return the questionMarkOperators
+     */
+    public Set<QuestionMarkOperator> getQuestionMarkOperators() {
+        return this.questionMarkOperators;
     }
 
     /**
@@ -83,6 +93,14 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
          *            the given {@link ConditionalStatement}
          */
         void visit(ConditionalStatement statement);
+
+        /**
+         * Visits a {@link SynchronizedStatement}
+         *
+         * @param statement
+         *            the given {@link SynchronizedStatement}
+         */
+        void visit(SynchronizedStatement statement);
 
         /**
          * Visits a {@link LoopingStatement}
@@ -147,6 +165,15 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
         /**
          * (non-Javadoc)
          *
+         * @see org.codecover.model.mast.Statement.Visitor#visit(org.codecover.model.mast.SynchronizedStatement)
+         */
+        public void visit(SynchronizedStatement statement) {
+            // Do nothing.
+        }
+
+        /**
+         * (non-Javadoc)
+         *
          * @see org.codecover.model.mast.Statement.Visitor#visit(org.codecover.model.mast.StatementSequence)
          */
         public void visit(StatementSequence sequence) {
@@ -191,12 +218,19 @@ public abstract class Statement extends AbstractLocatableMetaDataObject {
      */
     public void accept(Visitor pre, Visitor post, RootTerm.Visitor rootTermPre,
             RootTerm.Visitor rootTermPost, BooleanTerm.Visitor termPre,
-            BooleanTerm.Visitor termPost) {
+            BooleanTerm.Visitor termPost, QuestionMarkOperator.Visitor qmoVisitor) {
         if (rootTermPre != null || rootTermPost != null || termPre != null
                 || termPost != null) {
             for (RootTerm term : getTerms()) {
                 term.accept(rootTermPre, rootTermPost, termPre, termPost);
             }
         }
+        
+        if(qmoVisitor != null) {
+            for (QuestionMarkOperator qmo : getQuestionMarkOperators()) {
+            	qmo.accept(qmoVisitor);
+            }
+        }
     }
+
 }

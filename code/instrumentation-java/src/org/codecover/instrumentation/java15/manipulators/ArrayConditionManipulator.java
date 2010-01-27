@@ -163,7 +163,7 @@ public class ArrayConditionManipulator extends AbstractDefaultManipulator
             + CounterIDManager.LOG_NAME + ");";
 
     private static final String ASSIGNMENT_WARNING =
-            "The expression contains an assignment and thus is not instrumented. " +
+            "The expression contains an assignment which is not instrumented. " +
             "See \"documentation > reference\" for details.";
 
     // /////////////////////////////////////////////////////////////////////////

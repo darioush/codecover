@@ -75,7 +75,7 @@ public class BranchCorrelation extends AbstractCorrelationMetric {
             public void visit(Branch branch) {
                 add(branch.getCoverableItem());
             }
-        }, null, null, null, null, null);
+        }, null, null, null, null, null, null);
 
         return super.calculateCorrelation(coverableItemSet, testCases);
     }

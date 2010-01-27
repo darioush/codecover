@@ -38,10 +38,13 @@ import org.codecover.model.mast.LocationList;
 import org.codecover.model.mast.LoopingStatement;
 import org.codecover.model.mast.MetaDataObject;
 import org.codecover.model.mast.OperatorTerm;
+import org.codecover.model.mast.QuestionMarkOperator;
+import org.codecover.model.mast.QuestionMarkOperatorExpression;
 import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.SourceFile;
 import org.codecover.model.mast.Statement;
 import org.codecover.model.mast.StatementSequence;
+import org.codecover.model.mast.SynchronizedStatement;
 import org.codecover.model.utils.Logger;
 import org.codecover.model.utils.criteria.Criterion;
 import org.xml.sax.Attributes;
@@ -70,6 +73,8 @@ class XMLReader1_0_SAX extends XMLReaderBase implements XMLNames1_0 {
 
     private final Map<String, RootTerm> idRootTermMap;
 
+    private final Map<String, QuestionMarkOperator> idQuestionMarkOperatorMap;
+    
     private final MASTBuilder builder;
 
     private TestSessionContainerStore tscStore;
@@ -98,6 +103,13 @@ class XMLReader1_0_SAX extends XMLReaderBase implements XMLNames1_0 {
 
     private final Stack<RootTermStore> rootTermStoreStack;
 
+    private final Stack<QuestionMarkOperatorStore> questionMarkOperatorStoreStack;
+
+    private QuestionMarkOperatorExpressionStore questionMarkOperatorExpression1 = null;
+    private QuestionMarkOperatorExpressionStore questionMarkOperatorExpression2 = null;
+
+    private Set<QuestionMarkOperator> questionMarkOperators = new HashSet<QuestionMarkOperator>();
+
     private final Stack<OperatorTermStore> operatorTermStoreStack;
 
     private final Stack<BasicBooleanTermStore> basicBooleanTermStoreStack;
@@ -115,6 +127,8 @@ class XMLReader1_0_SAX extends XMLReaderBase implements XMLNames1_0 {
     private AssignmentsListEntryStore currentAssignmentsListEntryStore;
 
     private final PluginManager pluginManager;
+    
+    private SynchronizedStatementStore synchronizedStatementStore;
 
     protected final class TestSessionContainerStore {
         Date date;
@@ -244,6 +258,37 @@ class XMLReader1_0_SAX extends XMLReaderBase implements XMLNames1_0 {
         CoverableItem coverableItem;
     }
 
+    protected final class QuestionMarkOperatorStore {
+        LocationList locationList;
+        String internalId;
+
+        QuestionMarkOperator questionMarkOperator;
+
+        CoverableItem coverableItem;
+    }
+    
+    protected final class QuestionMarkOperatorExpressionStore {
+        LocationList locationList;
+        String internalId;
+
+        QuestionMarkOperatorExpression questionMarkOperatorExpression;
+
+        CoverableItem coverableItem;
+    }
+    
+    protected final class SynchronizedStatementStore {
+        LocationList locationList;
+        String internalId;
+
+        SynchronizedStatement synchronizedStatement;
+
+        CoverableItem coverableItem;
+
+        CoverableItem coverableItem0;
+        CoverableItem coverableItem1;
+        CoverableItem coverableItem2;
+    }
+
     protected final class OperatorTermStore {
         String internalId;
 
@@ -311,12 +356,14 @@ class XMLReader1_0_SAX extends XMLReaderBase implements XMLNames1_0 {
         this.conditionalStatementStoreStack = new Stack<ConditionalStatementStore>();
         this.branchStoreStack = new Stack<BranchStore>();
         this.rootTermStoreStack = new Stack<RootTermStore>();
+        this.questionMarkOperatorStoreStack = new Stack<QuestionMarkOperatorStore>();
         this.operatorTermStoreStack = new Stack<OperatorTermStore>();
         this.basicBooleanTermStoreStack = new Stack<BasicBooleanTermStore>();
         this.objectMetaDataStack = new Stack<ObjectMetaDataListEntryStore>();
         this.metaDataStack = new Stack<MetaDataListEntryStore>();
+        this.idQuestionMarkOperatorMap = new HashMap<String, QuestionMarkOperator>();
     }
-
+    
     /**
      * (non-Javadoc)
      * 
@@ -440,7 +487,22 @@ class XMLReader1_0_SAX extends XMLReaderBase implements XMLNames1_0 {
             return;
         }
 
-        if (qName.equals(ELEMENT_TEST_SESSION)) {
+        if (qName.equals(ELEMENT_QUESTIONMARKOPERATOR)) {
+            handleStartElementQuestionMarkOperator(attributes);
+            return;
+        }
+
+       if (qName.equals(ELEMENT_QUESTIONMARKOPERATOR_EXPRESSION)) {
+            handleStartElementQuestionMarkOperatorExpression(attributes);
+            return;
+        }
+
+       if (qName.equals(ELEMENT_SYNCHRONIZED_STATEMENT)) {
+           handleStartElementSynchronizedStatement(attributes);
+           return;
+       }
+       
+       if (qName.equals(ELEMENT_TEST_SESSION)) {
             handleStartElementTestSession(attributes);
             return;
         }
@@ -604,6 +666,78 @@ class XMLReader1_0_SAX extends XMLReaderBase implements XMLNames1_0 {
         this.currentLocationReciever.push(ELEMENT_BASIC_BOOLEAN_TERM);
     }
 
+    /**
+     * @param attributes
+     */
+    protected void handleStartElementQuestionMarkOperator(Attributes attributes) {
+        String itemId = attributes.getValue(COVERABLE_ITEM_ID);
+        String itemPrefix = attributes.getValue(COVERABLE_ITEM_PREFIX);
+        String internalId = attributes.getValue(INTERNAL_ID);
+        CoverableItem coverableItem = this.builder.createCoverableItem(
+                itemPrefix, itemId);
+
+        QuestionMarkOperatorStore store = new QuestionMarkOperatorStore();
+        store.coverableItem = coverableItem;
+
+        store.internalId = internalId;
+
+        this.questionMarkOperatorStoreStack.push(store);
+
+        this.currentLocationReciever.push(ELEMENT_QUESTIONMARKOPERATOR);
+    }
+
+    /**
+     * @param attributes
+     */
+    protected void handleStartElementSynchronizedStatement(Attributes attributes) {
+        String itemId = attributes.getValue(COVERABLE_ITEM_ID);
+        String itemPrefix = attributes.getValue(COVERABLE_ITEM_PREFIX);
+        String internalId = attributes.getValue(INTERNAL_ID);
+        CoverableItem coverableItem = this.builder.createCoverableItem(
+                itemPrefix, itemId);
+
+        CoverableItem coverableItem0 = this.builder.createCoverableItem(
+                itemPrefix, attributes.getValue(ELEMENT_SYNCHRONIZED0));
+        CoverableItem coverableItem1 = this.builder.createCoverableItem(
+                itemPrefix, attributes.getValue(ELEMENT_SYNCHRONIZED1));
+        CoverableItem coverableItem2 = this.builder.createCoverableItem(
+                itemPrefix, attributes.getValue(ELEMENT_SYNCHRONIZED2));
+                
+        synchronizedStatementStore = new SynchronizedStatementStore();
+        synchronizedStatementStore.coverableItem = coverableItem;
+
+        synchronizedStatementStore.internalId = internalId;
+        synchronizedStatementStore.coverableItem0 = coverableItem0;
+        synchronizedStatementStore.coverableItem1 = coverableItem1;
+        synchronizedStatementStore.coverableItem2 = coverableItem2;
+
+        this.currentLocationReciever.push(ELEMENT_SYNCHRONIZED_STATEMENT);
+    }
+    
+    
+    /**
+     * @param attributes
+     */
+    protected void handleStartElementQuestionMarkOperatorExpression(Attributes attributes) {
+        String itemId = attributes.getValue(COVERABLE_ITEM_ID);
+        String itemPrefix = attributes.getValue(COVERABLE_ITEM_PREFIX);
+        String internalId = attributes.getValue(INTERNAL_ID);
+        CoverableItem coverableItem = this.builder.createCoverableItem(
+                itemPrefix, itemId);
+
+        QuestionMarkOperatorExpressionStore store;
+
+        if(this.questionMarkOperatorExpression1 == null) {
+        	store = this.questionMarkOperatorExpression1 = new QuestionMarkOperatorExpressionStore();
+        } else {
+        	store = this.questionMarkOperatorExpression2 = new QuestionMarkOperatorExpressionStore();        	
+        }
+        store.internalId = internalId;
+        store.coverableItem = coverableItem;
+
+        this.currentLocationReciever.push(ELEMENT_QUESTIONMARKOPERATOR_EXPRESSION);
+    }
+  
     /**
      * @param attributes
      */
@@ -1093,6 +1227,22 @@ class XMLReader1_0_SAX extends XMLReaderBase implements XMLNames1_0 {
             return;
         }
 
+        if (qName.equals(ELEMENT_QUESTIONMARKOPERATOR)) {
+            handleEndElementQuestionMarkOperator();
+            return;
+        }
+
+        if (qName.equals(ELEMENT_QUESTIONMARKOPERATOR_EXPRESSION)) {
+            handleEndElementQuestionMarkOperatorExpression();
+            return;
+        }
+
+        if (qName.equals(ELEMENT_SYNCHRONIZED_STATEMENT)) {
+        	handleEndElementSynchronizedStatement();
+            return;
+        }
+        
+        
         if (qName.equals(ELEMENT_TEST_CASE)) {
             handleEndElementTestCase();
             return;
@@ -1220,8 +1370,21 @@ class XMLReader1_0_SAX extends XMLReaderBase implements XMLNames1_0 {
             OperatorTermStore store = this.operatorTermStoreStack.peek();
 
             store.locationList = locationList;
-        }
+        } else if (currentReciever.equals(ELEMENT_QUESTIONMARKOPERATOR)) {
+            QuestionMarkOperatorStore store = this.questionMarkOperatorStoreStack.peek();
 
+            store.locationList = locationList;
+      
+        } else if (currentReciever.equals(ELEMENT_QUESTIONMARKOPERATOR_EXPRESSION)) {
+        
+	    	if(this.questionMarkOperatorExpression2 == null) {
+	    		this.questionMarkOperatorExpression1.locationList = locationList;
+	    	} else {
+	    		this.questionMarkOperatorExpression2.locationList = locationList;    		
+	    	}
+        } else if (currentReciever.equals(ELEMENT_SYNCHRONIZED_STATEMENT)) {
+            this.synchronizedStatementStore.locationList = locationList;
+        }
         this.locations.clear();
     }
 
@@ -1261,7 +1424,8 @@ class XMLReader1_0_SAX extends XMLReaderBase implements XMLNames1_0 {
         BasicStatement statement = this.builder.createBasicStatement(
                 this.basicStatementStore.locationList,
                 this.basicStatementStore.coverableItem,
-                this.basicStatementStore.terms);
+                this.basicStatementStore.terms,
+                questionMarkOperators);
 
         StatementSequenceStore sequenceStore = this.statementSequenceStoreStack
                 .peek();
@@ -1277,6 +1441,54 @@ class XMLReader1_0_SAX extends XMLReaderBase implements XMLNames1_0 {
                 statement);
 
     }
+    
+    protected void handleEndElementQuestionMarkOperator() {
+    	    	
+    	QuestionMarkOperatorStore store = this.questionMarkOperatorStoreStack.pop();
+    	
+    	QuestionMarkOperatorExpression expr1 = new QuestionMarkOperatorExpression(this.questionMarkOperatorExpression1.locationList, this.questionMarkOperatorExpression1.coverableItem);
+    	QuestionMarkOperatorExpression expr2 = new QuestionMarkOperatorExpression(this.questionMarkOperatorExpression2.locationList, this.questionMarkOperatorExpression2.coverableItem);
+    	QuestionMarkOperator questionMarkOperator = new QuestionMarkOperator(store.locationList, store.coverableItem, expr1, expr2);
+    	
+    	questionMarkOperators.add(questionMarkOperator); // reset in teh Statement Constructor        
+
+        // Extract the internal id of the mast element and put them in a
+        // map, for later usage in extracting the metadata of the test
+        // sessions and test cases.
+        this.idQuestionMarkOperatorMap.put(store.internalId, questionMarkOperator);
+
+        this.idMetaDataObjectMap.put(store.internalId, questionMarkOperator);        
+        this.currentLocationReciever.pop();
+        
+        // reset the both expressions
+        this.questionMarkOperatorExpression1 = null;
+        this.questionMarkOperatorExpression2 = null;
+    }
+    
+    protected void handleEndElementQuestionMarkOperatorExpression() {
+    	
+    	
+        this.currentLocationReciever.pop();
+    }
+
+    protected void handleEndElementSynchronizedStatement() {
+    	
+      	SynchronizedStatement synchronizedStatement = 
+    		new SynchronizedStatement(synchronizedStatementStore.locationList, 
+    				synchronizedStatementStore.coverableItem,
+    				synchronizedStatementStore.locationList.getLocations().get(0),
+    				synchronizedStatementStore.coverableItem0,
+    				synchronizedStatementStore.coverableItem1,
+    				synchronizedStatementStore.coverableItem2, questionMarkOperators);
+ 	
+        this.currentLocationReciever.pop();
+    			
+        StatementSequenceStore sequenceStore = this.statementSequenceStoreStack
+        .peek();
+
+        sequenceStore.statements.add(synchronizedStatement);
+   			
+    }
 
     protected void handleEndElementLoopStatement() {
         LoopStatementStore store = this.loopStatementStoreStack.pop();
@@ -1285,7 +1497,7 @@ class XMLReader1_0_SAX extends XMLReaderBase implements XMLNames1_0 {
                 store.locationList, store.coverableItem, store.terms,
                 store.statementSequence, store.keyword,
                 store.neverExecutedItem, store.onceExecutedItem,
-                store.multipleExecutedItem, store.optionalBodyExecution);
+                store.multipleExecutedItem, store.optionalBodyExecution, questionMarkOperators);
 
         this.currentLocationReciever.pop();
 
@@ -1308,7 +1520,7 @@ class XMLReader1_0_SAX extends XMLReaderBase implements XMLNames1_0 {
         ConditionalStatement statement = this.builder
                 .createConditionalStatement(store.locationList,
                         store.coverableItem, store.terms, store.branches,
-                        store.keyword);
+                        store.keyword, questionMarkOperators);
 
         this.currentLocationReciever.pop();
 

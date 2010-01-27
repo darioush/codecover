@@ -11,19 +11,32 @@
 
 package org.codecover.model.mast;
 
-import java.util.*;
+import org.codecover.model.mast.BooleanTerm.Visitor;
 
 /**
- * A BasicStatement is a statement which contains no other statements.
- * 
- * @author Markus Wittlinger
- * @version 1.0 ($Id$)
+  * 
+ * @author RS
+ * @version 1.08
  */
-public final class BasicStatement extends Statement {
+public final class QuestionMarkOperatorExpression extends AbstractLocatableMetaDataObject {
+		
+    private final CoverableItem coverableItem;
 
-    BasicStatement(LocationList location, CoverableItem coverableItem,
-            Set<RootTerm> terms, Set<QuestionMarkOperator> questionMarkOperators) {
-        super(location, coverableItem, terms, questionMarkOperators);
+    public QuestionMarkOperatorExpression(LocationList location, CoverableItem coverableItem) {
+        super(location);
+
+        if (coverableItem == null) {
+            throw new NullPointerException("coverableItem == null");
+        }
+        
+        this.coverableItem = coverableItem;
+    }
+
+    /**
+     * @return the coverableItem
+     */
+    public CoverableItem getCoverableItem() {
+        return this.coverableItem;
     }
 
     /**
@@ -40,33 +53,11 @@ public final class BasicStatement extends Statement {
             result += location.getStartOffset();
             result += location.getEndOffset();
             result += location.getFile().hashCode();
-            result += getCoverableItem().getId().hashCode();
             result += location.getFile().getContent().hashCode();
         }
 
         return result;
     }
-
-    /**
-     * (non-Javadoc)
-     * 
-     * @see org.codecover.model.mast.Statement#accept(org.codecover.model.mast.Statement.Visitor,
-     *      org.codecover.model.mast.Statement.Visitor,
-     *      org.codecover.model.mast.RootTerm.Visitor,
-     *      org.codecover.model.mast.RootTerm.Visitor,
-     *      org.codecover.model.mast.BooleanTerm.Visitor,
-     *      org.codecover.model.mast.BooleanTerm.Visitor)
-     */
-    @Override
-    public void accept(Visitor pre, Visitor post, RootTerm.Visitor rootTermPre,
-            RootTerm.Visitor rootTermPost, BooleanTerm.Visitor termPre,
-            BooleanTerm.Visitor termPost, QuestionMarkOperator.Visitor qmaVisitor) {
-        if (pre != null) {
-            pre.visit(this);
-        }
-        super.accept(pre, post, rootTermPre, rootTermPost, termPre, termPost, qmaVisitor);
-        if (post != null) {
-            post.visit(this);
-        }
-    }
+    
 }
+

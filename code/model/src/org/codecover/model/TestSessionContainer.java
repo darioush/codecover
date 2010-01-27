@@ -91,6 +91,8 @@ public class TestSessionContainer {
     final ChangeEvent<TestCase> testCaseEvent = new ChangeEvent<TestCase>();
 
     private final Map<CoverableItem, RootTerm> rootTerms;
+    private final Map<CoverableItem, QuestionMarkOperator> questionMarkOperators;
+    private final Map<CoverableItem, QuestionMarkOperatorExpression> questionMarkOperatorExpressions;
 
     // The root terms' coverable items are not in this set
     private final Set<CoverableItem> coverableItems;
@@ -149,13 +151,32 @@ public class TestSessionContainer {
                 public void visit(RootTerm term) {
                     terms.put(term.getCoverableItem(), term);
                 }
-            }, null, null, null);
+            }, null, null, null, null);
         }
         this.rootTerms = Collections.unmodifiableMap(terms);
-
+        
+        final Map<CoverableItem, QuestionMarkOperator> questionMarkOperators = new TreeMap<CoverableItem, QuestionMarkOperator>();
+        final Map<CoverableItem, QuestionMarkOperatorExpression> questionMarkOperatorExpressions = new TreeMap<CoverableItem, QuestionMarkOperatorExpression>();
+        
         final Set<CoverableItem> items = new TreeSet<CoverableItem>();
         if (code != null) {
+           
             code.accept(null, null, new Statement.DefaultVisitor() {
+            	
+            	private void add(Statement statement) {
+            		
+            		for(QuestionMarkOperator questionMarkOperator : statement.getQuestionMarkOperators()) {
+            		
+	                  	QuestionMarkOperatorExpression expr1 = questionMarkOperator.getQuestionMarkOperatorExpression1();
+	                	QuestionMarkOperatorExpression expr2 = questionMarkOperator.getQuestionMarkOperatorExpression2();
+	                	
+	                	items.add(questionMarkOperator.getCoverableItem());
+	                	items.add(expr1.getCoverableItem());
+	                	items.add(expr2.getCoverableItem());
+            		}
+            		
+            	}
+            	
                 private void add(CoverableItem item) {
                     if (item != null) {
                         items.add(item);
@@ -165,11 +186,13 @@ public class TestSessionContainer {
                 @Override
                 public void visit(BasicStatement statement) {
                     add(statement.getCoverableItem());
+                    add(statement);
                 }
 
                 @Override
                 public void visit(ConditionalStatement statement) {
                     add(statement.getCoverableItem());
+                    add(statement);
                 }
 
                 @Override
@@ -178,15 +201,30 @@ public class TestSessionContainer {
                     add(statement.getNeverExecutedItem());
                     add(statement.getOnceExecutedItem());
                     add(statement.getMultipleExecutedItem());
+                    add(statement);
                 }
 
+                @Override
+                public void visit(SynchronizedStatement statement) {
+                	add(statement.getCoverableItem());
+                	add(statement.getCoverableItem(0));
+                	add(statement.getCoverableItem(1));
+                	add(statement.getCoverableItem(2));
+                    add(statement);
+                }
+                
                 @Override
                 public void visit(Branch branch) {
                     add(branch.getCoverableItem());
                 }
-            }, null, null, null, null, null);
+            }, null, null, null, null, null, null);
         }
+        
+        this.questionMarkOperators = Collections.unmodifiableMap(questionMarkOperators);
+        this.questionMarkOperatorExpressions = Collections.unmodifiableMap(questionMarkOperatorExpressions);
+
         this.coverableItems = Collections.unmodifiableSet(items);
+        
     }
 
     /**
@@ -951,7 +989,7 @@ public class TestSessionContainer {
                         newParentMap.put(childLevel, hierarchyLevel);
                     }
                 }
-            }, null, null, null, null, null, null, null);
+            }, null, null, null, null, null, null, null, null);
             // This might override another parentMap created in another thread,
             // but we don't care.
             // Since parentMap is volatile it always will be null or point

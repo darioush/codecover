@@ -24,7 +24,8 @@ package org.codecover.instrumentation.java15.syntaxtree;
  */
 @SuppressWarnings("all")
 public class ConditionalExpression implements Node {
-   private Node parent;
+    public String conditionalExpressionID = null;
+    private Node parent;
    public ConditionalOrExpression f0;
    public NodeOptional f1;
 

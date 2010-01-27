@@ -334,7 +334,7 @@ public class BooleanAnalyzer extends ViewPart {
             public void visit(RootTerm term) {
                 BooleanAnalyzer.this.conditionList.add(term);
             }
-        }, null, null, null);
+        }, null, null, null, null);
     }
 
     private final void fillClassComboBox() {
@@ -369,7 +369,7 @@ public class BooleanAnalyzer extends ViewPart {
                     BooleanAnalyzer.this.classList.add(hierarchyLevel);
                 }
             }
-        }, null, null, null, null, null, null, null);
+        }, null, null, null, null, null, null, null, null);
     }
 
     private final boolean isHierarchyLevelTypeForClass(String internalName) {

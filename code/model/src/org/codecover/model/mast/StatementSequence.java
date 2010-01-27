@@ -87,13 +87,14 @@ public class StatementSequence extends AbstractLocatableMetaDataObject {
      */
     public void accept(Statement.Visitor pre, Statement.Visitor post,
             RootTerm.Visitor rootTermPre, RootTerm.Visitor rootTermPost,
-            BooleanTerm.Visitor termPre, BooleanTerm.Visitor termPost) {
+            BooleanTerm.Visitor termPre, BooleanTerm.Visitor termPost, 
+            QuestionMarkOperator.Visitor qmaVisitor) {
         if (pre != null) {
             pre.visit(this);
         }
         for (Statement statement : getStatements()) {
             statement.accept(pre, post, rootTermPre, rootTermPost, termPre,
-                    termPost);
+                    termPost, qmaVisitor);
         }
         if (post != null) {
             post.visit(this);

@@ -86,13 +86,16 @@ public final class Internal {
      * @return the created {@link BasicStatement}
      */
     public static BasicStatement createBasicStatement(LocationList location,
-            CoverableItem coverableItem, Set<RootTerm> terms, Logger logger) {
+            CoverableItem coverableItem, Set<RootTerm> terms, Set<QuestionMarkOperator> questionMarkOperators, Logger logger) {
+    	
+    	
         BasicStatement basicStatement = new BasicStatement(location,
-                coverableItem, terms);
+                coverableItem, terms, questionMarkOperators);
 
         return basicStatement;
     }
 
+        
     /**
      * Creates and returns an instance of a {@link LocationList} containing the
      * given data.
@@ -185,10 +188,10 @@ public final class Internal {
      */
     public static ConditionalStatement createConditionalStatement(
             LocationList location, CoverableItem coverableItem,
-            Set<RootTerm> terms, List<Branch> branches, Location keyword,
+            Set<RootTerm> terms, List<Branch> branches, Location keyword, Set<QuestionMarkOperator> questionMarkOperators, 
             Logger logger) {
         ConditionalStatement conditionalStatement = new ConditionalStatement(
-                location, coverableItem, terms, branches, keyword);
+                location, coverableItem, terms, branches, keyword, questionMarkOperators);
 
         return conditionalStatement;
     }
@@ -235,11 +238,11 @@ public final class Internal {
             Set<RootTerm> terms, StatementSequence statementSequence,
             Location keyword, CoverableItem neverExecutedItem,
             CoverableItem onceExecutedItem, CoverableItem multipleExecutedItem,
-            boolean optionalBodyExecution, Logger logger) {
+            boolean optionalBodyExecution, Set<QuestionMarkOperator> questionMarkOperators, Logger logger) {
         LoopingStatement loopingStatement = new LoopingStatement(location,
                 coverableItem, terms, statementSequence, keyword,
                 neverExecutedItem, onceExecutedItem, multipleExecutedItem,
-                optionalBodyExecution);
+                optionalBodyExecution, questionMarkOperators);
 
         return loopingStatement;
     }

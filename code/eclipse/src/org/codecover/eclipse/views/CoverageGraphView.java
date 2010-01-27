@@ -1,3 +1,4 @@
+
 /******************************************************************************
  * Copyright (c) 2009 Negar Koochakzadeh, Vahid Garousi			      *
  * All rights reserved. This program and the accompanying materials           *
@@ -68,6 +69,7 @@ import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.Statement;
 import org.codecover.model.mast.StatementSequence;
 import org.codecover.model.utils.ChangeType;
+import org.codecover.model.utils.criteria.QMOCoverage;
 import org.eclipse.jdt.internal.compiler.ast.BranchStatement;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
@@ -548,7 +550,7 @@ public class CoverageGraphView extends ViewPart {
         		public void visit(LoopingStatement statement) {
         			add(statement.getCoverableItem());
         		}
-        	}, null, null, null, null, null);
+        	}, null, null, null, null, null, null);
         }
         else if(Criterion.compareTo("Branch") == 0){
         	tsc.getCode().accept(null, null, new Statement.DefaultVisitor() {
@@ -561,7 +563,7 @@ public class CoverageGraphView extends ViewPart {
                 public void visit(Branch branch) {
                     add(branch.getCoverableItem());
                 }
-        	}, null, null, null, null, null);
+        	}, null, null, null, null, null, null);
         }
         else if(Criterion.compareTo("Loop") == 0){
         	tsc.getCode().accept(null, null, new Statement.DefaultVisitor() {
@@ -578,7 +580,7 @@ public class CoverageGraphView extends ViewPart {
                     add(statement.getMultipleExecutedItem());
                     add(statement.getOnceExecutedItem());
                 }
-        	}, null, null, null, null, null);
+        	}, null, null, null, null, null, null);
         }
         else if(Criterion.compareTo("Condition") == 0){
         	tsc.getCode().accept(null, null, null, null,
@@ -592,7 +594,7 @@ public class CoverageGraphView extends ViewPart {
                         public void visit(RootTerm term) {
                             add(term.getCoverableItem());
                         }
-                    }, null, null, null);
+                    }, null, null, null, null);
         }
         else if(Criterion.compareTo("All") == 0){
         	tsc.getCode().accept(null, null, null, null,
@@ -606,7 +608,7 @@ public class CoverageGraphView extends ViewPart {
                         public void visit(RootTerm term) {
                             add(term.getCoverableItem());
                         }
-                    }, null, null, null);
+                    }, null, null, null, null);
         	tsc.getCode().accept(null, null, new Statement.DefaultVisitor() {
         		private void add(CoverableItem item) {
         			if (item != null) {
@@ -633,7 +635,7 @@ public class CoverageGraphView extends ViewPart {
         		public void visit(ConditionalStatement statement) {
         			add(statement.getCoverableItem());
         		}
-        	}, null, null, null, null, null);
+        	}, null, null, null, null, null, null);
         }
         return coverableItemSet;
     }
@@ -1850,4 +1852,4 @@ public class CoverageGraphView extends ViewPart {
             return null;
         }
     } 
-    }
+}

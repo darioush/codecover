@@ -120,6 +120,7 @@ import org.codecover.model.mast.HierarchyLevelType;
 import org.codecover.model.mast.Location;
 import org.codecover.model.mast.LocationList;
 import org.codecover.model.mast.LoopingStatement;
+import org.codecover.model.mast.QuestionMarkOperator;
 import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.SourceFile;
 import org.codecover.model.mast.StatementSequence;
@@ -256,7 +257,7 @@ public class InstrumentationVisitor extends TreeDumper {
      * @return the created basic statement
      */
     private BasicStatement createBasicStatement(int startOffset, int endOffset,
-            String id, Set<RootTerm> rootTerms) {
+            String id, Set<RootTerm> rootTerms, Set<QuestionMarkOperator> questionMarkOperators) {
         Location location = this.builder.createLocation(this.sourceFile,
                 startOffset, endOffset);
         List<Location> locations = new LinkedList<Location>();
@@ -267,7 +268,7 @@ public class InstrumentationVisitor extends TreeDumper {
             rootTerms = Collections.emptySet();
         }
         return this.builder.createBasicStatement(locationList, coverableItem,
-                rootTerms);
+                rootTerms, questionMarkOperators);
     }
 
     /**
@@ -340,8 +341,12 @@ public class InstrumentationVisitor extends TreeDumper {
         if (rootTerms == null) {
             rootTerms = Collections.emptySet();
         }
+
+        // assume empty ?-Operator Set
+        Set<QuestionMarkOperator> questionMarkOperators = new HashSet<QuestionMarkOperator>();
+        
         return this.builder.createConditionalStatement(locationList,
-                coverableItem, rootTerms, branches, keyword);
+                coverableItem, rootTerms, branches, keyword, questionMarkOperators);
     }
 
     /**
@@ -413,7 +418,7 @@ public class InstrumentationVisitor extends TreeDumper {
                 locationList, this.statementAttic.pop());
         return this.builder.createLoopingStatement(locationList, coverableItem,
                 rootTerms, statementSequence, keyword, neverExecutedItem,
-                onceExecutedItem, multipleExecutedItem, performTestBefore);
+                onceExecutedItem, multipleExecutedItem, performTestBefore, new HashSet<QuestionMarkOperator>());
     }
 
     /**
@@ -817,7 +822,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         // stores statement into the latest statement list
         BasicStatement basicStatement = this.createBasicStatement(startOffset,
-                endOffset, id, null);
+                endOffset, id, null, null);
         this.statementAttic.bottom().add(basicStatement);
     }
 
@@ -954,7 +959,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         // stores statement into the latest statement list
         BasicStatement basicStatement = this.createBasicStatement(startOffset,
-                endOffset, callID, null);
+                endOffset, callID, null, null);
         this.statementAttic.bottom().add(basicStatement);
     }
 
@@ -1122,7 +1127,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         // stores statement into the latest statement list
         BasicStatement basicStatement = this.createBasicStatement(startOffset,
-                endOffset, id, null);
+                endOffset, id, null, null);
         this.statementAttic.bottom().add(basicStatement);
     }
 
@@ -1340,7 +1345,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         // stores statement into the latest statement list
         BasicStatement basicStatement = this.createBasicStatement(startOffset,
-                endOffset, id, null);
+                endOffset, id, null, null);
         this.statementAttic.bottom().add(basicStatement);
     }
 
@@ -1491,7 +1496,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         // stores statement into the latest statement list
         BasicStatement basicStatement = this.createBasicStatement(startOffset,
-                endOffset, id, null);
+                endOffset, id, null, null);
         this.statementAttic.bottom().add(basicStatement);
     }
 
@@ -1958,7 +1963,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         // stores statement into the latest statement list
         BasicStatement basicStatement = this.createBasicStatement(startOffset,
-                endOffset, id, null);
+                endOffset, id, null,  null);
         this.statementAttic.bottom().add(basicStatement);
     }
 
@@ -2204,7 +2209,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         // stores statement into the latest statement list
         BasicStatement basicStatement = this.createBasicStatement(startOffset,
-                endOffset, id, rootTerms);
+                endOffset, id, rootTerms, null); // Assume: there is no ?-Operator in COBOL
         this.statementAttic.bottom().add(basicStatement);
     }
 
@@ -2477,7 +2482,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         // stores statement into the latest statement list
         BasicStatement basicStatement = this.createBasicStatement(startOffset,
-                endOffset, id, null);
+                endOffset, id, null, null);
         this.statementAttic.bottom().add(basicStatement);
     }
 
@@ -2590,7 +2595,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         // stores statement into the latest statement list
         BasicStatement basicStatement = this.createBasicStatement(startOffset,
-                endOffset, id, null);
+                endOffset, id, null, null);
         this.statementAttic.bottom().add(basicStatement);
     }
 
@@ -2707,7 +2712,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         if (branches.size() == 0) {
             BasicStatement basicStatement = this.createBasicStatement(
-                    startOffsetSe, endOffsetSe, id, null);
+                    startOffsetSe, endOffsetSe, id, null, null);
             this.statementAttic.bottom().add(basicStatement);
         } else {
             // stores the branches in a conditional statement
@@ -2845,7 +2850,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         // stores statement into the latest statement list
         BasicStatement basicStatement = this.createBasicStatement(startOffset,
-                endOffset, id, null);
+                endOffset, id, null, null);
         this.statementAttic.bottom().add(basicStatement);
     }
 
@@ -2901,7 +2906,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
             // saves statement to database
             BasicStatement basicStatement = this.createBasicStatement(
-                    startOffset, endOffset, id, null);
+                    startOffset, endOffset, id, null, null);
             this.statementAttic.bottom().add(basicStatement);
         } else {
             /*
@@ -2919,7 +2924,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
             // saves statement to database
             BasicStatement basicStatement = this.createBasicStatement(
-                    startOffset, endOffset, id, null);
+                    startOffset, endOffset, id, null, null);
             this.statementAttic.bottom().add(basicStatement);
         }
     }
@@ -3037,7 +3042,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         // stores statement into the latest statement list
         BasicStatement basicStatement = this.createBasicStatement(startOffset,
-                endOffset, id, null);
+                endOffset, id, null, null);
         this.statementAttic.bottom().add(basicStatement);
     }
 
@@ -3181,7 +3186,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         // stores statement into the latest statement list
         BasicStatement basicStatement = this.createBasicStatement(startOffset,
-                endOffset, id, null);
+                endOffset, id, null, null);
         this.statementAttic.bottom().add(basicStatement);
     }
 
@@ -3302,7 +3307,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         // stores statement into the latest statement list
         BasicStatement basicStatement = this.createBasicStatement(startOffset,
-                endOffset, id, null);
+                endOffset, id, null, null);
         this.statementAttic.bottom().add(basicStatement);
     }
 
@@ -3471,7 +3476,7 @@ public class InstrumentationVisitor extends TreeDumper {
 
         // stores statement into the latest statement list
         BasicStatement basicStatement = this.createBasicStatement(startOffset,
-                endOffset, id, null);
+                endOffset, id, null, null);
         this.statementAttic.bottom().add(basicStatement);
     }
 

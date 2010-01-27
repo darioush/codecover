@@ -99,13 +99,14 @@ public class MASTBuilder {
      * @return the created {@link BasicStatement}
      */
     public BasicStatement createBasicStatement(LocationList location,
-            CoverableItem coverableItem, Set<RootTerm> terms) {
+            CoverableItem coverableItem, Set<RootTerm> terms, Set<QuestionMarkOperator> questionMarkOperators) {
         BasicStatement basicStatement = Internal.createBasicStatement(location,
-                coverableItem, terms, this.logger);
+                coverableItem, terms, questionMarkOperators, this.logger);
 
         return basicStatement;
     }
 
+    
     /**
      * Creates and returns an instance of a {@link LocationList} containing the
      * given data.
@@ -198,10 +199,10 @@ public class MASTBuilder {
      */
     public ConditionalStatement createConditionalStatement(
             LocationList location, CoverableItem coverableItem,
-            Set<RootTerm> terms, List<Branch> branches, Location keyword) {
+            Set<RootTerm> terms, List<Branch> branches, Location keyword, Set<QuestionMarkOperator> questionMarkOperators) {
         ConditionalStatement conditionalStatement = Internal
                 .createConditionalStatement(location, coverableItem, terms,
-                        branches, keyword, this.logger);
+                        branches, keyword, questionMarkOperators, this.logger);
 
         return conditionalStatement;
     }
@@ -245,11 +246,11 @@ public class MASTBuilder {
             CoverableItem coverableItem, Set<RootTerm> terms,
             StatementSequence statementSequence, Location keyword,
             CoverableItem neverExecutedItem, CoverableItem onceExecutedItem,
-            CoverableItem multipleExecutedItem, boolean optionalBodyExecution) {
+            CoverableItem multipleExecutedItem, boolean optionalBodyExecution, Set<QuestionMarkOperator> questionMarkOperators) {
         LoopingStatement loopingStatement = Internal.createLoopingStatement(
                 location, coverableItem, terms, statementSequence, keyword,
                 neverExecutedItem, onceExecutedItem, multipleExecutedItem,
-                optionalBodyExecution, this.logger);
+                optionalBodyExecution, questionMarkOperators, this.logger);
 
         return loopingStatement;
     }

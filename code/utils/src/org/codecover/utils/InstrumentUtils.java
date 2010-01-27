@@ -48,6 +48,7 @@ import org.codecover.model.utils.criteria.Criterion;
 import org.codecover.model.utils.criteria.LoopCoverage;
 import org.codecover.model.utils.criteria.StatementCoverage;
 import org.codecover.model.utils.criteria.SynchronizedStatementCoverage;
+import org.codecover.model.utils.criteria.QMOCoverage;
 import org.codecover.model.utils.file.FileTool;
 import org.codecover.model.utils.file.SourceTargetContainer;
 
@@ -82,6 +83,7 @@ public final class InstrumentUtils {
         map.put("co", ConditionCoverage.getInstance());
         map.put("lo", LoopCoverage.getInstance());
         map.put("sy", SynchronizedStatementCoverage.getInstance());
+        map.put("qm", QMOCoverage.getInstance());
         
         instrumenterCriteriaShortcuts = Collections.unmodifiableMap(map);
     }

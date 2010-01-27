@@ -144,7 +144,7 @@ public class TestCase extends AbstractMetaDataProvider {
         this.comment = comment;
         this.coverageData = CollectionUtil.copy(coverageData);
         this.assignments = CollectionUtil.copy(assignments);
-
+        
         if (!getTestSession().getTestSessionContainer().getCoverableItems()
                 .containsAll(coverageData.keySet())) {
             final Set<CoverableItem> items = getTestSession()

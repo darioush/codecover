@@ -39,6 +39,7 @@ import org.codecover.model.utils.criteria.ConditionCoverage;
 import org.codecover.model.utils.criteria.LoopCoverage;
 import org.codecover.model.utils.criteria.StatementCoverage;
 import org.codecover.model.utils.criteria.SynchronizedStatementCoverage;
+import org.codecover.model.utils.criteria.QMOCoverage;
 
 /**
  * This class manages all the counters and IDs needed for instrumentation.<br>
@@ -231,6 +232,8 @@ public class CounterIDManager {
     
     private static final String SYNC_STATEMENT_ID_FORMAT = SynchronizedStatementCoverage.ID_PREFIX + "%1$d";
     
+    private static final String QMO_ID_FORMAT = QMOCoverage.ID_PREFIX + "%1$d";
+
     private static final Charset CHARSET_FOR_CREATING_NAME = Charset.forName("UTF-8");
     
     private static final CharsetEncoder ENCODER_FOR_NAME = CHARSET_FOR_CREATING_NAME.newEncoder();
@@ -267,6 +270,8 @@ public class CounterIDManager {
     private int loopCount;
     
     private int syncStatementCount;
+
+    private int qmoCount; // Question mark operator
 
     private final String testSessionContainerUID;
 
@@ -569,9 +574,20 @@ public class CounterIDManager {
     public String nextSyncStatementID() {
         this.syncStatementCount++;
         return String.format(SYNC_STATEMENT_ID_FORMAT, 
-                new Integer(this.syncStatementCount));
+                new Integer(this.syncStatementCount - 1));
     }
 
+    /**
+     * the question mark operator
+     * @return
+     */
+    public String nextQMOStatementID() {
+        this.qmoCount++;
+        return String.format(QMO_ID_FORMAT, 
+                new Integer(this.qmoCount - 1)); // start with Q0
+    }
+    
+    
     /**
      * Writes the calling of the inner class to start their static block, which
      * inserts the inner class to the {@link ProtocolImpl} list of observed

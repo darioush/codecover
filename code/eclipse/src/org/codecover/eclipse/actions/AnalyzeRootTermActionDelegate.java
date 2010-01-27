@@ -139,7 +139,7 @@ public class AnalyzeRootTermActionDelegate extends
         @Override
         protected void traversePostfix(TestSessionContainer tsc) {
             //ignore HierarchyLevels and BooleanTerms
-            tsc.getCode().accept(null, null, null, null, null, this, null, null);
+            tsc.getCode().accept(null, null, null, null, null, this, null, null, null);
         }
 
         /*

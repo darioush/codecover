@@ -496,7 +496,7 @@ public class ManualRedundancyView
         public void visit(LoopingStatement statement) {
           add(statement.getCoverableItem());
         }
-      }, null, null, null, null, null);
+      }, null, null, null, null, null, null);
     } else if (Criterion.compareTo("Branch") == 0) {
       tsc.getCode().accept(null, null, new Statement.DefaultVisitor() {
 
@@ -510,7 +510,7 @@ public class ManualRedundancyView
         public void visit(Branch branch) {
           add(branch.getCoverableItem());
         }
-      }, null, null, null, null, null);
+      }, null, null, null, null, null, null);
     } else if (Criterion.compareTo("Loop") == 0) {
       tsc.getCode().accept(null, null, new Statement.DefaultVisitor() {
 
@@ -528,7 +528,7 @@ public class ManualRedundancyView
           add(statement.getMultipleExecutedItem());
           add(statement.getOnceExecutedItem());
         }
-      }, null, null, null, null, null);
+      }, null, null, null, null, null, null);
     } else if (Criterion.compareTo("Condition") == 0) {
       tsc.getCode().accept(null, null, null, null, new RootTerm.DefaultVisitor() {
 
@@ -542,7 +542,7 @@ public class ManualRedundancyView
         public void visit(RootTerm term) {
           add(term.getCoverableItem());
         }
-      }, null, null, null);
+      }, null, null, null, null);
     } else if (Criterion.compareTo("All") == 0) {
       tsc.getCode().accept(null, null, null, null, new RootTerm.DefaultVisitor() {
 
@@ -556,7 +556,7 @@ public class ManualRedundancyView
         public void visit(RootTerm term) {
           add(term.getCoverableItem());
         }
-      }, null, null, null);
+      }, null, null, null, null);
       tsc.getCode().accept(null, null, new Statement.DefaultVisitor() {
 
         private void add(CoverableItem item) {
@@ -588,7 +588,7 @@ public class ManualRedundancyView
         public void visit(ConditionalStatement statement) {
           add(statement.getCoverableItem());
         }
-      }, null, null, null, null, null);
+      }, null, null, null, null, null, null);
     }
     return coverableItemSet;
   }

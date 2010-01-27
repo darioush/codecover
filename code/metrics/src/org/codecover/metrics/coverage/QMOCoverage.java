@@ -21,6 +21,8 @@ import org.codecover.model.mast.Branch;
 import org.codecover.model.mast.ConditionalStatement;
 import org.codecover.model.mast.HierarchyLevel;
 import org.codecover.model.mast.LoopingStatement;
+import org.codecover.model.mast.QuestionMarkOperator;
+import org.codecover.model.mast.QuestionMarkOperatorExpression;
 import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.Statement;
 import org.codecover.model.mast.StatementSequence;
@@ -29,16 +31,16 @@ import org.codecover.model.utils.criteria.Criterion;
 /**
  * This class would need to override getCoverage(testCases, statement).
  *
- * @author Markus Wittlinger, Tilmann Scheller
- * @version 1.0 ($Id$)
+ * @author RS
+ * @version 1.0 ($Id: StatementCoverage.java 64 2009-09-28 15:11:11Z ahija $)
  */
-public class StatementCoverage extends AbstractCoverageMetric {
+public class QMOCoverage extends AbstractCoverageMetric {
 
     /**
-     * @author Steffen Kieß
-     * @version 1.0 ($Id$)
+     * @author RS
+     * @version 1.0 ($Id: StatementCoverage.java 64 2009-09-28 15:11:11Z ahija $)
      */
-    public static interface ExecutionsHint extends Hint {
+    public static interface QMOHint extends Hint {
         /**
          * Gets the number of executions
          * @return the number of executions
@@ -46,7 +48,7 @@ public class StatementCoverage extends AbstractCoverageMetric {
         public long getNumberOfExecutions();
     }
 
-    private static final class ExecutionsHintImpl implements ExecutionsHint {
+    private static final class QMOHintImpl implements QMOHint {
         private long numberOfExecutions;
 
         /**
@@ -55,7 +57,7 @@ public class StatementCoverage extends AbstractCoverageMetric {
          * @param numberOfExecutions
          *            the number of executions.
          */
-        public ExecutionsHintImpl(long numberOfExecutions) {
+        public QMOHintImpl(long numberOfExecutions) {
             if (numberOfExecutions < 0) {
                 throw new IllegalArgumentException("numberOfExecutions < 0");
             }
@@ -68,15 +70,15 @@ public class StatementCoverage extends AbstractCoverageMetric {
         }
     }
 
-    private static final String CACHING_KEY = "StatementCoverage";
+    private static final String CACHING_KEY = "QMOCoverage";
 
     private static final String DESCRIPTION = "";
 
-    private static final String NAME = "Statement Coverage";
+    private static final String NAME = "?-Operator Coverage";
 
-    private static StatementCoverage instance = new StatementCoverage();
+    private static QMOCoverage instance = new QMOCoverage();
 
-    private StatementCoverage() {
+    private QMOCoverage() {
         super(CACHING_KEY);
     }
 
@@ -85,7 +87,7 @@ public class StatementCoverage extends AbstractCoverageMetric {
      *
      * @return instance of StatementCoverage.
      */
-    public static StatementCoverage getInstance() {
+    public static QMOCoverage getInstance() {
         return instance;
     }
 
@@ -114,56 +116,59 @@ public class StatementCoverage extends AbstractCoverageMetric {
      */
     public Set<Criterion> getRequiredCriteria() {
         return Collections.<Criterion>singleton(
-            org.codecover.model.utils.criteria.StatementCoverage.getInstance());
+            org.codecover.model.utils.criteria.QMOCoverage.getInstance());
     }
 
-    /**
-     * A static {@link CoverageResult} representing zero of one covered items.
-     */
-    public static final CoverageResult zeroOneResult = new CoverageResult(0, 1);
-    /**
-     * A static {@link CoverageResult} representing one of one covered items.
-     */
-    public static final CoverageResult oneOneResult = new CoverageResult(1, 1);
 
     /**
      * Calculates the
-     * {@link org.codecover.model.utils.criteria.StatementCoverage}
+     * {@link org.codecover.model.utils.criteria.QMOCoverage}
      *
-     * @see org.codecover.metrics.coverage.AbstractCoverageMetric#getCoverage(java.util.List,
-     *      org.codecover.model.mast.Statement)
-     */
-    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
-            Statement statement) {
-        if (statement instanceof BasicStatement) {
-            // check whether the item has been covered in one of the test cases
-            for (TestCase testCase : testCases) {
-                if ((testCase.getCoverageCount(statement.getCoverableItem())) > 0) {
-                    return oneOneResult;
-                }
+    */
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases, QuestionMarkOperator qmo) {
+    	
+    	QuestionMarkOperatorExpression expr1 = qmo.getQuestionMarkOperatorExpression1();
+    	QuestionMarkOperatorExpression expr2 = qmo.getQuestionMarkOperatorExpression2();
+    	
+    	int expr1Covered = 0;
+    	int expr2Covered = 0;
+    	
+    	// a QuestionMarkOperator is covered, when both Expressions are covered
+        for (TestCase testCase : testCases) {
+            if ((testCase.getCoverageCount(expr1.getCoverableItem())) > 0) {
+                expr1Covered = 1;
             }
-            return zeroOneResult;
-        } else {
-            return CoverageResult.NULL;
+            if ((testCase.getCoverageCount(expr2.getCoverableItem())) > 0) {
+                expr2Covered = 1;
+            }
+            
+            if(expr1Covered == 1 && expr2Covered == 1) break;
         }
+
+        return new CoverageResult(expr1Covered + expr2Covered, 2);
     }
 
- 
-    public Set<Hint> getHints(Collection<TestCase> testCases,
-    		Statement statement) {
-    	if(statement instanceof BasicStatement) {
-            long executions = 0;
-
-            for (final TestCase testCase : testCases) {
-                executions += testCase.getCoverageCount(statement.getCoverableItem());
+    public CoverageResult getCoverageLocal(Collection<TestCase> testCases, QuestionMarkOperatorExpression qmoe) {
+    	// a QuestionMarkOperator is covered, when both Expressions are covered
+        for (TestCase testCase : testCases) {
+            if ((testCase.getCoverageCount(qmoe.getCoverableItem())) > 0) {
+                return new CoverageResult(1, 1);
             }
-
-            final Hint hint = new ExecutionsHintImpl(executions);
-            return Collections.singleton(hint);
         }
-    	
-    	
-        return noHints; 
+
+        return new CoverageResult(0, 1);
+    }
+    
+    public Set<Hint> getHints(Collection<TestCase> testCases, QuestionMarkOperator qmo) {
+  
+    	int executions = 0;
+        for (final TestCase testCase : testCases) {
+            executions += testCase.getCoverageCount(qmo.getCoverableItem());
+        }
+
+        final Hint hint = new QMOHintImpl(executions);
+        return Collections.singleton(hint);
     }
 
- }
+
+}

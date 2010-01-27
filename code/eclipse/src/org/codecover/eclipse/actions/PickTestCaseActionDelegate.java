@@ -330,7 +330,7 @@ public class PickTestCaseActionDelegate extends
         @Override
         protected void traversePostfix(TestSessionContainer tsc) {
             //ignore HierarchyLevels and BooleanTerms
-            tsc.getCode().accept(null, null, null, this, null, this, null, null);
+            tsc.getCode().accept(null, null, null, this, null, this, null, null, null);
         }
         
         /*

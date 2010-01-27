@@ -80,7 +80,7 @@ public class LoopCorrelation extends AbstractCorrelationMetric {
                 add(statement.getMultipleExecutedItem());
                 add(statement.getOnceExecutedItem());
             }
-        }, null, null, null, null, null);
+        }, null, null, null, null, null, null);
 
         return super.calculateCorrelation(coverableItemSet, testCases);
     }

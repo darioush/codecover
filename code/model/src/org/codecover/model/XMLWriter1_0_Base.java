@@ -28,6 +28,9 @@ import org.codecover.model.mast.LoopingStatement;
 import org.codecover.model.mast.MetaData;
 import org.codecover.model.mast.MetaDataObject;
 import org.codecover.model.mast.OperatorTerm;
+import org.codecover.model.mast.QuestionMarkOperator;
+import org.codecover.model.mast.QuestionMarkOperatorExpression;
+import org.codecover.model.mast.SynchronizedStatement;
 import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.SourceFile;
 import org.codecover.model.mast.Statement;
@@ -689,9 +692,16 @@ public abstract class XMLWriter1_0_Base extends XMLWriterBase implements
             createRootTermElement(rootTerm);
         }
 
+        /* Creates all the root terms of the statement */
+        for (QuestionMarkOperator questionMarkOperator : statement.getQuestionMarkOperators()) {
+        	createQuestionMarkOperatorElement(questionMarkOperator);
+        }
+        
         endElement(elementName);
     }
 
+    
+   
     /**
      * Starts element for {@link ComplexStatement}s.The element is filled with
      * the data common to all {@link ComplexStatement}s and then passed to a
@@ -721,6 +731,9 @@ public abstract class XMLWriter1_0_Base extends XMLWriterBase implements
         } else if (complexStatement instanceof ConditionalStatement) {
             elementName = createConditionalStatementElement(
                     (ConditionalStatement) complexStatement, atts);
+        } else if (complexStatement instanceof SynchronizedStatement) {
+            elementName = createSynchronizedStatementElement(
+                    (SynchronizedStatement) complexStatement, atts);
         }
 
         /* Creates the keyword element */
@@ -756,6 +769,35 @@ public abstract class XMLWriter1_0_Base extends XMLWriterBase implements
 
         return ELEMENT_CONDITIONAL_STATEMENT;
     }
+    
+    /**
+     * Starts element for {@link ConditionalStatement}s
+     * 
+     * @param conditionalStatement
+     *            the given element of the mast
+     * @param atts
+     *            the previously created attributes map object.
+     * @return the name of the created element.
+     * @throws SAXException
+     */
+    private String createSynchronizedStatementElement(
+    		SynchronizedStatement synchronizedStatement, Map<String, String> atts)
+            throws SAXException {
+
+        if (synchronizedStatement == null) {
+            throw new NullPointerException("synchronizedStatement == null");
+        }
+        
+        atts.put(ELEMENT_SYNCHRONIZED0, synchronizedStatement.getCoverableItem(0).getId());
+        atts.put(ELEMENT_SYNCHRONIZED1, synchronizedStatement.getCoverableItem(1).getId());
+        atts.put(ELEMENT_SYNCHRONIZED2, synchronizedStatement.getCoverableItem(2).getId());                      
+        
+        startElement(ELEMENT_SYNCHRONIZED_STATEMENT, atts);
+
+        return ELEMENT_SYNCHRONIZED_STATEMENT;
+    }
+    
+        
 
     /**
      * Starts element for {@link Branch}es
@@ -888,6 +930,8 @@ public abstract class XMLWriter1_0_Base extends XMLWriterBase implements
         endElement(ELEMENT_ROOT_TERM);
     }
 
+    
+    
     /**
      * Starts element for {@link BooleanTerm}s
      * 
@@ -1108,7 +1152,91 @@ public abstract class XMLWriter1_0_Base extends XMLWriterBase implements
 
         return ELEMENT_BASIC_BOOLEAN_TERM;
     }
+    
+    
+    /**
+     * Starts element for {@link Statement}s. The element is filled with the
+     * data common to all {@link Statement}s and then passed to a method for
+     * each one of the subclasses of {@link Statement}, to assign the specific
+     * data
+     * 
+     * @param statement
+     *            the given element of the mast
+     * @throws SAXException
+     */
+    private void createQuestionMarkOperatorElement(QuestionMarkOperator qmo)
+            throws SAXException {
 
+        if (qmo == null) {
+            throw new NullPointerException("qmo == null");
+        }
+
+        String internalId = storeMetaDataObject(qmo);
+
+        Map<String, String> atts = getNewAttributes();
+        atts.put(INTERNAL_ID, internalId);
+        /* set the id of the coverable item as an attribute. */
+        atts.put(COVERABLE_ITEM_ID, qmo.getCoverableItem().getId());
+        /* set the prefix of the coverable item as an attribute. */
+        atts.put(COVERABLE_ITEM_PREFIX, qmo.getCoverableItem()
+                .getPrefix());
+
+        startElement(ELEMENT_QUESTIONMARKOPERATOR, atts);
+     
+
+        /* Creates location list element */
+        createLocationListElement(ELEMENT_LOCATION_LIST, qmo
+                .getLocation());
+                
+        QuestionMarkOperatorExpression expr1 = qmo.getQuestionMarkOperatorExpression1();
+        createQuestionMarkOperatorExpression(expr1);
+
+        QuestionMarkOperatorExpression expr2 = qmo.getQuestionMarkOperatorExpression2();
+        createQuestionMarkOperatorExpression(expr2);
+      
+        endElement(ELEMENT_QUESTIONMARKOPERATOR);
+    }
+    
+
+    /**
+     * Starts element for {@link Statement}s. The element is filled with the
+     * data common to all {@link Statement}s and then passed to a method for
+     * each one of the subclasses of {@link Statement}, to assign the specific
+     * data
+     * 
+     * @param statement
+     *            the given element of the mast
+     * @throws SAXException
+     */
+    private void createQuestionMarkOperatorExpression(QuestionMarkOperatorExpression qmoe)
+            throws SAXException {
+
+        if (qmoe == null) {
+            throw new NullPointerException("qmoe == null");
+        }
+
+        String internalId = storeMetaDataObject(qmoe);
+
+        Map<String, String> atts = getNewAttributes();
+        atts.put(INTERNAL_ID, internalId);
+        /* set the id of the coverable item as an attribute. */
+        atts.put(COVERABLE_ITEM_ID, qmoe.getCoverableItem().getId());
+        /* set the prefix of the coverable item as an attribute. */
+        atts.put(COVERABLE_ITEM_PREFIX, qmoe.getCoverableItem()
+                .getPrefix());
+
+        startElement(ELEMENT_QUESTIONMARKOPERATOR_EXPRESSION, atts);
+     
+
+        /* Creates location list element */
+        createLocationListElement(ELEMENT_LOCATION_LIST, qmoe
+                .getLocation());
+
+        endElement(ELEMENT_QUESTIONMARKOPERATOR_EXPRESSION);
+    }
+    
+    
+    
     /**
      * Starts element for {@link TestSessionContainer}s
      * 
@@ -1321,7 +1449,7 @@ public abstract class XMLWriter1_0_Base extends XMLWriterBase implements
                         set.add(term.getOperator());
                     }
 
-                }, null);
+                }, null, null);
 
         return set;
     }
@@ -1342,7 +1470,7 @@ public abstract class XMLWriter1_0_Base extends XMLWriterBase implements
             public void visit(HierarchyLevel level) {
                 set.add(level.getType());
             }
-        }, null, null, null, null, null, null, null);
+        }, null, null, null, null, null, null, null, null);
 
         return set;
     }

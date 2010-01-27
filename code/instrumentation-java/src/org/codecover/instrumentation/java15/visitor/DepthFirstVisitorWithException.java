@@ -624,6 +624,7 @@ public class DepthFirstVisitorWithException implements VisitorWithException {
     * </PRE>
     */
    public void visit(ConditionalExpression n) throws java.io.IOException {
+
       n.f0.accept(this);
       n.f1.accept(this);
    }

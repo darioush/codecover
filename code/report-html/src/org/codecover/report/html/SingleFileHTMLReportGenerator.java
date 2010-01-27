@@ -361,7 +361,7 @@ public class SingleFileHTMLReportGenerator implements ReportGenerator {
                         nphlt.incNumber();
                     }
                 }
-            }, null, null, null, null, null, null, null);
+            }, null, null, null, null, null, null, null, null);
         
         context.put("dateFormatter", DateFormat.getDateTimeInstance(
                 DateFormat.LONG, DateFormat.LONG, new Locale(this.language)));

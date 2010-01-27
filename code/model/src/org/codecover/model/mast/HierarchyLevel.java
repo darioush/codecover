@@ -228,20 +228,20 @@ public class HierarchyLevel extends AbstractLocatableMetaDataObject {
     public void accept(Visitor pre, Visitor post,
             Statement.Visitor statementPre, Statement.Visitor statementPost,
             RootTerm.Visitor rootTermPre, RootTerm.Visitor rootTermPost,
-            BooleanTerm.Visitor termPre, BooleanTerm.Visitor termPost) {
+            BooleanTerm.Visitor termPre, BooleanTerm.Visitor termPost, QuestionMarkOperator.Visitor qmaVisitor) {
         if (pre != null) {
             pre.visit(this);
         }
         for (HierarchyLevel child : getChildren()) {
             child.accept(pre, post, statementPre, statementPost, rootTermPre,
-                    rootTermPost, termPre, termPost);
+                    rootTermPost, termPre, termPost, qmaVisitor);
         }
         if (statementPre != null || statementPost != null
                 || rootTermPre != null || rootTermPost != null
-                || termPre != null || termPost != null) {
+                || termPre != null || termPost != null || qmaVisitor != null) {
             for (StatementSequence sequence : getSequences()) {
                 sequence.accept(statementPre, statementPost, rootTermPre,
-                        rootTermPost, termPre, termPost);
+                        rootTermPost, termPre, termPost, qmaVisitor);
             }
         }
         if (post != null) {
@@ -325,7 +325,7 @@ public class HierarchyLevel extends AbstractLocatableMetaDataObject {
                         map.put(child, hierarchyLevel);
                     }
                 }
-            }, null, null, null, null, null, null, null);
+            }, null, null, null, null, null, null, null, null);
         }
     };
 
@@ -368,7 +368,7 @@ public class HierarchyLevel extends AbstractLocatableMetaDataObject {
                 public void visit(Branch branch) {
                     map.put(branch.getSequence(), branch);
                 }
-            }, null, null, null, null, null);
+            }, null, null, null, null, null, null);
         }
     };
 
@@ -393,7 +393,7 @@ public class HierarchyLevel extends AbstractLocatableMetaDataObject {
                         map.put(statement, sequence);
                     }
                 }
-            }, null, null, null, null, null);
+            }, null, null, null, null, null, null);
         }
     };
 
@@ -419,7 +419,7 @@ public class HierarchyLevel extends AbstractLocatableMetaDataObject {
                         map.put(branch, statement);
                     }
                 }
-            }, null, null, null, null, null);
+            }, null, null, null, null, null, null);
         }
     };
 
@@ -475,7 +475,7 @@ public class HierarchyLevel extends AbstractLocatableMetaDataObject {
                 public void visit(Branch branch) {
                     maybeAdd(branch.getCoverableItem(), branch);
                 }
-            }, null, null, null, null, null);
+            }, null, null, null, null, null, null);
         }
     };
 

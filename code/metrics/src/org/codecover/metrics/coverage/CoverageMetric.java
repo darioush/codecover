@@ -23,9 +23,12 @@ import org.codecover.model.mast.ConditionalStatement;
 import org.codecover.model.mast.HierarchyLevel;
 import org.codecover.model.mast.LoopingStatement;
 import org.codecover.model.mast.OperatorTerm;
+import org.codecover.model.mast.QuestionMarkOperator;
+import org.codecover.model.mast.QuestionMarkOperatorExpression;
 import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.Statement;
 import org.codecover.model.mast.StatementSequence;
+import org.codecover.model.mast.SynchronizedStatement;
 
 /**
  * This interface must be implemented by all coverage metrics.
@@ -109,6 +112,9 @@ public interface CoverageMetric extends Metric {
         public void visit(RootTerm term, CoverageResult result, Set<Hint> hints);
         public void visit(BasicBooleanTerm term, RootTerm rootTerm, CoverageResult result, Set<Hint> hints);
         public void visit(OperatorTerm term, RootTerm rootTerm, CoverageResult result, Set<Hint> hints);
+        public void visit(QuestionMarkOperator qmo, CoverageResult result, Set<Hint> hints);
+        public void visit(QuestionMarkOperatorExpression qmoe, CoverageResult result, Set<Hint> hints);
+        public void visit(SynchronizedStatement synchronizedStatement, CoverageResult result, Set<Hint> hints);
     }
 
     public static class DefaultPostMetricVisitor implements PostMetricVisitor {
@@ -141,6 +147,12 @@ public interface CoverageMetric extends Metric {
 
         public void visit(OperatorTerm term, RootTerm rootTerm, CoverageResult result, Set<Hint> hints) {
         }
+        public void visit(QuestionMarkOperator qmo, CoverageResult result, Set<Hint> hints) {
+        }
+        public void visit(SynchronizedStatement synchronizedStatement, CoverageResult result, Set<Hint> hints) {         	
+        }
+		public void visit(QuestionMarkOperatorExpression qmoe, CoverageResult result, Set<Hint> hints) {
+		}
     }
 
     public static interface PrePostMetricVisitor extends PreMetricVisitor, PostMetricVisitor {

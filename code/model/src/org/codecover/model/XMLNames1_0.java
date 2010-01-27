@@ -148,6 +148,16 @@ interface XMLNames1_0 extends XMLNames {
     static final String ELEMENT_BOOLEAN_OPERATOR = "BoolOp";
 
     /**
+     * ?
+     */
+    static final String ELEMENT_QUESTIONMARKOPERATOR = "QMO";
+
+    /**
+     * ?
+     */
+    static final String ELEMENT_QUESTIONMARKOPERATOR_EXPRESSION = "QMO_E";
+    
+    /**
      * Arity
      */
     static final String ARITY = "Arity";
@@ -206,6 +216,20 @@ interface XMLNames1_0 extends XMLNames {
      * CondStmnt
      */
     static final String ELEMENT_CONDITIONAL_STATEMENT = "CondStmnt";
+
+    
+    /**
+     * 
+     */
+    static final String ELEMENT_SYNCHRONIZED_STATEMENT = "SyncStmnt";
+    
+    
+    /**
+     * 
+     */
+    static final String ELEMENT_SYNCHRONIZED0 = "SyncStmnt0";
+    static final String ELEMENT_SYNCHRONIZED1 = "SyncStmnt1";
+    static final String ELEMENT_SYNCHRONIZED2 = "SyncStmnt2";
 
     /**
      * Branch

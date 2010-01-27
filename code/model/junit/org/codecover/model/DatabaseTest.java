@@ -74,13 +74,13 @@ public class DatabaseTest extends junit.framework.TestCase {
                 this.builder, sourceFile, 176, 180);
         BasicStatement incrementIStatement = this.builder.createBasicStatement(
                 incrementILocationList, this.builder.createCoverableItem(
-                        "TestClass", "S1"), new HashSet<RootTerm>());
+                        "TestClass", "S1"), new HashSet<RootTerm>(), new HashSet<QuestionMarkOperator>());
 
         LocationList incrementJLocationList = this.createLocationList(
                 this.builder, sourceFile, 187, 191);
         BasicStatement incrementJStatement = this.builder.createBasicStatement(
                 incrementJLocationList, this.builder.createCoverableItem(
-                        "TestClass", "S2"), new HashSet<RootTerm>());
+                        "TestClass", "S2"), new HashSet<RootTerm>(), new HashSet<QuestionMarkOperator>());
 
         statementList = new Vector<Statement>();
         statementList.addElement(incrementIStatement);
@@ -126,6 +126,7 @@ public class DatabaseTest extends junit.framework.TestCase {
 
         terms = new HashSet<RootTerm>();
         terms.add(whileExpression);
+        
 
         LoopingStatement whileStatement = this.builder.createLoopingStatement(
                 whileLocationList, this.builder.createCoverableItem(
@@ -133,7 +134,7 @@ public class DatabaseTest extends junit.framework.TestCase {
                 whileKeywordLocation, this.builder.createCoverableItem(
                         "TestClass", "L-0"), this.builder.createCoverableItem(
                         "TestClass", "L-1"), this.builder.createCoverableItem(
-                        "TestClass", "L-2"), true);
+                        "TestClass", "L-2"), true, new HashSet<QuestionMarkOperator>());
         // while
 
         // if
@@ -142,7 +143,7 @@ public class DatabaseTest extends junit.framework.TestCase {
                 this.builder, sourceFile, 105, 111);
         BasicStatement fooStatement = this.builder.createBasicStatement(
                 fooStatementLocationList, this.builder.createCoverableItem(
-                        "TestClass", "S4"), new HashSet<RootTerm>());
+                        "TestClass", "S4"), new HashSet<RootTerm>(), new HashSet<QuestionMarkOperator>());
 
         statementList = new Vector<Statement>();
         statementList.addElement(fooStatement);
@@ -167,7 +168,7 @@ public class DatabaseTest extends junit.framework.TestCase {
                 this.builder, sourceFile, 131, 137);
         BasicStatement barStatement = this.builder.createBasicStatement(
                 barStatementLocationList, this.builder.createCoverableItem(
-                        "TestClass", "S5"), new HashSet<RootTerm>());
+                        "TestClass", "S5"), new HashSet<RootTerm>(), new HashSet<QuestionMarkOperator>());
 
         statementList = new Vector<Statement>();
         statementList.addElement(barStatement);
@@ -232,10 +233,12 @@ public class DatabaseTest extends junit.framework.TestCase {
         Location ifStatementKeywordLocation = this.builder.createLocation(
                 sourceFile, 71, 73);
 
+        Set<QuestionMarkOperator> questionMarkOperators = new HashSet<QuestionMarkOperator>();
+        
         ConditionalStatement ifStatement = this.builder
                 .createConditionalStatement(ifStatementLocationList,
                         this.builder.createCoverableItem("TestClass", "S6"),
-                        terms, branches, ifStatementKeywordLocation);
+                        terms, branches, ifStatementKeywordLocation, questionMarkOperators);
         // if
 
         statementList = new Vector<Statement>();

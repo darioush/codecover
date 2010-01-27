@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -39,8 +40,10 @@ import org.codecover.instrumentation.java15.manipulators.DummyConditionManipulat
 import org.codecover.instrumentation.java15.manipulators.DummyLoopManipulator;
 import org.codecover.instrumentation.java15.manipulators.DummyStatementManipulator;
 import org.codecover.instrumentation.java15.manipulators.DummySynchronizedManipulator;
+import org.codecover.instrumentation.java15.manipulators.DummyQMOManipulator;
 import org.codecover.instrumentation.java15.manipulators.LoopManipulator;
 import org.codecover.instrumentation.java15.manipulators.Manipulator;
+import org.codecover.instrumentation.java15.manipulators.QMOManipulator;
 import org.codecover.instrumentation.java15.manipulators.StatementManipulator;
 import org.codecover.instrumentation.java15.manipulators.SynchronizedManipulator;
 import org.codecover.instrumentation.java15.manipulators.ConditionManipulator.ConditionManipualtionResult;
@@ -55,6 +58,8 @@ import org.codecover.instrumentation.java15.syntaxtree.ClassOrInterfaceBody;
 import org.codecover.instrumentation.java15.syntaxtree.ClassOrInterfaceBodyDeclaration;
 import org.codecover.instrumentation.java15.syntaxtree.ClassOrInterfaceDeclaration;
 import org.codecover.instrumentation.java15.syntaxtree.CompilationUnit;
+import org.codecover.instrumentation.java15.syntaxtree.ConditionalExpression;
+import org.codecover.instrumentation.java15.syntaxtree.ConditionalOrExpression;
 import org.codecover.instrumentation.java15.syntaxtree.ConstructorDeclaration;
 import org.codecover.instrumentation.java15.syntaxtree.ContinueStatement;
 import org.codecover.instrumentation.java15.syntaxtree.DoStatement;
@@ -103,10 +108,13 @@ import org.codecover.model.mast.HierarchyLevelType;
 import org.codecover.model.mast.Location;
 import org.codecover.model.mast.LocationList;
 import org.codecover.model.mast.LoopingStatement;
+import org.codecover.model.mast.QuestionMarkOperator;
 import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.SourceFile;
 import org.codecover.model.mast.StatementSequence;
 import org.codecover.model.utils.Attic;
+import org.codecover.model.mast.*;
+
 
 /**
  * This is the instrumenter for Java 1.5.<br>
@@ -277,6 +285,12 @@ public class InstrumentationVisitor extends TreeDumperWithException {
     
     private SynchronizedManipulator syncStatementManipulator;
 
+
+    /**
+     * RS, 30.10.2009, the question mark operator
+     */
+    private QMOManipulator qmoManipulator;
+
     /**
      * This is an instance of {@link JavaExpressionParser} which is used for
      * the parsing of {@link Expression} to {@link InstrBooleanTerm}s.
@@ -384,6 +398,16 @@ public class InstrumentationVisitor extends TreeDumperWithException {
     private final String testSessionContainerUID;
 
     private final String preferedCoverageLogPath;
+    
+    /**
+     * RS, 15.12.09
+     */
+    private Set<QuestionMarkOperator> questionMarkOperators = new HashSet<QuestionMarkOperator>();
+
+    /**
+     * RS, 15.12.09
+     */
+    private Set<org.codecover.model.mast.SynchronizedStatement> synchronizedStatements = new HashSet<org.codecover.model.mast.SynchronizedStatement>();
 
     /**
      * Constructs a new {@link InstrumentationVisitor}.<br>
@@ -433,6 +457,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         this.loopManipulator = new DummyLoopManipulator();
         this.commentManipulator = new DummyCommentManipulator();
         this.syncStatementManipulator = new DummySynchronizedManipulator();
+        this.qmoManipulator = new DummyQMOManipulator();
+        
         this.expressionParser = new JavaExpressionParser();
         this.counterIDManager = null;
         this.packageName = null;
@@ -461,6 +487,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 .requiresBlockExpansionsForBranches();
         this.needToExpandBranchesToBlock |= this.syncStatementManipulator
                 .requiresBlockExpansionsForBranches();
+        this.needToExpandBranchesToBlock |= this.qmoManipulator
+                .requiresBlockExpansionsForBranches();
 
         this.needToExpandLoopsToBlock = false;
         this.needToExpandLoopsToBlock |= this.statementManipulator
@@ -474,6 +502,8 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         this.needToExpandLoopsToBlock |= this.commentManipulator
                 .requiresBlockExpansionsForLoops();
         this.needToExpandLoopsToBlock |= this.syncStatementManipulator
+                .requiresBlockExpansionsForLoops();
+        this.needToExpandLoopsToBlock |= this.qmoManipulator
                 .requiresBlockExpansionsForLoops();
     }
 
@@ -698,13 +728,13 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         } else {
             setRootTerms = Collections.<RootTerm> singleton(rootTerm);
         }
-
+        
         ConditionalStatement conditionalStatement = this.builder.createConditionalStatement(
                 locationList,
                 createCoverableItem(statementID),
                 setRootTerms,
                 branchList,
-                locationKeyword);
+                locationKeyword, this.questionMarkOperators);
         this.statementAttic.bottom().add(conditionalStatement);
     }
 
@@ -734,7 +764,7 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                 createCoverableItem(loopIDZero),
                 createCoverableItem(loopIDOnce),
                 createCoverableItem(loopIDAbove),
-                optionalBodyExecution);
+                optionalBodyExecution, this.questionMarkOperators);
         this.statementAttic.bottom().add(loopingStatement);
     }
 
@@ -769,10 +799,10 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         org.codecover.model.mast.Statement newStatement = this.builder
                 .createBasicStatement(locationList,
                         createCoverableItem(statement.statementID),
-                        Collections.<RootTerm> emptySet());
+                        Collections.<RootTerm> emptySet(), this.questionMarkOperators);
         this.statementAttic.bottom().add(newStatement);
     }
-
+    
     private void pushModifiersToAttic(Modifiers modifiers) {
         this.modifiersAttic.push(modifiers);
     }
@@ -931,6 +961,18 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         recalcExpandToBlock();
     }
 
+    /**
+     * 
+     * @param syncStatementManipulator
+     */
+    public void setQMOManipulator(QMOManipulator qmoManipulator) {
+        this.qmoManipulator = qmoManipulator;
+        this.qmoManipulator.setTreeDumper(this);
+        
+        recalcExpandToBlock();
+    }
+    
+    
     ///////////////////////////////////////////////////////////////////////////
     //
     // All visit statements for instrumentation purpose
@@ -1052,6 +1094,7 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         this.counterIDManager.addCounterManager(this.conditionManipulator);
         this.counterIDManager.addCounterManager(this.loopManipulator);
         this.counterIDManager.addCounterManager(this.syncStatementManipulator);
+        this.counterIDManager.addCounterManager(this.qmoManipulator);
 
         // ( ImportDeclaration() )*
         n.f1.accept(this);
@@ -1333,7 +1376,7 @@ public class InstrumentationVisitor extends TreeDumperWithException {
                     org.codecover.model.mast.Statement newStatement = this.builder
                             .createBasicStatement(locationList,
                                     createCoverableItem(fieldDeclaration.statementID),
-                                    Collections.<RootTerm> emptySet());
+                                    Collections.<RootTerm> emptySet(), this.questionMarkOperators);
                     this.statementAttic.bottom().add(newStatement);
                 }
             } else {
@@ -1508,7 +1551,7 @@ public class InstrumentationVisitor extends TreeDumperWithException {
             org.codecover.model.mast.Statement newStatement = this.builder
                     .createBasicStatement(locationList,
                             createCoverableItem(constrDecl.statementID),
-                            Collections.<RootTerm> emptySet());
+                            Collections.<RootTerm> emptySet(), this.questionMarkOperators);
             this.statementAttic.bottom().add(newStatement);
             // manipulate after
             this.statementManipulator.manipulate(constrDecl, constrDecl.statementID);
@@ -1796,7 +1839,7 @@ public class InstrumentationVisitor extends TreeDumperWithException {
 
                 org.codecover.model.mast.Statement newStatement = this.builder
                         .createBasicStatement(locationList,
-                                createCoverableItem(statementID), Collections.<RootTerm> emptySet());
+                                createCoverableItem(statementID), Collections.<RootTerm> emptySet(), this.questionMarkOperators);
                 this.statementAttic.bottom().add(newStatement);
             } else {
                 super.visit(n);
@@ -2544,13 +2587,30 @@ public class InstrumentationVisitor extends TreeDumperWithException {
     public void visit(SynchronizedStatement n) throws IOException {
         String syncStatementID = this.counterIDManager.nextSyncStatementID();
         
+        n.syncID = syncStatementID;
+
+        int keywordStartOffset = n.f0.startOffset;
+        int keywordEndOffset = n.f3.endOffset;
+
+        startLocateableLevel();
+
+                
         this.syncStatementManipulator.manipulateBefore(n, syncStatementID);
         
         n.f0.accept(this);
         n.f1.accept(this);
         n.f2.accept(this);
         n.f3.accept(this);
-        pushNewStatementLevelToAttic();
+        
+        LocationList locationList = endLocateableLevel();
+        
+        org.codecover.model.mast.SynchronizedStatement syncStatement = 
+            new org.codecover.model.mast.SynchronizedStatement(
+                    locationList, createCoverableItem(n.syncID), createLocation(keywordStartOffset, keywordEndOffset), createCoverableItem(n.syncID + "-0"), createCoverableItem(n.syncID + "-1"), createCoverableItem(n.syncID + "-2"), questionMarkOperators);
+
+        this.statementAttic.bottom().add(syncStatement);
+        
+        // pushNewStatementLevelToAttic();
 
         // {
         n.f4.f0.accept(this);
@@ -2560,8 +2620,65 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         this.syncStatementManipulator.manipulateInnerAfter(n, syncStatementID);
         // }
         n.f4.f2.accept(this);
+        
     }
+    
+    /**
+     * <PRE>
+     * f0 -> ConditionalOrExpression()
+     * f1 -> [ "?" Expression() ":" Expression() ]
+     * </PRE>
+     */
+    @Override
+    public void visit(ConditionalExpression n) throws java.io.IOException {
 
+       if(n.f1.node != null) {
+           String qmoID = this.counterIDManager.nextQMOStatementID();
+           
+           n.conditionalExpressionID = qmoID;
+
+           qmoManipulator.manipulateBefore(n.f0, qmoID);
+
+           startLocateableLevel();
+           
+           n.f0.accept(this);
+
+           LocationList locationListQMO = endLocateableLevel(); // only the BoolExpression           
+           
+           qmoManipulator.manipulateAfter(n.f0, qmoID);
+                      
+           NodeSequence qmoNodes = (NodeSequence)n.f1.node;           
+           Node qmoChar1 = qmoNodes.nodes.elementAt(0);           
+           Node qmoExpr1 = qmoNodes.nodes.elementAt(1);
+           Node qmoChar2 = qmoNodes.nodes.elementAt(2);
+           Node qmoExpr2 = qmoNodes.nodes.elementAt(3);
+           
+           // n.f1.accept(this);
+           qmoChar1.accept(this); // "?"
+
+           startLocateableLevel();
+           qmoExpr1.accept(this);
+           LocationList locationListExpr1 = endLocateableLevel();
+           QuestionMarkOperatorExpression qmoe1 = new QuestionMarkOperatorExpression(locationListExpr1, createCoverableItem(n.conditionalExpressionID + "-0"));
+           
+           qmoChar2.accept(this); // ":"
+
+           startLocateableLevel();
+           qmoExpr2.accept(this);
+           LocationList locationListExpr2 = endLocateableLevel();
+           QuestionMarkOperatorExpression qmoe2 = new QuestionMarkOperatorExpression(locationListExpr2, createCoverableItem(n.conditionalExpressionID + "-1"));
+           
+                     
+           QuestionMarkOperator newQMO = new QuestionMarkOperator(locationListQMO, createCoverableItem(n.conditionalExpressionID), qmoe1, qmoe2);
+           
+           this.questionMarkOperators.add(newQMO); // the QMOs are removed in the Statement Constructor
+
+       } else {
+           n.f0.accept(this); // there is no ?-Operator involved           
+       }
+       
+    }
+    
     /**
      * Manipulates the comment, if it starts with "// "
      *

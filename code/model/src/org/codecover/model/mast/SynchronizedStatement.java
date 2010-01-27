@@ -11,40 +11,34 @@
 
 package org.codecover.model.mast;
 
-import java.util.*;
+import java.util.Set;
 
 import org.codecover.model.mast.Statement.Visitor;
-import org.codecover.model.utils.*;
+
 
 /**
- * A ConditionalStatement is a statement where the control flow splits up into a
- * number of Branches. The ConditionalStatement consists of these Branches and
- * of the LocationList of the keyword of the statement (for the purpose of
- * coloring the source code).
- * 
- * @author Markus Wittlinger
- * @version 1.0 ($Id$)
+  * 
+ * @author RS
+ * @version 1.08
  */
-public final class ConditionalStatement extends ComplexStatement {
-    private final List<Branch> branches;
+public final class SynchronizedStatement extends ComplexStatement {
+		
+	private final CoverableItem coverableItem0;
+	private final CoverableItem coverableItem1;
+	private final CoverableItem coverableItem2;
 
-    ConditionalStatement(LocationList location, CoverableItem coverableItem,
-            Set<RootTerm> terms, List<Branch> branches, Location keyword, Set<QuestionMarkOperator> questionMarkOperators) {
-        super(location, keyword, coverableItem, terms, questionMarkOperators);
-        
-        if (branches == null) {
-            throw new NullPointerException("branches == null");
-        }
-        
-        this.branches = CollectionUtil.copy(branches);
-    }
+	public SynchronizedStatement(LocationList location, CoverableItem coverableItem, Location keyword, CoverableItem coverableItem0, CoverableItem coverableItem1, CoverableItem coverableItem2, Set<QuestionMarkOperator> questionMarkOperators) {
+		super(location, keyword, coverableItem, null, questionMarkOperators);
 
-    /**
-     * @return the branches
-     */
-    public List<Branch> getBranches() {
-        return this.branches;
-    }
+		if (coverableItem0 == null || coverableItem1 == null || coverableItem2 == null) {
+			throw new NullPointerException("coverableItem == null");
+		}
+
+		this.coverableItem0 = coverableItem0;
+		this.coverableItem1 = coverableItem1;
+		this.coverableItem2 = coverableItem2;
+	}
+
 
     /**
      * Returns a hash code value for the object. This method is supported for
@@ -55,7 +49,7 @@ public final class ConditionalStatement extends ComplexStatement {
      */
     @Override
     public int hashCode() {
-        int result = getBranches().size();
+        int result = 0;
         for (Location location : getLocation().getLocations()) {
             result += location.getStartOffset();
             result += location.getEndOffset();
@@ -65,7 +59,12 @@ public final class ConditionalStatement extends ComplexStatement {
 
         return result;
     }
-
+    
+    public CoverableItem getCoverableItem(int id) {
+    	if(id == 0) return coverableItem0;
+    	if(id == 1) return coverableItem1;
+    	return coverableItem2;
+    }
     /**
      * (non-Javadoc)
      * 
@@ -83,17 +82,8 @@ public final class ConditionalStatement extends ComplexStatement {
         if (pre != null) {
             pre.visit(this);
         }
-        super.accept(pre, post, rootTermPre, rootTermPost, termPre, termPost, qmoVisitor);
-        for (Branch branch : getBranches()) {
-            branch.accept(pre,
-                          post,
-                          rootTermPre,
-                          rootTermPost,
-                          termPre,
-                          termPost);
-        }
-        if (post != null) {
-            post.visit(this);
-        }
+        super.accept(pre, post, rootTermPre, rootTermPost, termPre, termPost, null);
     }
+
 }
+

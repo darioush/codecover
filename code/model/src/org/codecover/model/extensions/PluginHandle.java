@@ -149,13 +149,27 @@ public class PluginHandle {
                             return SynchronizedStatementCoverage.getInstance();
                         }
                     },
+                    new AbstractExtension<Criterion>(Criterion.class, "org.codecover.model.utils.criteria.QMOCoverage") {
+                        public Criterion getObject() {
+                            return QMOCoverage.getInstance();
+                        }
+                    },
                 });
             final Set<Extension<?>> result = new HashSet<Extension<?>>();
             for (Extension<?> element : ar) {
                 result.add (element);
             }
 
-            for (String s : new String[] {"org.codecover.metrics.coverage.StatementCoverage", "org.codecover.metrics.coverage.StrictConditionCoverage", "org.codecover.metrics.coverage.LoopCoverage", "org.codecover.metrics.coverage.BranchCoverage", "org.codecover.metrics.correlation.StatementCorrelation", "org.codecover.metrics.correlation.ConditionCorrelation", "org.codecover.metrics.correlation.LoopCorrelation", "org.codecover.metrics.correlation.BranchCorrelation"}) {
+            for (String s : new String[] {"org.codecover.metrics.coverage.StatementCoverage", 
+            		"org.codecover.metrics.coverage.StrictConditionCoverage", 
+            		"org.codecover.metrics.coverage.LoopCoverage", 
+            		"org.codecover.metrics.coverage.BranchCoverage", 
+            		"org.codecover.metrics.coverage.QMOCoverage", 
+            		"org.codecover.metrics.coverage.SynchronizedCoverage", 
+            		"org.codecover.metrics.correlation.StatementCorrelation", 
+            		"org.codecover.metrics.correlation.ConditionCorrelation", 
+            		"org.codecover.metrics.correlation.LoopCorrelation", 
+            		"org.codecover.metrics.correlation.BranchCorrelation"}) {
                 try {
                     result.add(new DynamicReferencedExtension("org.codecover.metrics.Metric", s));
                 } catch (Exception e) {

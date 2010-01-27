@@ -561,7 +561,9 @@ public class CoverageView extends ViewPart
         coverageMetrics.add(findCoverageMetric("Branch Coverage", allMetrics));                   //$NON-NLS-1$
         coverageMetrics.add(findCoverageMetric("Loop Coverage", allMetrics));                     //$NON-NLS-1$
         coverageMetrics.add(findCoverageMetric("Strict Condition Coverage", allMetrics));         //$NON-NLS-1$
-
+        coverageMetrics.add(findCoverageMetric("?-Operator Coverage", allMetrics));         //$NON-NLS-1$
+        coverageMetrics.add(findCoverageMetric("Synchronized Coverage", allMetrics));         //$NON-NLS-1$
+ 
         // fetch unknown coverage metrics
         for (Metric metric : allMetrics) {
             if (metric instanceof CoverageMetric && !coverageMetrics.contains(metric)) {
@@ -1750,7 +1752,7 @@ public class CoverageView extends ViewPart
 
         private List<HierarchyLevel> fetchMethods(HierarchyLevel parent) {
             FetchMethodsVisitor visitor = new FetchMethodsVisitor();
-            parent.accept(visitor, null, null, null, null, null, null, null);
+            parent.accept(visitor, null, null, null, null, null, null, null, null);
             return visitor.getMethods();
         }
 
@@ -1883,7 +1885,7 @@ public class CoverageView extends ViewPart
                     findIDVisitor.setID(hLevID);
                     tscInfo.getTestSessionContainer().getCode().accept(
                            findIDVisitor, null, null, null, null, null, null,
-                           null);
+                           null, null);
                     if(findIDVisitor.getHierarchyLevel() != null) {
                         expandedHLevs.add(findIDVisitor.getHierarchyLevel());
                     }

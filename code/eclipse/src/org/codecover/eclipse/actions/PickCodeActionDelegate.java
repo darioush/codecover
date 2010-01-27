@@ -32,6 +32,7 @@ import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.SourceFile;
 import org.codecover.model.mast.Statement;
 import org.codecover.model.mast.StatementSequence;
+import org.codecover.model.mast.SynchronizedStatement;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -271,7 +272,7 @@ public abstract class PickCodeActionDelegate implements
          *            the {@link TestSessionContainer} holding the MAST.
          */
         protected void traversePostfix(TestSessionContainer tsc) {
-            tsc.getCode().accept(null, this, null, this, null, this, null, this);
+            tsc.getCode().accept(null, this, null, this, null, this, null, this, null);
             //ignore what you don't need: i.g. to ignore BooleanTerms:
             //tsc.getCode().accept(null, this, null, this, null, this, null, null);
         }
@@ -526,6 +527,9 @@ public abstract class PickCodeActionDelegate implements
 
         public void visit(HierarchyLevel hierarchyLevel) {
         }
+
+		public void visit(SynchronizedStatement statement) {
+		}
     }
 
     /**

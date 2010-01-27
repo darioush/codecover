@@ -24,6 +24,7 @@ import org.codecover.model.mast.LoopingStatement;
 import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.Statement;
 import org.codecover.model.mast.StatementSequence;
+import org.codecover.model.mast.SynchronizedStatement;
 import org.codecover.model.utils.criteria.Criterion;
 
 /**
@@ -181,9 +182,7 @@ public class LoopCoverage extends AbstractCoverageMetric {
      */
     public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
             Statement statement) {
-        if (statement instanceof ConditionalStatement) {
-            return CoverageResult.NULL;
-        } else if (statement instanceof LoopingStatement) {
+        if(statement instanceof LoopingStatement) {
             LoopingStatement loopStatement = (LoopingStatement) statement;
 
             int totalItems = 0;
@@ -225,28 +224,7 @@ public class LoopCoverage extends AbstractCoverageMetric {
             }
 
             return new CoverageResult(coveredItems, totalItems);
-        } else if (statement instanceof BasicStatement) {
-            return CoverageResult.NULL;
-        } else {
-            throw new RuntimeException();
         }
-    }
-
-    public CoverageResult getCoverageLocal(Collection<TestCase> testCases, RootTerm term) {
-        return CoverageResult.NULL;
-    }
-
-    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
-                                           StatementSequence statements) {
-        return CoverageResult.NULL;
-    }
-
-    public CoverageResult getCoverageLocal(Collection<TestCase> testCases,
-                                           HierarchyLevel level) {
-        return CoverageResult.NULL;
-    }
-
-    public CoverageResult getCoverageLocal(Collection<TestCase> testCases, Branch branch) {
         return CoverageResult.NULL;
     }
 
@@ -280,25 +258,10 @@ public class LoopCoverage extends AbstractCoverageMetric {
             }
         } else if (statement instanceof BasicStatement) {
             return noHints;
+        } else if (statement instanceof SynchronizedStatement) {
+            return noHints;
         } else {
             throw new RuntimeException();
         }
-    }
-
-    public Set<Hint> getHints(Collection<TestCase> testCases,
-                              RootTerm term) {
-        return noHints;
-    }
-
-    public Set<Hint> getHints(Collection<TestCase> testCases, StatementSequence statements) {
-        return noHints;
-    }
-
-    public Set<Hint> getHints(Collection<TestCase> testCases, HierarchyLevel level) {
-        return noHints;
-    }
-
-    public Set<Hint> getHints(Collection<TestCase> testCases, Branch branch) {
-        return noHints;
     }
 }
