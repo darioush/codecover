@@ -30,4 +30,22 @@ public class DummySynchronizedManipulator extends AbstractDummyManipulator
         // do nothing
     }
 
+    public void manipulatePart1(SynchronizedStatement n, String statementID)
+            throws IOException {
+        // TODO Automatisch erstellter Methoden-Stub
+        
+    }
+
+    public void manipulatePart2(SynchronizedStatement n, String statementID)
+            throws IOException {
+        // TODO Automatisch erstellter Methoden-Stub
+        
+    }
+
+    public void manipulatePart3(SynchronizedStatement n, String statementID)
+            throws IOException {
+        // TODO Automatisch erstellter Methoden-Stub
+        
+    }
+
 }

@@ -2593,14 +2593,18 @@ public class InstrumentationVisitor extends TreeDumperWithException {
         int keywordEndOffset = n.f3.endOffset;
 
         startLocateableLevel();
+        
+        this.syncStatementManipulator.manipulatePart1(n, syncStatementID);        
+        // n.f0.accept(this); -> "synchronized"
+        // n.f1.accept(this); -> "("
+        n.f2.accept(this); // --> Expression()
+        // n.f3.accept(this);
+        this.syncStatementManipulator.manipulatePart2(n, syncStatementID);
 
-                
+        
         this.syncStatementManipulator.manipulateBefore(n, syncStatementID);
         
-        n.f0.accept(this);
-        n.f1.accept(this);
-        n.f2.accept(this);
-        n.f3.accept(this);
+        this.syncStatementManipulator.manipulatePart3(n, syncStatementID);
         
         LocationList locationList = endLocateableLevel();
         

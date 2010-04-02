@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -43,6 +44,9 @@ import org.codecover.model.mast.ConditionalStatement;
 import org.codecover.model.mast.CoverableItem;
 import org.codecover.model.mast.HierarchyLevel;
 import org.codecover.model.mast.LoopingStatement;
+import org.codecover.model.mast.QuestionMarkOperator;
+import org.codecover.model.mast.SynchronizedStatement;
+import org.codecover.model.mast.QuestionMarkOperatorExpression;
 import org.codecover.model.mast.RootTerm;
 import org.codecover.model.mast.SourceFile;
 import org.codecover.model.mast.Statement;

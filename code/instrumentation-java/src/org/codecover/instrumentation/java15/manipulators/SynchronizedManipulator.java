@@ -11,6 +11,35 @@ import org.codecover.instrumentation.java15.syntaxtree.SynchronizedStatement;
  */
 
 public interface SynchronizedManipulator extends Manipulator {
+
+    /**
+     * 
+     * @param n
+     * @param statementID
+     * @throws IOException
+     */
+    public void manipulatePart1(SynchronizedStatement n, String statementID)
+        throws IOException;
+
+    /**
+     * 
+     * @param n
+     * @param statementID
+     * @throws IOException
+     */
+    public void manipulatePart2(SynchronizedStatement n, String statementID)
+        throws IOException;
+    
+    /**
+     * 
+     * @param n
+     * @param statementID
+     * @throws IOException
+     */
+    public void manipulatePart3(SynchronizedStatement n, String statementID)
+        throws IOException;
+    
+
     /**
      * 
      * @param n
