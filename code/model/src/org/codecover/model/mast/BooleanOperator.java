@@ -60,6 +60,10 @@ public class BooleanOperator {
     }
 
     /**
+     * returns the decision table for the operator
+     * 
+     * Example: {[TRUE, FALSE]=false, [FALSE, NOT_EVALUATED]=false, [TRUE, TRUE]=true}
+     * 
      * @return the possibleAssignments
      */
     public Map<BooleanAssignment, Boolean> getPossibleAssignments() {

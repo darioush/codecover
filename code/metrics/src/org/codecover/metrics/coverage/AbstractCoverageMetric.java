@@ -567,7 +567,7 @@ public abstract class AbstractCoverageMetric implements CoverageMetric {
     }
 
     public void accept(Collection<TestCase> testCases, RootTerm term, PostMetricVisitor post) {
-        // StrictConditionCoverage has to override this in order to call
+        // TermCoverage has to override this in order to call
         // the visit(BooleanTerm, ...) methods.
 
         // delegate local coverage measurement to subclass

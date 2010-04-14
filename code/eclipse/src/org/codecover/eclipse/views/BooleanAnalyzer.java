@@ -24,7 +24,7 @@ import org.codecover.eclipse.tscmanager.ActiveTSContainerInfo;
 import org.codecover.eclipse.tscmanager.TSContainerInfo;
 import org.codecover.eclipse.tscmanager.TSContainerManagerListener;
 import org.codecover.metrics.coverage.CoverageResult;
-import org.codecover.metrics.coverage.StrictConditionCoverage;
+import org.codecover.metrics.coverage.TermCoverage;
 import org.codecover.model.TestCase;
 import org.codecover.model.TestSession;
 import org.codecover.model.TestSessionContainer;
@@ -62,7 +62,7 @@ import org.eclipse.ui.part.ViewPart;
  * This {@link BooleanAnalyzer} is a view in eclipse. It provides the user with
  * the opportunity to view the conditions contained in their SUTs and the
  * assignments, that occurred during the execution. Also displayed is the amount
- * of {@link StrictConditionCoverage} the condition achieved and which of the
+ * of {@link TermCoverage} the condition achieved and which of the
  * {@link BasicBooleanTerm}s are covered under this {@link Criterion}.
  * 
  * @author Markus Wittlinger
@@ -297,7 +297,7 @@ public class BooleanAnalyzer extends ViewPart {
             }
 
             public void visit(OperatorTerm operatorTerm) {
-                appendString(sb, getShortNameOfOperator(operatorTerm));
+                appendString(sb, operatorTerm.getShortNameOfOperator());
             }
 
             public void visit(OperatorTerm operatorTerm, String name) {
@@ -415,7 +415,7 @@ public class BooleanAnalyzer extends ViewPart {
             }
 
             public void visit(OperatorTerm operatorTerm) {
-                createTableColumn(getShortNameOfOperator(operatorTerm),
+                createTableColumn(operatorTerm.getShortNameOfOperator(),
                         COLUMN_STORE_KEY, operatorTerm);
             }
 
@@ -493,10 +493,7 @@ public class BooleanAnalyzer extends ViewPart {
         testCaseColumn.pack();
     }
 
-    private final String getShortNameOfOperator(OperatorTerm operatorTerm) {
-        return operatorTerm.getLocation().getLocations().get(0).getContent();
-    }
-
+ 
     private final void traverseRootTerm(BooleanTerm booleanTerm, Visitor visitor) {
         if (booleanTerm instanceof BasicBooleanTerm) {
             visitor.visit((BasicBooleanTerm) booleanTerm);
@@ -565,36 +562,47 @@ public class BooleanAnalyzer extends ViewPart {
             assignmentsMap.putAll(testCase.getAssignments(rootTerm));
         }
 
-        final StrictConditionCoverage conditionCoverage = StrictConditionCoverage
-                .getInstance();
-        final Map<BasicBooleanTerm, Set<BooleanAssignment>> coveringAssignments = new HashMap<BasicBooleanTerm, Set<BooleanAssignment>>();
-        // Enter the set of assignments, that cover a BasicBooleanTerm into a
-        // map.
-        rootTerm.accept(null, null, new BooleanTerm.Visitor() {
-
-            public void visit(BasicBooleanTerm term) {
-                coveringAssignments.put(term, conditionCoverage.getCoverage(
-                        testCases, rootTerm, term));
-            }
-
-            public void visit(OperatorTerm term) {
-                // Do nothing here. We only need the BasicBooleanTerms
-            }
-
-        }, null);
+        final TermCoverage termCoverage = TermCoverage.getInstance();
+        
 
         List<RowObject> rows = new LinkedList<RowObject>();
         for (BooleanAssignment assignment : assignmentsMap.keySet()) {
             Map<BooleanTerm, CellObject> cells = new HashMap<BooleanTerm, CellObject>();
             CellObject resultCell;
             CellObject testCaseCell;
+            
+            Map<BooleanTerm, BooleanResult> wirksamMapT = new HashMap<BooleanTerm, BooleanResult>();
+            Map<BooleanTerm, BooleanResult> wirksamMapF = new HashMap<BooleanTerm, BooleanResult>();
 
-            // Traverse and evaluate the RootTerm under the current assignment.
-            // The cells map is filled during the traversing.
-            // The covering assignments map is used to determine, whether a
-            // BasicBooleanTerm is covered under the current assignment.
-            evaluateTerm(rootTerm, rootTerm.getTerm(), assignment, cells,
-                    coveringAssignments);
+            Map<BooleanTerm, BooleanResult> termResults = new HashMap<BooleanTerm, BooleanResult>();
+            termCoverage.evaluateTermWirksamkeit(rootTerm, rootTerm.getTerm(), assignment, termResults, wirksamMapT, wirksamMapF);
+            
+
+            Set<BooleanTerm> allTerms = termResults.keySet();
+            for(BooleanTerm term : allTerms) {
+            	if(term instanceof BasicBooleanTerm) {
+                    Color coveredColor = null;
+
+                    if (wirksamMapT.get(term) != null || wirksamMapF.get(term) != null) {
+                        coveredColor = getCoveredBackground();
+                    }
+
+                    // Store the new CellObject in the cells map for the current
+                    // BooleanTerm.
+                    cells.put(term, new CellObject(
+                            getStringFromBooleanResult(termResults.get(term)), null,
+                            coveredColor));
+            		
+            	} else {
+                    // Store the new CellObject in the cells map for the current
+                    // BooleanTerm.
+                    cells.put(term, new CellObject(
+                            getStringFromBooleanResult(termResults.get(term)),
+                            getOperatorForeground(), null));
+            		
+            	}
+            }
+                  
 
             // Add result cell:
             resultCell = new CellObject(
@@ -618,6 +626,18 @@ public class BooleanAnalyzer extends ViewPart {
                     sb.append(")"); //$NON-NLS-1$
                 }
             }
+            
+            int allTermCoverageCount = rootTerm.getTerm().getBasicBooleanTerms() * 2;
+            int covered = wirksamMapT.size() + wirksamMapF.size();
+            
+            float coverage = 0;
+            if(allTermCoverageCount != 0) {
+            	coverage = covered * 100 / allTermCoverageCount;
+            }
+            
+            DecimalFormat df = new DecimalFormat("0.0"); //$NON-NLS-1$
+            sb.append(" Coverage: " + df.format(coverage));
+            
             testCaseCell = new CellObject(sb.toString(), null, null);
 
             rows.add(new RowObject(cells, resultCell, testCaseCell));
@@ -626,8 +646,7 @@ public class BooleanAnalyzer extends ViewPart {
         refreshAndPackTable(rows.toArray());
 
         // update the status bar;
-        CoverageResult result = conditionCoverage.getCoverage(testCases,
-                rootTerm);
+        CoverageResult result = termCoverage.getCoverage(testCases, rootTerm);
         double coveredItems = result.getCoveredItems();
         double totalItems = result.getTotalItems();
         double coverage;
@@ -637,9 +656,12 @@ public class BooleanAnalyzer extends ViewPart {
             coverage = coveredItems / totalItems;
         }
         DecimalFormat df = new DecimalFormat("0.0"); //$NON-NLS-1$
-        this.statusBar.setText(String.format(STATUS_BAR_TEXT, df
-                .format(100 * coverage)));
+        this.statusBar.setText("term coverage for all test cases: " + df
+                .format(100 * coverage) + " %");
     }
+    
+    Map<BooleanTerm, BooleanResult> termResults;
+    
 
     /**
      * Evaluates the given {@link RootTerm} and its {@link BooleanTerm}s under
@@ -666,8 +688,7 @@ public class BooleanAnalyzer extends ViewPart {
             Map<BasicBooleanTerm, Set<BooleanAssignment>> coveringAssignments) {
 
         if (booleanTerm instanceof BasicBooleanTerm) {
-            int position = rootTerm
-                    .getPositionOfTerm((BasicBooleanTerm) booleanTerm);
+            int position = rootTerm.getPositionOfTerm((BasicBooleanTerm) booleanTerm);
 
             // Get the BooleanResult, that is at the position of the
             // BasicBooleanTerm in the given BooleanAssignment.
@@ -687,25 +708,31 @@ public class BooleanAnalyzer extends ViewPart {
                     getStringFromBooleanResult(booleanResult), null,
                     coveredColor));
 
+            termResults.put(booleanTerm, booleanResult);
+
             return booleanResult;
+            
         } else if (booleanTerm instanceof OperatorTerm) {
+        	
+        	OperatorTerm operatorTerm = (OperatorTerm)booleanTerm;
 
             List<BooleanResult> operatorResults = new LinkedList<BooleanResult>();
-
+            
+                                
             // Evaluate all the operands of this OperatorTerm and store the
-            // results in a list.
-            for (BooleanTerm subTerms : ((OperatorTerm) booleanTerm)
-                    .getOperands()) {
-                operatorResults.add(evaluateTerm(rootTerm, subTerms,
-                        assignment, cells, coveringAssignments));
+            // results in a list.            
+            for (BooleanTerm subTerms : operatorTerm.getOperands()) {
+            	   
+            	BooleanResult result = evaluateTerm(rootTerm, subTerms, assignment, cells, coveringAssignments);
+	            operatorResults.add(result);
             }
 
             // Retrieve the Boolean result produced by the assignment of the
             // operands.
-            BooleanAssignment operatorAssignment = new BooleanAssignment(
-                    operatorResults);
+            BooleanAssignment operatorAssignment = new BooleanAssignment(operatorResults);
             Boolean result = ((OperatorTerm) booleanTerm).getOperator()
                     .getPossibleAssignments().get(operatorAssignment);
+            
 
             // Convert into BooleanResult.
             BooleanResult booleanResult;
@@ -722,12 +749,26 @@ public class BooleanAnalyzer extends ViewPart {
                     getStringFromBooleanResult(booleanResult),
                     getOperatorForeground(), null));
 
+            
+            termResults.put(booleanTerm, booleanResult);
+
             return booleanResult;
         }
 
         return BooleanResult.NOT_EVALUATED;
     }
 
+
+    
+    private final void evaluateTermWirksamkeit(RootTerm rootTerm,
+            BooleanTerm booleanTerm, BooleanAssignment assignment,
+            Map<BooleanTerm, CellObject> cells) {
+
+       }
+
+
+    
+    
     /**
      * Gets the {@link Color}, that is to be used for the text of the operator
      * results in the table.
@@ -769,10 +810,10 @@ public class BooleanAnalyzer extends ViewPart {
         String text;
         switch (booleanResult) {
             case FALSE:
-                text = "0"; //$NON-NLS-1$
+                text = "F"; //$NON-NLS-1$
                 break;
             case TRUE:
-                text = "1"; //$NON-NLS-1$
+                text = "T"; //$NON-NLS-1$
                 break;
             case NOT_EVALUATED:
                 text = "x"; //$NON-NLS-1$

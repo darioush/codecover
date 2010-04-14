@@ -161,7 +161,7 @@ public class PluginHandle {
             }
 
             for (String s : new String[] {"org.codecover.metrics.coverage.StatementCoverage", 
-            		"org.codecover.metrics.coverage.StrictConditionCoverage", 
+            		"org.codecover.metrics.coverage.TermCoverage", 
             		"org.codecover.metrics.coverage.LoopCoverage", 
             		"org.codecover.metrics.coverage.BranchCoverage", 
             		"org.codecover.metrics.coverage.QMOCoverage", 

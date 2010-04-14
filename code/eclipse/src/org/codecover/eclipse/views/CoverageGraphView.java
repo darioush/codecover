@@ -53,7 +53,7 @@ import org.codecover.metrics.coverage.CoverageMetric;
 import org.codecover.metrics.coverage.CoverageResult;
 import org.codecover.metrics.coverage.LoopCoverage;
 import org.codecover.metrics.coverage.StatementCoverage;
-import org.codecover.metrics.coverage.StrictConditionCoverage;
+import org.codecover.metrics.coverage.TermCoverage;
 import org.codecover.model.TestCase;
 import org.codecover.model.TestSession;
 import org.codecover.model.TestSessionContainer;
@@ -819,8 +819,8 @@ public class CoverageGraphView extends ViewPart {
             							LoopCoverage coverageMetric = LoopCoverage.getInstance();
             							coverageResult = coverageMetric.getCoverage(TestNode.Testcases, currentlevel);
             						}
-            						else if(Criterion.compareTo("Condition") == 0){
-            							StrictConditionCoverage coverageMetric = StrictConditionCoverage.getInstance();
+            						else if(Criterion.compareTo("Term") == 0){
+            							TermCoverage coverageMetric = TermCoverage.getInstance();
             							coverageResult = coverageMetric.getCoverage(TestNode.Testcases, currentlevel);
             						}
             						if(coverageResult != null){

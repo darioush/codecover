@@ -560,7 +560,7 @@ public class CoverageView extends ViewPart
         coverageMetrics.add(findCoverageMetric("Statement Coverage", allMetrics));                //$NON-NLS-1$
         coverageMetrics.add(findCoverageMetric("Branch Coverage", allMetrics));                   //$NON-NLS-1$
         coverageMetrics.add(findCoverageMetric("Loop Coverage", allMetrics));                     //$NON-NLS-1$
-        coverageMetrics.add(findCoverageMetric("Strict Condition Coverage", allMetrics));         //$NON-NLS-1$
+        coverageMetrics.add(findCoverageMetric("Term Coverage", allMetrics));         //$NON-NLS-1$
         coverageMetrics.add(findCoverageMetric("?-Operator Coverage", allMetrics));         //$NON-NLS-1$
         coverageMetrics.add(findCoverageMetric("Synchronized Coverage", allMetrics));         //$NON-NLS-1$
  

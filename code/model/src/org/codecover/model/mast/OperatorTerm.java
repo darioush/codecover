@@ -51,6 +51,19 @@ public class OperatorTerm extends BooleanTerm {
         }
         return result;
     }
+    
+    public final String getShortNameOfOperator() {
+    	
+    	String operator = this.getLocation().getLocations().get(0).getContent();
+    	if("&&".equals(operator)) {
+    		return "AND";
+    	}
+    	if("||".equals(operator)) {
+    		return "OR";
+    	}
+        return operator;
+    }
+    
 
     /**
      * @return the operands

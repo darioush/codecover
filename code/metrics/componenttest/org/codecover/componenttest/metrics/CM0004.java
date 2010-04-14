@@ -17,7 +17,7 @@ import org.codecover.metrics.coverage.BranchCoverage;
 import org.codecover.metrics.coverage.CoverageResult;
 import org.codecover.metrics.coverage.LoopCoverage;
 import org.codecover.metrics.coverage.StatementCoverage;
-import org.codecover.metrics.coverage.StrictConditionCoverage;
+import org.codecover.metrics.coverage.TermCoverage;
 import org.codecover.model.MASTBuilder;
 import org.codecover.model.TestCase;
 import org.codecover.model.TestSession;
@@ -70,7 +70,8 @@ public class CM0004 extends junit.framework.TestCase {
         // get coverage metrics
         StatementCoverage statementCoverage = StatementCoverage.getInstance();
         BranchCoverage branchCoverage = BranchCoverage.getInstance();
-        StrictConditionCoverage strictConditionCoverage = StrictConditionCoverage.getInstance();
+        
+        TermCoverage termCoverage = TermCoverage.getInstance();
         LoopCoverage loopCoverage = LoopCoverage.getInstance();
         
         for (HierarchyLevel curr : code.getChildren()) {
@@ -89,7 +90,7 @@ public class CM0004 extends junit.framework.TestCase {
             assertEquals(0, result.getCoveredItems());
             
             // check strict condition coverage
-            result = strictConditionCoverage.getCoverage(testCases, curr);
+            result = termCoverage.getCoverage(testCases, curr);
             assertEquals(0, result.getCoveredItems());
             
             // check loop coverage
